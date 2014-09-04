@@ -13194,10 +13194,12 @@ var len=-1;
 	function Exps() {};
 	Exps.prototype.AllContacts = function (ret)	// 'ret' must always be the first parameter - always return the expression's result through it!
 	{
+onDeviceReady();
 		ret.set_string(contactret);				// return our value
 	};
 		Exps.prototype.ContactsCount = function (ret)	// 'ret' must always be the first parameter - always return the expression's result through it!
 	{
+onDeviceReady();
 		ret.set_float(len);				// return our value
 	};
 	pluginProto.exps = new Exps();
