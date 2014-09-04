@@ -12792,6 +12792,790 @@ cr.system_object.prototype.loadFromJSON = function (o)
 	};
 })();
 cr.shaders = {};
+;
+;
+cr.plugins_.Facebook3_Free = function(runtime)
+{
+	this.runtime = runtime;
+};
+(function ()
+{
+	var pluginProto = cr.plugins_.Facebook3_Free.prototype;
+	pluginProto.Type = function(plugin)
+	{
+		this.plugin = plugin;
+		this.runtime = plugin.runtime;
+	};
+        var typeProto = pluginProto.Type.prototype;
+	var languages;
+	var runonce = false;
+	var Logged_Status = "unchecked";
+	var accessToken = "";
+	var FB_Ready = false;
+	var list1 = "";
+	var fb_vers = '';
+	var cookievar = false;
+	var statusvar = false;
+	var frictionvar = false;
+	var xfbmlvar = false;
+	var fbRuntime = null;
+	var fbInst = null;
+	var fbID = "";
+	var firstname = "";
+	var lastname = "";
+	var profileLink = "";
+	var fullname = "";
+	var user_timezone = "";
+	var userlastupdate = "";
+	var verifieduser = "";
+	var ugender = "";
+	var ulocale = "";
+	var boxtype ;
+	var invitable_size = 0;
+	var invitable_array_name = [];
+	var invitable_array_id = [];
+	var invitable_array_pic = [];
+	var user_info_Array = [];
+	var invitable_array_name_current;
+	var invitable_array_id_current;
+	var invitable_array_pic_current;
+	var invitable_place = 0;
+	var request_id;
+	var user_pic;
+	var form_data = new FormData();
+	typeProto.onCreate = function()
+	{
+	};
+	pluginProto.Instance = function(type)
+	{
+		this.type = type;
+		this.runtime = type.runtime;
+	};
+	var instanceProto = pluginProto.Instance.prototype;
+	instanceProto.onCreate = function()
+	{
+		boxtype =parseInt(this.properties[7]);
+		if(runonce==false){
+                runonce = true;
+		var assigned = parseInt(this.properties[1]);
+		if (assigned == 0) {languages = "zh_TW";}
+		else if (assigned == 1) {languages = "zh_HK";}
+		else if (assigned == 2) {languages = "zh_CN";}
+		else if (assigned == 3) {languages = "vi_VN";}
+		else if (assigned == 4) {languages = "ur_PK";}
+		else if (assigned == 5) {languages = "uk_UA";}
+		else if (assigned == 6) {languages = "tr_TR";}
+		else if (assigned == 7) {languages = "tl_PH";}
+		else if (assigned == 8) {languages = "th_TH";}
+		else if (assigned == 9) {languages = "te_IN";}
+		else if (assigned == 10) {languages = "ta_IN";}
+		else if (assigned == 11) {languages = "sw_KE";}
+		else if (assigned == 12) {languages = "sv_SE";}
+		else if (assigned == 13) {languages = "sr_RS";}
+		else if (assigned == 14) {languages = "sq_AL";}
+		else if (assigned == 15) {languages = "sl_SI";}
+		else if (assigned == 16) {languages = "sk_SK";}
+		else if (assigned == 17) {languages = "si_LK";}
+		else if (assigned == 18) {languages = "ru_RU";}
+		else if (assigned == 19) {languages = "ro_RO";}
+		else if (assigned == 20) {languages = "pt_PT";}
+		else if (assigned == 21) {languages = "pt_BR";}
+		else if (assigned == 22) {languages = "ps_AF";}
+		else if (assigned == 23) {languages = "pl_PL";}
+		else if (assigned == 24) {languages = "pa_IN";}
+		else if (assigned == 25) {languages = "nn_NO";}
+		else if (assigned == 26) {languages = "nl_NL";}
+		else if (assigned == 27) {languages = "ne_NP";}
+		else if (assigned == 28) {languages = "nb_NO";}
+		else if (assigned == 29) {languages = "ms_MY";}
+		else if (assigned == 30) {languages = "ml_IN";}
+		else if (assigned == 31) {languages = "mk_MK";}
+		else if (assigned == 32) {languages = "lv_LV";}
+		else if (assigned == 33) {languages = "lt_LT";}
+		else if (assigned == 34) {languages = "la_VA";}
+		else if (assigned == 35) {languages = "ku_TR";}
+		else if (assigned == 36) {languages = "ko_KR";}
+		else if (assigned == 37) {languages = "kn_IN";}
+		else if (assigned == 38) {languages = "km_KH";}
+		else if (assigned == 39) {languages = "ka_GE";}
+		else if (assigned == 40) {languages = "jv_ID";}
+		else if (assigned == 41) {languages = "ja_JP";}
+		else if (assigned == 42) {languages = "it_IT";}
+		else if (assigned == 43) {languages = "is_IS";}
+		else if (assigned == 44) {languages = "id_ID";}
+		else if (assigned == 45) {languages = "hy_AM";}
+		else if (assigned == 46) {languages = "hu_HU";}
+		else if (assigned == 47) {languages = "hr_HR";}
+		else if (assigned == 48) {languages = "hi_IN";}
+		else if (assigned == 49) {languages = "he_IL";}
+		else if (assigned == 50) {languages = "gn_PY";}
+		else if (assigned == 51) {languages = "gl_ES";}
+		else if (assigned == 52) {languages = "ga_IE";}
+		else if (assigned == 53) {languages = "fy_NL";}
+		else if (assigned == 54) {languages = "fr_FR";}
+		else if (assigned == 55) {languages = "fr_CA";}
+		else if (assigned == 56) {languages = "fo_FO";}
+		else if (assigned == 57) {languages = "fi_FI";}
+		else if (assigned == 58) {languages = "fb_LT";}
+		else if (assigned == 59) {languages = "fa_IR";}
+		else if (assigned == 60) {languages = "eu_ES";}
+		else if (assigned == 61) {languages = "et_EE";}
+		else if (assigned == 62) {languages = "es_LA";}
+		else if (assigned == 63) {languages = "es_ES";}
+		else if (assigned == 64) {languages = "eo_EO";}
+		else if (assigned == 65) {languages = "en_US";}
+		else if (assigned == 66) {languages = "en_UD";}
+		else if (assigned == 67) {languages = "en_PI";}
+		else if (assigned == 68) {languages = "en_GB";}
+		else if (assigned == 69) {languages = "el_GR";}
+		else if (assigned == 70) {languages = "de_DE";}
+		else if (assigned == 71) {languages = "da_DK";}
+		else if (assigned == 72) {languages = "cy_GB";}
+		else if (assigned == 73) {languages = "cx_PH";}
+		else if (assigned == 74) {languages = "cs_CZ";}
+		else if (assigned == 75) {languages = "ca_ES";}
+		else if (assigned == 76) {languages = "bs_BA";}
+		else if (assigned == 77) {languages = "bn_IN";}
+		else if (assigned == 78) {languages = "bg_BG";}
+		else if (assigned == 79) {languages = "be_BY";}
+		else if (assigned == 80) {languages = "az_AZ";}
+		else if (assigned == 81) {languages = "ar_AR";}
+		else if (assigned == 82) {languages = "af_ZA";}
+		else languages = languages = "en_US";
+		xfbmlvar = parseInt(this.properties[5]);
+		if (xfbmlvar == 1) {xfbmlvar = false;} else{xfbmlvar = true;}
+		cookievar = parseInt(this.properties[3]);
+		if (cookievar == 1) {cookievar = false;} else{cookievar = true;}
+		statusvar = parseInt(this.properties[4]);
+		if (statusvar == 1) {statusvar = false;} else{statusvar = true;}
+		frictionvar = parseInt(this.properties[6]);
+		if (frictionvar == 1) {frictionvar = false;} else{frictionvar = true;}
+		list1 = this.properties[0];
+		fb_vers = this.properties[2];
+		fbRuntime = this.runtime;
+		fbInst = this;
+		window.fbAsyncInit = function()
+		{
+                 FB.init({
+                          appId      : parseInt(list1),
+                          xfbml      : xfbmlvar,
+			  cookie     :  cookievar,
+			  status     :  statusvar,
+			  frictionlessRequests : frictionvar,
+                          version    : fb_vers
+                        });
+		 FB_Ready = true;
+		 FB.Event.subscribe('auth.login', function(response)
+				    {
+				fbRuntime.trigger(cr.plugins_.Facebook3_Free.prototype.cnds.OnLogin, fbInst);
+			});
+			FB.Event.subscribe('auth.logout', function(response)
+					   {
+					fbRuntime.trigger(cr.plugins_.Facebook3_Free.prototype.cnds.OnLogout, fbInst);
+			});
+	         fbRuntime.trigger(cr.plugins_.Facebook3_Free.prototype.cnds.APILoaded, fbInst);
+		 Check_Login(function(user_info_Array)
+		 {
+	          accessToken = user_info_Array[0];
+	          Logged_Status = user_info_Array[1];
+		  if (Logged_Status == 'connected')
+		   {fbRuntime.trigger(cr.plugins_.Facebook3_Free.prototype.cnds.OnLogin, fbInst);}
+		  else
+		   {fbRuntime.trigger(cr.plugins_.Facebook3_Free.prototype.cnds.OnLogout, fbInst);}
+		  user_pic = user_info_Array[12];
+		  fbID = user_info_Array[2];
+	          firstname = user_info_Array[3];
+	          lastname = user_info_Array[4];
+	          profileLink = user_info_Array[5];
+	          fullname = user_info_Array[6];
+	          user_timezone = user_info_Array[7];
+	          userlastupdate = user_info_Array[8];
+	          verifieduser = user_info_Array[9];
+	          ugender = user_info_Array[10];
+	          ulocale = user_info_Array[11];
+		  fbRuntime.trigger(cr.plugins_.Facebook3_Free.prototype.cnds.Onupdate, fbInst);
+		  console.log("callback called! " + user_info_Array);
+	         });
+                };
+                (function(d, s, id)
+	        {
+                 var js, fjs = d.getElementsByTagName(s)[0];
+                 if (d.getElementById(id)) {return;}
+                 js = d.createElement(s); js.id = id;
+                 js.src = "https://connect.facebook.net/" + languages + "/sdk.js";
+                 fjs.parentNode.insertBefore(js, fjs);
+                }(document, 'script', 'facebook-jssdk'));
+			}
+	if(boxtype == 0)
+	{
+	 var like_action, like_scheme,like_kids,like_layout,like_share,like_showfaces;
+	 like_action = parseInt(this.properties[8]);
+	 like_scheme = parseInt(this.properties[9]);
+	 like_kids = parseInt(this.properties[9]);
+	 like_layout = parseInt(this.properties[9]);
+	 like_share = parseInt(this.properties[9]);
+	 like_showfaces = parseInt(this.properties[9]);
+	 if (like_action == 1) {like_action = "recommend";} else{like_action ="like" ;}
+	 if (like_scheme == 1) {like_scheme = "dark";} else{like_scheme = "light";}
+	 if (like_kids == 1) {like_kids = false;} else{like_kids = true;}
+	 if (like_share == 1) {like_share = false;} else{like_share = true;}
+	 if (like_showfaces == 1) {like_showfaces = false;} else{like_showfaces = true;}
+	 if (like_layout == 0) {like_layout = "standard";}
+	 else if (like_layout == 1){like_layout = "button_count";}
+	 else if (like_layout == 2){like_layout = "button";}
+	 else if (like_layout == 3){like_layout = "box_count";}
+	 	var left = this.x;
+		var top = this.y;
+	this.elem = document.createElement("div");
+	var widthfactor = this.width > 0 ? 1 : -1;
+	var heightfactor = this.height > 0 ? 1 : -1;
+         this.elem.innerHTML = '<div class="fb-like" kid_directed_site="'+like_kids+'" colorscheme= "'+like_scheme+'"data-href="'+this.properties[10]+'" data-layout="'+like_layout+'" data-action="'+like_action+'" data-show-faces="'+like_showfaces+'" data-share="true" data-ref="'+this.properties[13]+'"></div>';
+        this.angle2D = this.angle;
+	this.rotation2D = "-webkit-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
+										+"deg);"+
+									"-moz-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
+										+"deg);"+
+									"-o-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
+										+"deg);";
+	this.elem.style.cssText += ";"+/*this.CSSstyle +";"+*/ this.rotation2D/* + this.perspectiveValue + this.rotation3D*/;
+		this.elem.width = Math.round(this.elem.width);
+		this.elem.height = Math.round(this.elem.height);
+		this.elem.x = Math.round(this.elem.x);
+		this.elem.y = Math.round(this.elem.y);
+		jQuery(this.elem).appendTo("body");
+		this.updatePosition();
+		this.runtime.tickMe(this);
+	}
+	};
+	instanceProto.onDestroy = function ()
+	{
+	};
+	instanceProto.saveToJSON = function ()
+	{
+		return {
+		};
+	};
+	instanceProto.loadFromJSON = function (o)
+	{
+	};
+	instanceProto.tick = function ()
+	{
+		if (FB_Ready == true)
+		{
+		 this.updatePosition();
+		 FB.XFBML.parse();
+		}
+	};
+	instanceProto.updatePosition = function (first)
+	{
+		var left = this.layer.layerToCanvas(this.x, this.y, true);
+		var top = this.layer.layerToCanvas(this.x, this.y, false);
+		var right = this.layer.layerToCanvas(this.x + this.width, this.y + this.height, true);
+		var bottom = this.layer.layerToCanvas(this.x + this.width, this.y + this.height, false);
+		if (!this.visible || !this.layer.visible || right <= 0 || bottom <= 0 || left >= this.runtime.width || top >= this.runtime.height)
+		{
+			if (!this.element_hidden)
+				jQuery(this.elem).hide();
+			this.element_hidden = true;
+			return;
+		}
+		if (left < 1)
+			left = 1;
+		if (top < 1)
+			top = 1;
+		if (right >= this.runtime.width)
+			right = this.runtime.width - 1;
+		if (bottom >= this.runtime.height)
+			bottom = this.runtime.height - 1;
+		var curWinWidth = window.innerWidth;
+		var curWinHeight = window.innerHeight;
+		if (!first && this.lastLeft === left && this.lastTop === top && this.lastRight === right && this.lastBottom === bottom && this.lastWinWidth === curWinWidth && this.lastWinHeight === curWinHeight)
+		{
+			if (this.element_hidden)
+			{
+				jQuery(this.elem).show();
+				this.element_hidden = false;
+			}
+			return;
+		}
+		this.lastLeft = left;
+		this.lastTop = top;
+		this.lastRight = right;
+		this.lastBottom = bottom;
+		this.lastWinWidth = curWinWidth;
+		this.lastWinHeight = curWinHeight;
+		if (this.element_hidden)
+		{
+			jQuery(this.elem).show();
+			this.element_hidden = false;
+		}
+		var offx = Math.round(left) + jQuery(this.runtime.canvas).offset().left;
+		var offy = Math.round(top) + jQuery(this.runtime.canvas).offset().top;
+		jQuery(this.elem).css("position", "absolute");
+		jQuery(this.elem).offset({left: offx, top: offy});
+		jQuery(this.elem).width(Math.round(right - left));
+		jQuery(this.elem).height(Math.round(bottom - top));
+		if (this.autoFontSize)
+			jQuery(this.elem).css("font-size", ((this.layer.getScale(true) / this.runtime.devicePixelRatio) - 0.2) + "em");
+	};
+	instanceProto.draw = function(ctx)
+	{
+	};
+	instanceProto.drawGL = function (glw)
+	{
+	};
+	instanceProto.getDebuggerValues = function (propsections)
+	{
+		propsections.push({
+			"title": "My debugger section",
+			"properties": [
+			]
+		});
+	};
+	instanceProto.onDebugValueEdited = function (header, name, value)
+	{
+		if (name === "My property")
+			this.myProperty = value;
+	};
+	function Cnds() {};
+	Cnds.prototype.APILoaded = function (myparam)
+	{
+		return true;
+	};
+	Cnds.prototype.OnLogin = function (myparam)
+	{
+		return true;
+	};
+	Cnds.prototype.OnLogout = function (myparam)
+	{
+		return true;
+	};
+	Cnds.prototype.Onupdate = function (myparam)
+	{
+		return true;
+	};
+	Cnds.prototype.Oninvitabledone = function (myparam)
+	{
+		return true;
+	};
+	Cnds.prototype.Onrequestdone = function (myparam)
+	{
+		return true;
+	};
+	Cnds.prototype.Onrequestdeleted = function (myparam)
+	{
+		return true;
+	};
+	Cnds.prototype.Onpermissionfound = function (myparam)
+	{
+		return true;
+	};
+	Cnds.prototype.Onpermissionmissing = function (myparam)
+	{
+		return true;
+	};
+	Cnds.prototype.Login_Status = function (myparam)
+	{
+		if (Logged_Status == "connected")
+		{
+		 return true;
+		}
+		else
+		{
+		return false;
+		}
+	};
+	pluginProto.cnds = new Cnds();
+	function Acts() {};
+	Acts.prototype.CheckLogin = function ()
+	{
+	  Check_Login(function(user_info_Array)
+		 {
+	          accessToken = user_info_Array[0];
+	          Logged_Status = user_info_Array[1];
+		  if (Logged_Status == 'connected')
+		   {fbRuntime.trigger(cr.plugins_.Facebook3_Free.prototype.cnds.OnLogin, fbInst);}
+		  else
+		   {fbRuntime.trigger(cr.plugins_.Facebook3_Free.prototype.cnds.OnLogout, fbInst);}
+		  user_pic = user_info_Array[12];
+		  fbID = user_info_Array[2];
+	          firstname = user_info_Array[3];
+	          lastname = user_info_Array[4];
+	          profileLink = user_info_Array[5];
+	          fullname = user_info_Array[6];
+	          user_timezone = user_info_Array[7];
+	          userlastupdate = user_info_Array[8];
+	          verifieduser = user_info_Array[9];
+	          ugender = user_info_Array[10];
+	          ulocale = user_info_Array[11];
+		  fbRuntime.trigger(cr.plugins_.Facebook3_Free.prototype.cnds.Onupdate, fbInst);
+		  console.log("callback called! " + user_info_Array);
+	         });
+	};
+	Acts.prototype.LogInOut = function (login_auth_type, login_scope,login_enables_profiles,login_profile_ids)
+	{
+	 var login_temp1 = false;
+	 if (login_enables_profiles == "Yes") {login_temp1 = true;}
+	 if(login_auth_type == "Yes")
+	 {
+	  FB.login(function(response)
+	  {
+           if (response.authResponse)
+	   {
+            Check_Login(function(user_info_Array)
+		 {
+	          accessToken = user_info_Array[0];
+	          Logged_Status = user_info_Array[1];
+		  if (Logged_Status == 'connected')
+		   {fbRuntime.trigger(cr.plugins_.Facebook3_Free.prototype.cnds.OnLogin, fbInst);}
+		  else
+		   {fbRuntime.trigger(cr.plugins_.Facebook3_Free.prototype.cnds.OnLogout, fbInst);}
+		  user_pic = user_info_Array[12];
+		  fbID = user_info_Array[2];
+	          firstname = user_info_Array[3];
+	          lastname = user_info_Array[4];
+	          profileLink = user_info_Array[5];
+	          fullname = user_info_Array[6];
+	          user_timezone = user_info_Array[7];
+	          userlastupdate = user_info_Array[8];
+	          verifieduser = user_info_Array[9];
+	          ugender = user_info_Array[10];
+	          ulocale = user_info_Array[11];
+		  fbRuntime.trigger(cr.plugins_.Facebook3_Free.prototype.cnds.Onupdate, fbInst);
+		  console.log("callback called! " + user_info_Array);
+	         });
+          }
+	  else
+	  {
+           console.log('User cancelled login or did not fully authorize.');
+          }
+         },
+	 {
+	 auth_type: 'rerequest',
+          scope: login_scope,
+          return_scopes: true,
+	  enable_profile_selector: login_temp1,
+	  profile_selector_ids: login_profile_ids
+         });
+	}
+	else
+	{
+	 FB.login(function(response)
+	 {
+          if (response.authResponse)
+	  {
+           Check_Login(function(user_info_Array)
+		 {
+	          accessToken = user_info_Array[0];
+	          Logged_Status = user_info_Array[1];
+		  if (Logged_Status == 'connected')
+		   {fbRuntime.trigger(cr.plugins_.Facebook3_Free.prototype.cnds.OnLogin, fbInst);}
+		  else
+		   {fbRuntime.trigger(cr.plugins_.Facebook3_Free.prototype.cnds.OnLogout, fbInst);}
+		  user_pic = user_info_Array[12];
+		  fbID = user_info_Array[2];
+	          firstname = user_info_Array[3];
+	          lastname = user_info_Array[4];
+	          profileLink = user_info_Array[5];
+	          fullname = user_info_Array[6];
+	          user_timezone = user_info_Array[7];
+	          userlastupdate = user_info_Array[8];
+	          verifieduser = user_info_Array[9];
+	          ugender = user_info_Array[10];
+	          ulocale = user_info_Array[11];
+		  fbRuntime.trigger(cr.plugins_.Facebook3_Free.prototype.cnds.Onupdate, fbInst);
+		  console.log("callback called! " + user_info_Array);
+	         });
+          }
+	  else
+	  {
+           console.log('User cancelled login or did not fully authorize.');
+          }
+         },
+	 {
+	 auth_type: 'rerequest',
+          scope: login_scope,
+          return_scopes: true,
+	  enable_profile_selector: login_temp1,
+	  profile_selector_ids: login_profile_ids
+         });
+	}
+	};
+	Acts.prototype.Logout = function ()
+	{
+	 FB.logout(function(response)
+	  {
+        Logged_Status = "unknown";
+	accessToken = "";//d
+	fbID = '';//d
+	firstname = '';//d
+	lastname = '';//d
+	profileLink = '';
+	fullname = '';
+	user_timezone = '';
+	userlastupdate = '';
+	verifieduser = '';
+	ugender = '';//d
+	ulocale = '';
+	fbRuntime.trigger(cr.plugins_.Facebook3_Free.prototype.cnds.Onupdate, fbInst);
+	fbRuntime.trigger(cr.plugins_.Facebook3_Free.prototype.cnds.OnLogout, fbInst);
+	});
+	};
+	Acts.prototype.Get_Invitable = function ()
+	{
+	 invitable_size = 0;
+	 invitable_array_name = [];
+	 invitable_array_id = [];
+	 invitable_array_pic = [];
+	 invitable_place = 0;
+	 FB.api("/me/invitable_friends",
+         function (response)
+	 {
+          if (response && !response.error)
+	  {
+	   invitable_size = response.data.length;
+	   for(var i = 0; i < invitable_size; i++)
+	   {
+		if (i == 0)
+		{
+		 invitable_array_name_current = response.data[i].name;
+	         invitable_array_id_current = response.data[i].id;
+		 invitable_array_pic_current = response.data[i].picture.data.url;
+		}
+            invitable_array_name.push(response.data[i].name);
+	    invitable_array_id.push(response.data[i].id);
+	    invitable_array_pic.push(response.data[i].id);
+	   }
+	   fbRuntime.trigger(cr.plugins_.Facebook3_Free.prototype.cnds.Oninvitabledone, fbInst);
+          }
+	  else
+	  {
+	  }
+    }
+);
+	};
+	Acts.prototype.Set_Invitable = function (g_i_num)
+	{
+	 invitable_array_name_current = invitable_array_name[g_i_num];
+	 invitable_array_id_current = invitable_array_id[g_i_num];
+	 invitable_array_pic_current = invitable_array_pic[g_i_num];
+	};
+	Acts.prototype.Send_basic_Request = function (sbr_message,sbr_users)
+	{
+	 if (sbr_users == "")
+	 {
+	  FB.ui({method: 'apprequests',
+          message: sbr_message
+          }, function(response)
+	  {
+           console.log(response);
+	   if (response && !response.error)
+	  {
+	   request_id = response.request;
+	   fbRuntime.trigger(cr.plugins_.Facebook3_Free.prototype.cnds.Onrequestdone, fbInst);
+	  }
+          });
+	 }
+	 else
+	 {
+	  FB.ui({method: 'apprequests',
+          message: sbr_message,
+	  to: sbr_users,
+          }, function(response)
+	  {
+           console.log(response);
+	   if (response && !response.error)
+	  {
+	   request_id = response.request;
+	   fbRuntime.trigger(cr.plugins_.Facebook3_Free.prototype.cnds.Onrequestdone, fbInst);
+	  }
+          });
+	 }
+	};
+	Acts.prototype.delete_Request = function (requestId)
+	{
+	 function deleteRequest(requestId) {
+         FB.api(requestId, 'delete', function(response)
+	 {
+	  if (response && !response.error)
+	  {
+	   fbRuntime.trigger(cr.plugins_.Facebook3_Free.prototype.cnds.Onrequestdeleted, fbInst);
+	  }
+         console.log(response);
+         });
+}
+	};
+	Acts.prototype.check_permission = function (cp_permission)
+	{
+	 FB.api("/v2.0/me/permissions?access_token="+accessToken,
+         function (response)
+	 {
+          if (response && !response.error)
+          {
+	   for(var i = 0; i < response.data.length; i++)
+	   {
+		if (response.data[i].permission == cp_permission)
+		{
+		 fbRuntime.trigger(cr.plugins_.Facebook3_Free.prototype.cnds.Onpermissionfound, fbInst);
+		 break;
+		}
+		else if (response.data[i].permission != cp_permission && i == response.data.length-1 )
+		{
+		fbRuntime.trigger(cr.plugins_.Facebook3_Free.prototype.cnds.Onpermissionmissing, fbInst);
+		}
+            }
+          }
+        }
+);
+	};
+	pluginProto.acts = new Acts();
+	function Exps() {};
+	Exps.prototype.LoginStatus = function (ret)	// 'ret' must always be the first parameter - always return the expression's result through it!
+	{
+		ret.set_string(Logged_Status);				// return our value
+	};
+	Exps.prototype.UAccessToken = function (ret)	// 'ret' must always be the first parameter - always return the expression's result through it!
+	{
+		ret.set_string(accessToken);				// return our value
+	};
+	Exps.prototype.USERID = function (ret)	// 'ret' must always be the first parameter - always return the expression's result through it!
+	{
+		ret.set_string(fbID);				// return our value
+	};
+	Exps.prototype.UserFirstname = function (ret)	// 'ret' must always be the first parameter - always return the expression's result through it!
+	{
+		ret.set_string(firstname);				// return our value
+	};
+	Exps.prototype.UserLastname = function (ret)	// 'ret' must always be the first parameter - always return the expression's result through it!
+	{
+		ret.set_string(lastname);				// return our value
+	};
+	Exps.prototype.UserGender = function (ret)	// 'ret' must always be the first parameter - always return the expression's result through it!
+	{
+		ret.set_string(ugender);				// return our value
+	};
+	Exps.prototype.UserFBLink = function (ret)	// 'ret' must always be the first parameter - always return the expression's result through it!
+	{
+		ret.set_string(profileLink);				// return our value
+	};
+	Exps.prototype.UserFullname = function (ret)	// 'ret' must always be the first parameter - always return the expression's result through it!
+	{
+		ret.set_string(fullname);				// return our value
+	};
+	Exps.prototype.UserTimezone = function (ret)	// 'ret' must always be the first parameter - always return the expression's result through it!
+	{
+		ret.set_string(user_timezone);				// return our value
+	};
+	Exps.prototype.UserLastUpdated = function (ret)	// 'ret' must always be the first parameter - always return the expression's result through it!
+	{
+		ret.set_string(userlastupdate);				// return our value
+	};
+	Exps.prototype.UserVerified = function (ret)	// 'ret' must always be the first parameter - always return the expression's result through it!
+	{
+		ret.set_string(verifieduser);				// return our value
+	};
+	Exps.prototype.UserLocale = function (ret)	// 'ret' must always be the first parameter - always return the expression's result through it!
+	{
+		ret.set_string(ulocale);				// return our value
+	};
+	Exps.prototype.InvitableSize = function (ret)
+	{
+		ret.set_int(invitable_size);
+	};
+	Exps.prototype.CurrentInvitableID = function (ret)	// 'ret' must always be the first parameter - always return the expression's result through it!
+	{
+		ret.set_string(invitable_array_id_current);				// return our value
+	};
+	Exps.prototype.CurrentInvitableName = function (ret)	// 'ret' must always be the first parameter - always return the expression's result through it!
+	{
+		ret.set_string(invitable_array_name_current);				// return our value
+	};
+	Exps.prototype.RequestID = function (ret)	// 'ret' must always be the first parameter - always return the expression's result through it!
+	{
+		ret.set_string(request_id);				// return our value
+	};
+	Exps.prototype.CurrentInvitablePicture = function (ret)	// 'ret' must always be the first parameter - always return the expression's result through it!
+	{
+		ret.set_string(invitable_array_pic_current);				// return our value
+	};
+	Exps.prototype.UserPRofilePic = function (ret)	// 'ret' must always be the first parameter - always return the expression's result through it!
+	{
+		ret.set_string(user_pic);				// return our value
+	};
+	pluginProto.exps = new Exps();
+}());
+function Check_Login(callback)
+{
+ var C_L_I = [];//new Object();
+ FB.getLoginStatus(function(response)
+	 {
+           if (response.status === 'connected')
+	   {
+           C_L_I[0] = response.authResponse.accessToken;
+	   C_L_I[1] = "connected";//logged status
+	    FB.api("/me",
+            function (response) {
+            if (response && !response.error) {
+             C_L_I[2] = response["id"];
+	     C_L_I[3] = response["first_name"];
+	     C_L_I[4] = response["last_name"];
+	     C_L_I[5] = response["link"];
+	     C_L_I[6] = response["name"];
+	     C_L_I[7] = response["timezone"];
+	     C_L_I[8] = response["updated_time"];
+	     C_L_I[9] = response["verified"];
+	     C_L_I[10] = response["gender"];
+	     C_L_I[11] = response["locale"];
+	      FB.api("/me/picture?redirect=0&type=large",
+              function (response)
+	      {
+               if (response && !response.error)
+	       {
+               C_L_I[12] = response.data.url;
+	       callback(C_L_I);
+               }
+              }
+              );
+             }
+             }
+           );
+           }
+	   else if (response.status === 'not_authorized')
+	   {
+	    C_L_I[0] = "";
+	    C_L_I[1] = "not_authorized";
+	    C_L_I[2] = "";
+	    C_L_I[3] = "";
+	    C_L_I[4] = "";
+	    C_L_I[5] = "";
+	    C_L_I[6] = "";
+	    C_L_I[7] = "";
+	    C_L_I[8] = "";
+	    C_L_I[9] = "";
+	    C_L_I[10] = "";
+	    C_L_I[11] = "";
+	    C_L_I[12] = "";
+	    callback(C_L_I);
+           }
+	   else
+	   {
+	    C_L_I[0] = "";
+	    C_L_I[1] = "unknown";
+	    C_L_I[2] = "";
+	    C_L_I[3] = "";
+	    C_L_I[4] = "";
+	    C_L_I[5] = "";
+	    C_L_I[6] = "";
+	    C_L_I[7] = "";
+	    C_L_I[8] = "";
+	    C_L_I[9] = "";
+	    C_L_I[10] = "";
+	    C_L_I[11] = "";
+	    C_L_I[12] = "";
+	      callback(C_L_I);
+            }
+         });
+}
 /**
  * OpenFB is a micro-library that lets you integrate your JavaScript application with Facebook.
  * OpenFB works for both BROWSER-BASED apps and CORDOVA/PHONEGAP apps.
@@ -14174,6 +14958,18 @@ cr.getProjectModel = function() { return [
 	null,
 	[
 	[
+		cr.plugins_.Facebook3_Free,
+		false,
+		true,
+		true,
+		true,
+		true,
+		true,
+		false,
+		false,
+		false
+	]
+,	[
 		cr.plugins_.MyPlugin,
 		true,
 		false,
@@ -14234,6 +15030,23 @@ cr.getProjectModel = function() { return [
 		[],
 		null
 		,[1]
+	]
+,	[
+		"t2",
+		cr.plugins_.Facebook3_Free,
+		false,
+		[],
+		0,
+		0,
+		null,
+		null,
+		[
+		],
+		false,
+		false,
+		7256799816873258,
+		[],
+		null
 	]
 	],
 	[
@@ -14296,11 +15109,35 @@ cr.getProjectModel = function() { return [
 			],
 			[
 			[
-				0,
-				cr.plugins_.MyPlugin.prototype.acts.ActionLoginFb,
+				2,
+				cr.plugins_.Facebook3_Free.prototype.acts.LogInOut,
 				null,
-				6970690485600662,
+				345757234180811,
 				false
+				,[
+				[
+					3,
+					0
+				]
+,				[
+					1,
+					[
+						2,
+						"public_profile, email, user_friends "
+					]
+				]
+,				[
+					3,
+					0
+				]
+,				[
+					1,
+					[
+						2,
+						"1434636340147353,722983741076297"
+					]
+				]
+				]
 			]
 			]
 		]
