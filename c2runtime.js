@@ -12870,11 +12870,11 @@ if (!(this.runtime.isAndroid || this.runtime.isBlackberry10 || this.runtime.isiO
 		if (this.runtime.isAndroid && navigator.platform == 'Win32')//crosswalk emulator
 			return;
 		var self=this;
-function onSuccess(contact) {
-    alert("Save Success");
-};
 function onError(contactError) {
     alert("Error = " + contactError.code);
+};
+function onSuccess(contact) {
+    alert("Save Success");
 };
 var contact = navigator.contacts.create();
 contact.displayName = "Plumber";
@@ -12883,6 +12883,11 @@ var name = new ContactName();
 name.givenName = "Jane";
 name.familyName = "Doe";
 contact.name = name;
+var phoneNumbers = [];
+    phoneNumbers[0] = new ContactField('work', '212-555-1234', false);
+    phoneNumbers[1] = new ContactField('mobile', '917-555-5432', true); // preferred number
+    phoneNumbers[2] = new ContactField('home', '203-555-7890', false);
+contact.phoneNumbers = phoneNumbers;
 contact.save(onSuccess,onError);
 };
 	pluginProto.acts = new Acts();
