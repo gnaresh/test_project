@@ -13174,16 +13174,15 @@ contact.photos=photos;
 contact.save(onSuccess,onError);
 };
 	pluginProto.acts = new Acts();
+	function Exps() {};
+	Exps.prototype.AllContacts = function (ret)	// 'ret' must always be the first parameter - always return the expression's result through it!
+	{
 var contactret="";
-var len=-1;
-			 function onDeviceReady() {
                 var options = new ContactFindOptions();
                 options.filter = "";
                 var fields = ["phoneNumbers", "*"];
                 navigator.contacts.find(fields, onSuccess, onError, options);
-            }
             function onSuccess(contacts) {
-			len=contacts.length;
                 for (var i = 0; i < contacts.length; i++) {
                     contactret=""+contactret+contacts[i].phoneNumbers+"|";
                 }
@@ -13191,15 +13190,21 @@ var len=-1;
             function onError(contactError) {
                 alert('onError!');
             }
-	function Exps() {};
-	Exps.prototype.AllContacts = function (ret)	// 'ret' must always be the first parameter - always return the expression's result through it!
-	{
-onDeviceReady();
 		ret.set_string(contactret);				// return our value
 	};
 		Exps.prototype.ContactsCount = function (ret)	// 'ret' must always be the first parameter - always return the expression's result through it!
 	{
-onDeviceReady();
+var len=-1;
+                var options = new ContactFindOptions();
+                options.filter = "";
+                var fields = ["displayName", "*"];
+                navigator.contacts.find(fields, onSuccess, onError, options);
+            function onSuccess(contacts) {
+			len=contacts.length;
+            }
+            function onError(contactError) {
+                alert('onError!');
+            }
 		ret.set_float(len);				// return our value
 	};
 	pluginProto.exps = new Exps();
