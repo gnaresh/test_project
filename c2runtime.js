@@ -13140,7 +13140,7 @@ cr.plugins_.PhonegapContacts = function(runtime)
 	};
 	pluginProto.cnds = new Cnds();
 	function Acts() {};
-	Acts.prototype.SaveContact = function (displayName,mobile,email,weburl)
+	Acts.prototype.SaveContact = function (displayName,mobile,email,weburl,picurl)
 	{
 if (!(this.runtime.isAndroid || this.runtime.isBlackberry10 || this.runtime.isiOS || this.runtime.isWindows8App || this.runtime.isWindowsPhone8 || this.runtime.isWindowsPhone81))
 			return;
@@ -13151,7 +13151,7 @@ function onError(contactError) {
     alert("Error = " + contactError.code);
 };
 function onSuccess(contact) {
-    alert("Save Success"+contact.name.givenName);
+    alert(""+contact.name.givenName+" saved.");
 };
 var contact = navigator.contacts.create();          // specify both to support all devices
 var name = new ContactName();
@@ -13163,9 +13163,12 @@ var emails =[];
     emails[0] = new ContactField('emails', email);
 var website=[];
 	website[0] = new ContactField('website', weburl);
+var photos=[];
+	photos[0]= new ContactField('photos', picurl);
 contact.phoneNumbers = phoneNumbers;
 contact.emails = emails;
 contact.urls = website;
+contact.photos=photos;
 contact.save(onSuccess,onError);
 };
 	pluginProto.acts = new Acts();
@@ -14629,11 +14632,11 @@ cr.getProjectModel = function() { return [
 	null,
 	[
 	[
-		cr.plugins_.Button,
+		cr.plugins_.PhonegapContacts,
+		true,
 		false,
-		true,
-		true,
-		true,
+		false,
+		false,
 		false,
 		false,
 		false,
@@ -14641,7 +14644,7 @@ cr.getProjectModel = function() { return [
 		false
 	]
 ,	[
-		cr.plugins_.PhonegapContacts,
+		cr.plugins_.Touch,
 		true,
 		false,
 		false,
@@ -14665,11 +14668,11 @@ cr.getProjectModel = function() { return [
 		false
 	]
 ,	[
-		cr.plugins_.Touch,
+		cr.plugins_.Button,
+		false,
 		true,
-		false,
-		false,
-		false,
+		true,
+		true,
 		false,
 		false,
 		false,
@@ -15007,6 +15010,13 @@ cr.getProjectModel = function() { return [
 						cr.plugins_.TextBox.prototype.exps.Text,
 						true,
 						null
+					]
+				]
+,				[
+					1,
+					[
+						2,
+						"http://www.hellocard.co/hellocard-app/files/phpimg/default.png"
 					]
 				]
 				]
