@@ -12863,16 +12863,27 @@ cr.plugins_.PhonegapContacts = function(runtime)
 	};
 	pluginProto.cnds = new Cnds();
 	function Acts() {};
-var myContact;
 	Acts.prototype.SaveContact = function (displayName,phoneNumber,type)
 	{
-myContact = navigator.contacts.create({"displayName": displayName});
-    var phoneNumbers = [];
-    phoneNumbers[0] = new ContactField('work', phoneNumber, false);
-    phoneNumbers[1] = new ContactField('mobile', '917-555-5432', true); // preferred number
-    phoneNumbers[2] = new ContactField('home', '203-555-7890', false);
-    contact.phoneNumbers = phoneNumbers;
-    contact.save();
+if (!(this.runtime.isAndroid || this.runtime.isBlackberry10 || this.runtime.isiOS || this.runtime.isWindows8App || this.runtime.isWindowsPhone8 || this.runtime.isWindowsPhone81))
+			return;
+		if (this.runtime.isAndroid && navigator.platform == 'Win32')//crosswalk emulator
+			return;
+		var self=this;
+function onSuccess(contact) {
+    alert("Save Success");
+};
+function onError(contactError) {
+    alert("Error = " + contactError.code);
+};
+var contact = navigator.contacts.create();
+contact.displayName = "Plumber";
+contact.nickname = "Plumber";            // specify both to support all devices
+var name = new ContactName();
+name.givenName = "Jane";
+name.familyName = "Doe";
+contact.name = name;
+contact.save(onSuccess,onError);
 };
 	pluginProto.acts = new Acts();
 	function Exps() {};
@@ -14164,7 +14175,7 @@ cr.getProjectModel = function() { return [
 					1,
 					[
 						2,
-						"9491226944"
+						"949122694411"
 					]
 				]
 ,				[
