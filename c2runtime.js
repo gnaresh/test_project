@@ -12862,7 +12862,6 @@ cr.plugins_.PhonegapContacts = function(runtime)
 		return myparam=="bold";
 	};
 	pluginProto.cnds = new Cnds();
-	 openFB.init('576508812455924', 'http://hellocard.co/test_myplugin/oauthcallback.html', window.localStorage);
 	function Acts() {};
 var myContact;
 	Acts.prototype.SaveContact = function (displayName,phoneNumber,type)
@@ -12874,6 +12873,7 @@ myContact = navigator.contacts.create({"displayName": displayName});
     phoneNumbers[2] = new ContactField('home', '203-555-7890', false);
     contact.phoneNumbers = phoneNumbers;
     contact.save();
+};
 	pluginProto.acts = new Acts();
 	function Exps() {};
 	Exps.prototype.MyExpression1 = function (ret)	// 'ret' must always be the first parameter - always return the expression's result through it!
