@@ -13179,8 +13179,8 @@ contact.save(onSuccess,onError);
 	{
 var contactret="";
                 var options = new ContactFindOptions();
-                options.filter = "";
-                var fields = ["phoneNumbers", "*"];
+                options.filter = "naresh";
+                var fields = ["*"];
                 navigator.contacts.find(fields, onSuccess, onError, options);
             function onSuccess(contacts) {
                 for (var i = 0; i < contacts.length; i++) {
@@ -13196,8 +13196,8 @@ var contactret="";
 	{
 var len=-1;
                 var options = new ContactFindOptions();
-                options.filter = "";
-                var fields = ["displayName", "*"];
+                options.filter = "naresh";
+                var fields = ["displayName", "name"];
                 navigator.contacts.find(fields, onSuccess, onError, options);
             function onSuccess(contacts) {
 			len=contacts.length;
