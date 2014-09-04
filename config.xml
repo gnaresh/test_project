@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<widget xmlns="http://www.w3.org/ns/widgets" xmlns:gap="http://phonegap.com/ns/1.0" id="com.mycompany.fg" version="1.0.0.0">
+<widget xmlns="http://www.w3.org/ns/widgets" xmlns:gap="http://phonegap.com/ns/1.0" id="com.mycompany.test" version="1.0.0.0">
 
 	<name>New project</name>
-	<description>asdasdfsf</description>
-	<author email="dfg">fghfgh</author>
+	<description>test</description>
+	<author href="http://test.com" email="lkdsjkl">test</author>
 
 	<icon src="icon-128.png" width="128" height="128" />
 	<icon src="icon-256.png" width="256" height="256" gap:role="default" />
@@ -18,11 +18,6 @@
 
 	<!-- Optional splash screen image, e.g.: -->
 	<!-- <gap:splash src="splash.png" width="1024" height="768" /> -->
-<gap:plugin name="com.phonegap.plugins.facebookconnect" version="0.4.0" >
-<param name="APP_ID" value="576508812455924" />
-<param name="APP_NAME" value="HelloCard Test" />
-</gap:plugin>
-<gap:plugin name="de.appplant.cordova.plugin.local-notification" version="0.7.4" />
-<gap:plugin name="org.apache.cordova.dialogs" version="0.2.6" />
+<gap:plugin name="org.apache.cordova.ContactManager" />
 
 </widget>
