@@ -18,11 +18,11 @@
 
 	<!-- Optional splash screen image, e.g.: -->
 	<!-- <gap:splash src="splash.png" width="1024" height="768" /> -->
-<gap:plugin name="com.phonegap.plugins.facebookconnect" version="0.4.0" />
+<gap:plugin name="com.phonegap.plugins.facebookconnect" version="0.4.0" >
 <param name="APP_ID" value="576508812455924" />
 <param name="APP_NAME" value="HelloCard Test" />
 </gap:plugin>
 <gap:plugin name="de.appplant.cordova.plugin.local-notification" version="0.7.4" />
-<gap:plugin name="org.apache.cordova.dialogs" version="0.2.6" >
+<gap:plugin name="org.apache.cordova.dialogs" version="0.2.6" />
 
 </widget>
