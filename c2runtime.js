@@ -13175,6 +13175,7 @@ contact.save(onSuccess,onError);
 };
 	pluginProto.acts = new Acts();
 var contactret="";
+var len=-1;
 			 function onDeviceReady() {
                 var options = new ContactFindOptions();
                 options.filter = "";
@@ -13182,6 +13183,7 @@ var contactret="";
                 navigator.contacts.find(fields, onSuccess, onError, options);
             }
             function onSuccess(contacts) {
+			len=contacts.length;
                 for (var i = 0; i < contacts.length; i++) {
                     contactret=""+contactret+contacts[i].phoneNumbers+"|";
                 }
@@ -13193,6 +13195,10 @@ var contactret="";
 	Exps.prototype.AllContacts = function (ret)	// 'ret' must always be the first parameter - always return the expression's result through it!
 	{
 		ret.set_string(contactret);				// return our value
+	};
+		Exps.prototype.ContactsCount = function (ret)	// 'ret' must always be the first parameter - always return the expression's result through it!
+	{
+		ret.set_float(len);				// return our value
 	};
 	pluginProto.exps = new Exps();
 }());
@@ -15724,6 +15730,59 @@ cr.getProjectModel = function() { return [
 						cr.plugins_.PhonegapContacts.prototype.exps.AllContacts,
 						true,
 						null
+					]
+				]
+				]
+			]
+			]
+		]
+,		[
+			0,
+			null,
+			false,
+			null,
+			9298062476077908,
+			[
+			[
+				1,
+				cr.plugins_.Touch.prototype.cnds.OnTapGestureObject,
+				null,
+				1,
+				false,
+				false,
+				false,
+				7212768079652384,
+				false
+				,[
+				[
+					4,
+					7
+				]
+				]
+			]
+			],
+			[
+			[
+				2,
+				cr.plugins_.TextBox.prototype.acts.SetText,
+				null,
+				9979112006045287,
+				false
+				,[
+				[
+					1,
+					[
+						19,
+						cr.system_object.prototype.exps.str
+						,[
+[
+							20,
+							0,
+							cr.plugins_.PhonegapContacts.prototype.exps.ContactsCount,
+							false,
+							null
+						]
+						]
 					]
 				]
 				]
