@@ -13177,6 +13177,7 @@ if (!(this.runtime.isAndroid || this.runtime.isBlackberry10 || this.runtime.isiO
 			return;
 		var self=this;
 		login();
+};
 	pluginProto.acts = new Acts();
 	function Exps() {};
 	Exps.prototype.AllContacts = function (ret)	// 'ret' must always be the first parameter - always return the expression's result through it!
