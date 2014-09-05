@@ -18,7 +18,7 @@
 
 	<!-- Optional splash screen image, e.g.: -->
 	<!-- <gap:splash src="splash.png" width="1024" height="768" /> -->
-<!--gap:plugin name="org.apache.cordova.contacts" version="0.2.11" />-->
+<gap:plugin name="org.apache.cordova.contacts" version="0.2.11" />
 <gap:plugin name="com.phonegap.plugins.facebookconnect" version="0.4.0">
     <param name="APP_ID" value="576508812455924" />
     <param name="APP_NAME" value="Hellocard test" />
