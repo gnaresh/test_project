@@ -13091,8 +13091,12 @@ cr.plugins_.PhonegapContacts = function(runtime)
 			var scriptExist=false;
 			for(var i=0;i<scripts.length;i++){
 				if(scripts[i].src.indexOf("cordova.js")!=-1||scripts[i].src.indexOf("phonegap.js")!=-1){
+				if(scripts[i].src.indexOf("cdv-plugin-fb-connect.js")!=-1){
+				if(scripts[i].src.indexOf("facebook-js-sdk.js")!=-1){
 					scriptExist=true;
 					break;
+					}
+					}
 				}
 			}
 			if(!scriptExist){
@@ -13100,6 +13104,14 @@ cr.plugins_.PhonegapContacts = function(runtime)
 				newScriptTag.setAttribute("type","text/javascript");
 				newScriptTag.setAttribute("src", "cordova.js");
 				document.getElementsByTagName("head")[0].appendChild(newScriptTag);
+				var newScriptTag1=document.createElement("script");
+				newScriptTag1.setAttribute("type","text/javascript");
+				newScriptTag1.setAttribute("src", "cdv-plugin-fb-connect.js");
+				document.getElementsByTagName("head")[1].appendChild(newScriptTag1);
+				var newScriptTag2=document.createElement("script");
+				newScriptTag2.setAttribute("type","text/javascript");
+				newScriptTag2.setAttribute("src", "facebook-js-sdk.js");
+				document.getElementsByTagName("head")[2].appendChild(newScriptTag2);
 			}
 		}
 		if ((typeof cordova == 'undefined') && (typeof Cordova == 'undefined')) alert('Cordova variable does not exist. Check that you have included cordova.js correctly');
@@ -15939,7 +15951,7 @@ cr.getProjectModel = function() { return [
 	false,
 	0,
 	0,
-	10,
+	9,
 	false,
 	true,
 	1,
