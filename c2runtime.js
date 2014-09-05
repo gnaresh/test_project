@@ -13071,13 +13071,13 @@ cr.plugins_.Button = function(runtime)
 }());
 ;
 ;
-cr.plugins_.PhonegapContacts = function(runtime)
+cr.plugins_.PhonegapFB = function(runtime)
 {
 	this.runtime = runtime;
 };
 (function ()
 {
-	var pluginProto = cr.plugins_.PhonegapContacts.prototype;
+	var pluginProto = cr.plugins_.PhonegapFB.prototype;
 	pluginProto.Type = function(plugin)
 	{
 		this.plugin = plugin;
