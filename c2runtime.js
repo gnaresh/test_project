@@ -13071,40 +13071,83 @@ cr.plugins_.Button = function(runtime)
 }());
 ;
 ;
-cr.plugins_.PhonegapFB = function(runtime)
+var ios_url, ios_access_token;
+var ios_trigger_once = false;
+cr.plugins_.Facebook3 = function(runtime)
 {
 	this.runtime = runtime;
 };
 (function ()
 {
-	var pluginProto = cr.plugins_.PhonegapFB.prototype;
+	var pluginProto = cr.plugins_.Facebook3.prototype;
 	pluginProto.Type = function(plugin)
 	{
 		this.plugin = plugin;
 		this.runtime = plugin.runtime;
 	};
-	var typeProto = pluginProto.Type.prototype;
+        var typeProto = pluginProto.Type.prototype;
+	var languages;
+	var runonce = false;
+	var Logged_Status = "unchecked";
+	var accessToken = "";
+	var FB_Ready = false;
+	var list1 = "";
+	var fb_vers = '';
+	var cookievar = false;
+	var statusvar = false;
+	var frictionvar = false;
+	var xfbmlvar = false;
+	var fbRuntime = null;
+	var fbInst = null;
+	var fbID = "";
+	var firstname = "";
+	var lastname = "";
+	var profileLink = "";
+	var fullname = "";
+	var user_timezone = "";
+	var userlastupdate = "";
+	var verifieduser = "";
+	var ugender = "";
+	var ulocale = "";
+	var boxtype   = 1;
+	var invitable_size = 0;
+	var invitable_array_name = [];
+	var invitable_array_id = [];
+	var invitable_array_pic = [];
+	var user_info_Array = [];
+	var invitable_array_name_current;
+	var invitable_array_id_current;
+	var invitable_array_pic_current;
+	var invitable_place = 0;
+	var request_id;
+	var user_pic;
+	var error_mes = "";
+	var friends_array_name = [];
+	var friends_array_id = [];
+	var friends_array_pic = [];
+	var friends_array_name_current;
+	var friends_array_id_current;
+	var friends_array_pic_current;
+	var friends_place = 0;
+	var friends_size = 0;
+	var user_score = 0;
+	var request_exists = false;
+        var request_string = "";
+	var social_action, social_scheme,social_kids,social_layout,social_share,social_showfaces;
+	var social_url, social_ref,social_posts,social_order,social_share_layout, social_follow_layout;
+	var social_activity_action,social_activity_filter,social_activity_header,social_activity_linktarget;
+	var social_activity_maxage,social_activity_recommendations,social_domain,social_readtime,social_trigger;
+	var social_wall,social_border,social_stream,social_size;
+	var social_trigger =0;
+	var pluginInstancesIndex = 0;
+	var inst_count = 0,inst_visible = 0;
+	var this_X,this_Y;
+	var working_inst;
+	var phonegap_flag = false;
+	var graph_api_data = "";
+	var user_updating = false;
 	typeProto.onCreate = function()
 	{
-			if(this.runtime.isBlackberry10 || this.runtime.isWindows8App || this.runtime.isWindowsPhone8 || this.runtime.isWindowsPhone81){
-			var scripts=document.getElementsByTagName("script");
-			var scriptExist=false;
-			for(var i=0;i<scripts.length;i++){
-				if(scripts[i].src.indexOf("cordova.js")!=-1||scripts[i].src.indexOf("phonegap.js")!=-1){
-					scriptExist=true;
-					break;
-				}
-			}
-			if(!scriptExist){
-				var newScriptTag=document.createElement("script");
-				newScriptTag.setAttribute("type","text/javascript");
-				newScriptTag.setAttribute("src", "cordova.js");
-				document.getElementsByTagName("head")[0].appendChild(newScriptTag);
-			}
-		}
-		if ((typeof cordova == 'undefined') && (typeof Cordova == 'undefined')) alert('Cordova variable does not exist. Check that you have included cordova.js correctly');
-            if (typeof CDV == 'undefined') alert('CDV variable does not exist. Check that you have included cdv-plugin-fb-connect.js correctly');
-            if (typeof FB == 'undefined') alert('FB variable does not exist. Check that you have included the Facebook JS SDK file.');
 	};
 	pluginProto.Instance = function(type)
 	{
@@ -13114,13 +13157,694 @@ cr.plugins_.PhonegapFB = function(runtime)
 	var instanceProto = pluginProto.Instance.prototype;
 	instanceProto.onCreate = function()
 	{
-				if (!(this.runtime.isAndroid || this.runtime.isBlackberry10 || this.runtime.isiOS || this.runtime.isWindows8App || this.runtime.isWindowsPhone8 || this.runtime.isWindowsPhone81))
-			return;
-		if (this.runtime.isAndroid && navigator.platform == 'Win32')//crosswalk emulator
-			return;
+		list1 = this.properties[0];
+		 fb_vers = this.properties[2];
+		 phonegap_flag = parseInt(this.properties[34]);
+		 if (phonegap_flag == 0) {phonegap_flag = true;}
+	         else{phonegap_flag = false;}
+		boxtype =parseInt(this.properties[7]);
+		inst_count = 0;//this.properties[18];
+		social_share_layout = this.properties[19];
+		social_follow_layout = this.properties[20];
+		 social_ref = this.properties[13];
+	         social_url = this.properties[10];
+		 social_action = parseInt(this.properties[8]);
+	         social_scheme = parseInt(this.properties[9]);
+	         social_kids = parseInt(this.properties[11]);
+	         social_layout = parseInt(this.properties[12]);
+	         social_share = parseInt(this.properties[14]);
+	         social_showfaces = parseInt(this.properties[15]);
+		 social_posts = this.properties[16];
+		 social_order = parseInt(this.properties[17]);
+		 social_activity_action = this.properties[21];
+		 social_activity_filter = this.properties[22];
+		 social_activity_header = parseInt(this.properties[23]);
+		 social_activity_linktarget = parseInt(this.properties[24]);
+		 social_activity_maxage = parseInt(this.properties[25]);
+		 social_domain = this.properties[26];
+		 social_trigger = parseInt(this.properties[29]);
+		 social_readtime = this.properties[28];
+		 social_activity_recommendations = parseInt(this.properties[27]);
+		 social_wall = parseInt(this.properties[30]);
+		 social_border = this.properties[31];
+		 social_stream = parseInt(this.properties[32]);
+		 social_size = parseInt(this.properties[33]);
+		 if (social_size == 0) {social_size = "small";}
+	         else if (social_size == 1){social_size = "medium";}
+	         else {social_size = "large";}
+		 if (social_wall == 0) {social_wall = true;} else{social_wall =false ;}
+		 if (social_border == 0) {social_border = true;} else{social_border =false ;}
+		 if (social_stream == 0) {social_stream = true;} else{social_stream =false ;}
+		 if (social_trigger == 0) {social_trigger = "onvisible";} else{social_trigger ="manual" ;}
+		 if (social_activity_linktarget == 0) {social_activity_linktarget = "_blank";}
+	         else if (social_activity_linktarget == 1){social_activity_linktarget = "_self";}
+	         else if (social_activity_linktarget == 2){social_activity_linktarget = "_parent";}
+	         else {social_activity_linktarget = "_top";}
+		 if (social_activity_recommendations == 0) {social_activity_recommendations = "true";} else{social_activity_recommendations ="false" ;}
+		 if (social_activity_header == 0) {social_activity_header = "true";} else{social_activity_header ="false" ;}
+		 if (social_action == 1) {social_action = "recommend";} else{social_action ="like" ;}
+	         if (social_scheme == 1) {social_scheme = "dark";} else{social_scheme = "light";}
+	         if (social_kids == 1) {social_kids = false;} else{social_kids = true;}
+	         if (social_share == 1) {social_share = false;} else{social_share = true;}
+	         if (social_showfaces == 1) {social_showfaces = false;} else{social_showfaces = true;}
+		 if (social_order == 0) {social_order = "social";}
+	         else if (social_order == 1){social_order = "reverse_time";}
+	         else {social_order = "time";}
+	         if (social_layout == 0) {social_layout = "standard";}
+	         else if (social_layout == 1){social_layout = "button_count";}
+	         else if (social_layout == 2){social_layout = "button";}
+	         else {social_layout = "box_count";}
+		  if (social_share_layout == 0) {social_share_layout = "box_count";}
+	         else if (social_share_layout == 1){social_share_layout = "button_count";}
+	         else if (social_share_layout == 2){social_share_layout = "button";}
+	         else {social_share_layout = "icon";}
+		 if (social_follow_layout == 0) {social_follow_layout = "standard";}
+	         else if (social_follow_layout == 1){social_follow_layout = "box_count";}
+	         else {social_follow_layout = "button_count";}
+		if(runonce==false && this.properties[0] != "" && phonegap_flag == false)
+		{
+		 working_inst = this.uid;
+                 runonce = true;
+		 fbRuntime = this.runtime;
+		 fbInst = this;
+		 var assigned = parseInt(this.properties[1]);
+		 if (assigned == 0) {languages = "zh_TW";}
+		 else if (assigned == 1) {languages = "zh_HK";}
+		 else if (assigned == 2) {languages = "zh_CN";}
+		 else if (assigned == 3) {languages = "vi_VN";}
+		 else if (assigned == 4) {languages = "ur_PK";}
+		 else if (assigned == 5) {languages = "uk_UA";}
+		 else if (assigned == 6) {languages = "tr_TR";}
+		 else if (assigned == 7) {languages = "tl_PH";}
+		 else if (assigned == 8) {languages = "th_TH";}
+		 else if (assigned == 9) {languages = "te_IN";}
+		 else if (assigned == 10) {languages = "ta_IN";}
+		 else if (assigned == 11) {languages = "sw_KE";}
+		 else if (assigned == 12) {languages = "sv_SE";}
+		 else if (assigned == 13) {languages = "sr_RS";}
+		 else if (assigned == 14) {languages = "sq_AL";}
+		 else if (assigned == 15) {languages = "sl_SI";}
+		 else if (assigned == 16) {languages = "sk_SK";}
+		 else if (assigned == 17) {languages = "si_LK";}
+		 else if (assigned == 18) {languages = "ru_RU";}
+		 else if (assigned == 19) {languages = "ro_RO";}
+		 else if (assigned == 20) {languages = "pt_PT";}
+		 else if (assigned == 21) {languages = "pt_BR";}
+	         else if (assigned == 22) {languages = "ps_AF";}
+		 else if (assigned == 23) {languages = "pl_PL";}
+		 else if (assigned == 24) {languages = "pa_IN";}
+		 else if (assigned == 25) {languages = "nn_NO";}
+		 else if (assigned == 26) {languages = "nl_NL";}
+		 else if (assigned == 27) {languages = "ne_NP";}
+		 else if (assigned == 28) {languages = "nb_NO";}
+		 else if (assigned == 29) {languages = "ms_MY";}
+		 else if (assigned == 30) {languages = "ml_IN";}
+		 else if (assigned == 31) {languages = "mk_MK";}
+		 else if (assigned == 32) {languages = "lv_LV";}
+		 else if (assigned == 33) {languages = "lt_LT";}
+		 else if (assigned == 34) {languages = "la_VA";}
+		 else if (assigned == 35) {languages = "ku_TR";}
+		 else if (assigned == 36) {languages = "ko_KR";}
+		 else if (assigned == 37) {languages = "kn_IN";}
+		 else if (assigned == 38) {languages = "km_KH";}
+		 else if (assigned == 39) {languages = "ka_GE";}
+		 else if (assigned == 40) {languages = "jv_ID";}
+		 else if (assigned == 41) {languages = "ja_JP";}
+		 else if (assigned == 42) {languages = "it_IT";}
+		 else if (assigned == 43) {languages = "is_IS";}
+		 else if (assigned == 44) {languages = "id_ID";}
+		 else if (assigned == 45) {languages = "hy_AM";}
+		 else if (assigned == 46) {languages = "hu_HU";}
+		 else if (assigned == 47) {languages = "hr_HR";}
+		 else if (assigned == 48) {languages = "hi_IN";}
+		 else if (assigned == 49) {languages = "he_IL";}
+		 else if (assigned == 50) {languages = "gn_PY";}
+		 else if (assigned == 51) {languages = "gl_ES";}
+		 else if (assigned == 52) {languages = "ga_IE";}
+		 else if (assigned == 53) {languages = "fy_NL";}
+		 else if (assigned == 54) {languages = "fr_FR";}
+		 else if (assigned == 55) {languages = "fr_CA";}
+		 else if (assigned == 56) {languages = "fo_FO";}
+		 else if (assigned == 57) {languages = "fi_FI";}
+		 else if (assigned == 58) {languages = "fb_LT";}
+		 else if (assigned == 59) {languages = "fa_IR";}
+		 else if (assigned == 60) {languages = "eu_ES";}
+		 else if (assigned == 61) {languages = "et_EE";}
+		 else if (assigned == 62) {languages = "es_LA";}
+		 else if (assigned == 63) {languages = "es_ES";}
+		 else if (assigned == 64) {languages = "eo_EO";}
+		 else if (assigned == 65) {languages = "en_US";}
+		 else if (assigned == 66) {languages = "en_UD";}
+		 else if (assigned == 67) {languages = "en_PI";}
+		 else if (assigned == 68) {languages = "en_GB";}
+		 else if (assigned == 69) {languages = "el_GR";}
+		 else if (assigned == 70) {languages = "de_DE";}
+		 else if (assigned == 71) {languages = "da_DK";}
+		 else if (assigned == 72) {languages = "cy_GB";}
+		 else if (assigned == 73) {languages = "cx_PH";}
+		 else if (assigned == 74) {languages = "cs_CZ";}
+		 else if (assigned == 75) {languages = "ca_ES";}
+		 else if (assigned == 76) {languages = "bs_BA";}
+		 else if (assigned == 77) {languages = "bn_IN";}
+		 else if (assigned == 78) {languages = "bg_BG";}
+		 else if (assigned == 79) {languages = "be_BY";}
+		 else if (assigned == 80) {languages = "az_AZ";}
+		 else if (assigned == 81) {languages = "ar_AR";}
+		 else if (assigned == 82) {languages = "af_ZA";}
+		 else languages = languages = "en_US";
+		 xfbmlvar = parseInt(this.properties[5]);
+		 if (xfbmlvar == 1) {xfbmlvar = false;} else{xfbmlvar = true;}
+		 cookievar = parseInt(this.properties[3]);
+		 if (cookievar == 1) {cookievar = false;} else{cookievar = true;}
+		 statusvar = parseInt(this.properties[4]);
+		 if (statusvar == 1) {statusvar = false;} else{statusvar = true;}
+		 frictionvar = parseInt(this.properties[6]);
+		 if (frictionvar == 1) {frictionvar = false;} else{frictionvar = true;}
+		 request_exists = does_param_exist("language");
+		     if(request_exists == true)
+		     {languages =getUrlVars()["language"].substring(0, 5);}
+		window.fbAsyncInit = function()
+		{
+                 FB.init({
+                          appId      : parseInt(list1),
+                          xfbml      : xfbmlvar,
+			  cookie     :  cookievar,
+			  status     :  statusvar,
+			  frictionlessRequests : frictionvar,
+                          version    : fb_vers
+                        });
+		 FB_Ready = true;
+		 FB.Canvas.setAutoGrow();
+		 	fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.APILoaded, fbInst);
+		 FB.Event.subscribe('message.send', function(response)
+		 {
+		  fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.on_sendbutton, fbInst);
+		 });
+		 FB.Event.subscribe('xfbml.render', function(response)
+		 {
+		  fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.on_parse, fbInst);
+		 });
+		 FB.Event.subscribe('comment.create', function(response)
+		 {
+		  fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.on_comment, fbInst);
+		 });
+		 FB.Event.subscribe('comment.remove', function(response)
+		 {
+		  fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.on_discomment, fbInst);
+		 });
+		 FB.Event.subscribe('edge.create', function(response)
+		 {
+		  fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.on_liked, fbInst);
+		 });
+		 FB.Event.subscribe('edge.remove', function(response)
+		 {
+		  fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.on_disliked, fbInst);
+		 });
+		 FB.Event.subscribe('auth.authResponseChanged', function(response)
+		 {if (user_updating == true) {return}user_updating = true;
+		  Check_Login(function(user_info_Array)
+		  {
+	           accessToken = user_info_Array[0];
+	           Logged_Status = user_info_Array[1];
+		   if (Logged_Status == 'connected')
+		    {fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.OnLogin, fbInst);
+		     request_exists = does_param_exist("request_ids");
+		     if(request_exists == true)
+		     {
+		      request_string =getUrlVars()["request_ids"];
+		      fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.Request_check, fbInst);
+		     }
+		    }
+		   else
+		    {fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.OnLogout, fbInst);}
+		     user_pic = user_info_Array[12];
+		     fbID = user_info_Array[2];
+	             firstname = user_info_Array[3];
+	             lastname = user_info_Array[4];
+	             profileLink = user_info_Array[5];
+	             fullname = user_info_Array[6];
+	             user_timezone = user_info_Array[7];
+	             userlastupdate = user_info_Array[8];
+	             verifieduser = user_info_Array[9];
+	             ugender = user_info_Array[10];
+	             ulocale = user_info_Array[11];
+		     error_mes = user_info_Array[13];
+		     if (error_mes != "") {fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.FB_Error, fbInst);}
+		  fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.Onupdate, fbInst);
+		  user_updating = false;
+		 });
+		 });
+		 FB.Event.subscribe('auth.statusChange', function(response)
+		 {if (user_updating == true) {return}user_updating = true;
+		  Check_Login(function(user_info_Array)
+		  {
+	           accessToken = user_info_Array[0];
+	           Logged_Status = user_info_Array[1];
+		   if (Logged_Status == 'connected')
+		    {/*fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.OnLogin, fbInst);*/
+		     request_exists = does_param_exist("request_ids");
+		     if(request_exists == true)
+		     {
+		      request_string =getUrlVars()["request_ids"];
+		      fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.Request_check, fbInst);
+		     }
+		    }
+		   else
+		    {/*fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.OnLogout, fbInst);*/}
+		     user_pic = user_info_Array[12];
+		     fbID = user_info_Array[2];
+	             firstname = user_info_Array[3];
+	             lastname = user_info_Array[4];
+	             profileLink = user_info_Array[5];
+	             fullname = user_info_Array[6];
+	             user_timezone = user_info_Array[7];
+	             userlastupdate = user_info_Array[8];
+	             verifieduser = user_info_Array[9];
+	             ugender = user_info_Array[10];
+	             ulocale = user_info_Array[11];
+		     error_mes = user_info_Array[13];
+		     if (error_mes != "") {fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.FB_Error, fbInst);}
+		  fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.Onupdate, fbInst);
+		  user_updating = false;
+		 });
+		 });user_updating = true;
+		 Check_Login(function(user_info_Array)
+		 {
+	          accessToken = user_info_Array[0];
+	          Logged_Status = user_info_Array[1];
+		  if (Logged_Status == 'connected')
+		   {fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.OnLogin, fbInst);
+		    request_exists = does_param_exist("request_ids");
+		    if(request_exists == true)
+		    {
+		     request_string =getUrlVars()["request_ids"];
+		     fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.Request_check, fbInst);
+		    }
+		   }
+		  else
+		   {fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.OnLogout, fbInst);}
+		  user_pic = user_info_Array[12];
+		  fbID = user_info_Array[2];
+	          firstname = user_info_Array[3];
+	          lastname = user_info_Array[4];
+	          profileLink = user_info_Array[5];
+	          fullname = user_info_Array[6];
+	          user_timezone = user_info_Array[7];
+	          userlastupdate = user_info_Array[8];
+	          verifieduser = user_info_Array[9];
+	          ugender = user_info_Array[10];
+	          ulocale = user_info_Array[11];
+		  error_mes = user_info_Array[13];
+		  if (error_mes != "") {fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.FB_Error, fbInst);}
+		  fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.Onupdate, fbInst);
+		  user_updating = false;
+	         });
+	        };
+		(function(d, s, id)
+	        {
+                 var js, fjs = d.getElementsByTagName(s)[0];
+                 if (d.getElementById(id)) {return;}
+                 js = d.createElement(s); js.id = id;
+                 js.src = "//connect.facebook.net/" + languages + "/sdk.js";
+                 fjs.parentNode.insertBefore(js, fjs);
+                }(document, 'script', 'facebook-jssdk'));
+                }
+		if (phonegap_flag == false)
+		{
+		 if(boxtype == 0)
+	        {pluginInstancesIndex++;
+		 this.elem = document.createElement("div");
+		 this.elem.innerHTML = '<fb:like class="fb-like" data-kid-directed-site="'+social_kids+'" data-colorscheme="'+social_scheme+'" data-ref="'+social_ref+'" data-href="'+social_url+'" data-layout="'+social_layout+'" data-action="'+social_action+'" data-show-faces="'+social_showfaces+'" data-share="'+social_share+'"></fb:like>';
+                 inst_visible++;
+		 jQuery(this.elem).appendTo("body");
+		 var left = this.layer.layerToCanvas(this.x, this.y, true);
+		var top = this.layer.layerToCanvas(this.x, this.y, false);
+		var right = this.layer.layerToCanvas(this.x + this.width, this.y + this.height, true);
+		var bottom = this.layer.layerToCanvas(this.x + this.width, this.y + this.height, false);
+		var offx = Math.round(left) + jQuery(this.runtime.canvas).offset().left;
+		var offy = Math.round(top) + jQuery(this.runtime.canvas).offset().top;
+		var widthfactor = this.width > 0 ? 1 : -1;
+		var heightfactor = this.height > 0 ? 1 : -1;
+		jQuery(this.elem).css("position", "absolute");
+		jQuery(this.elem).offset({left: offx, top: offy});
+		jQuery(this.elem).width(Math.round(right - left));
+		jQuery(this.elem).height(Math.round(bottom - top));
+		this.rotation2D = "-webkit-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
+										+"deg);-webkit-transform-origin:0% 0%;"+
+									"-moz-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
+										+"deg);-moz-transform-origin:0% 0%;"+
+									"-o-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
+										+"deg);-o-transform-origin:0% 0%;";
+		this.elem.style.cssText += ";"+/*this.CSSstyle +";"+*/ this.rotation2D/* + this.perspectiveValue + this.rotation3D*/;
+		this.lastLeft = 0;
+		 this.lastTop = 0;
+		 this.lastRight = 0;
+		 this.lastBottom = 0;
+		 this.lastWinWidth = 0;
+		 this.lastWinHeight = 0;
+		this.runtime.tickMe(this);
+		}
+		else if(boxtype == 1)
+		{pluginInstancesIndex++;inst_visible++;
+		 this.elem = document.createElement("div");
+		 this.elem.style.overflowY = "scroll";
+		 jQuery(this.elem).css("position", "absolute");
+		 this.elem.innerHTML = '<fb:comments class="fb-comments" data-order-by="'+social_order+'" data-colorscheme="'+social_scheme+'" data-numposts="'+social_posts+'" data-href="'+social_url+'"</fb:comments>';
+                 jQuery(this.elem).appendTo("body");
+		 var left = this.layer.layerToCanvas(this.x, this.y, true);
+		var top = this.layer.layerToCanvas(this.x, this.y, false);
+		var right = this.layer.layerToCanvas(this.x + this.width, this.y + this.height, true);
+		var bottom = this.layer.layerToCanvas(this.x + this.width, this.y + this.height, false);
+		var offx = Math.round(left) + jQuery(this.runtime.canvas).offset().left;
+		var offy = Math.round(top) + jQuery(this.runtime.canvas).offset().top;
+		var widthfactor = this.width > 0 ? 1 : -1;
+		var heightfactor = this.height > 0 ? 1 : -1;
+		jQuery(this.elem).css("position", "absolute");
+		jQuery(this.elem).offset({left: offx, top: offy});
+		jQuery(this.elem).width(Math.round(right - left));
+		jQuery(this.elem).height(Math.round(bottom - top));
+		this.rotation2D = "-webkit-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
+										+"deg);-webkit-transform-origin:0% 0%;"+
+									"-moz-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
+										+"deg);-moz-transform-origin:0% 0%;"+
+									"-o-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
+										+"deg);-o-transform-origin:0% 0%;";
+		this.elem.style.cssText += ";"+/*this.CSSstyle +";"+*/ this.rotation2D/* + this.perspectiveValue + this.rotation3D*/;
+		this.lastLeft = 0;
+		 this.lastTop = 0;
+		 this.lastRight = 0;
+		 this.lastBottom = 0;
+		 this.lastWinWidth = 0;
+		 this.lastWinHeight = 0;
+		this.runtime.tickMe(this);
+		}
+		else if(boxtype == 2)
+		{pluginInstancesIndex++;inst_visible++;
+		 this.elem = document.createElement("div");
+		 this.elem.innerHTML = '<fb:share-button href="'+social_url+'" data-type="'+social_share_layout+'"></fb:share-button>';
+                 jQuery(this.elem).appendTo("body");
+		 var left = this.layer.layerToCanvas(this.x, this.y, true);
+		var top = this.layer.layerToCanvas(this.x, this.y, false);
+		var right = this.layer.layerToCanvas(this.x + this.width, this.y + this.height, true);
+		var bottom = this.layer.layerToCanvas(this.x + this.width, this.y + this.height, false);
+		var offx = Math.round(left) + jQuery(this.runtime.canvas).offset().left;
+		var offy = Math.round(top) + jQuery(this.runtime.canvas).offset().top;
+		var widthfactor = this.width > 0 ? 1 : -1;
+		var heightfactor = this.height > 0 ? 1 : -1;
+		jQuery(this.elem).css("position", "absolute");
+		jQuery(this.elem).offset({left: offx, top: offy});
+		jQuery(this.elem).width(Math.round(right - left));
+		jQuery(this.elem).height(Math.round(bottom - top));
+		this.rotation2D = "-webkit-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
+										+"deg);-webkit-transform-origin:0% 0%;"+
+									"-moz-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
+										+"deg);-moz-transform-origin:0% 0%;"+
+									"-o-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
+										+"deg);-o-transform-origin:0% 0%;";
+		this.elem.style.cssText += ";"+/*this.CSSstyle +";"+*/ this.rotation2D/* + this.perspectiveValue + this.rotation3D*/;
+		this.lastLeft = 0;
+		 this.lastTop = 0;
+		 this.lastRight = 0;
+		 this.lastBottom = 0;
+		 this.lastWinWidth = 0;
+		 this.lastWinHeight = 0;
+		this.runtime.tickMe(this);
+		 }
+		else if(boxtype == 3)
+		{pluginInstancesIndex++;inst_visible++;
+		 this.elem = document.createElement("div");
+		 this.elem.innerHTML = '<fb:send href="'+social_url+'" colorscheme="'+social_scheme+'" data-kid-directed-site="'+social_kids+'"data-ref="'+social_ref+'" ></fb:send>';
+                 jQuery(this.elem).appendTo("body");
+		 var left = this.layer.layerToCanvas(this.x, this.y, true);
+		var top = this.layer.layerToCanvas(this.x, this.y, false);
+		var right = this.layer.layerToCanvas(this.x + this.width, this.y + this.height, true);
+		var bottom = this.layer.layerToCanvas(this.x + this.width, this.y + this.height, false);
+		var offx = Math.round(left) + jQuery(this.runtime.canvas).offset().left;
+		var offy = Math.round(top) + jQuery(this.runtime.canvas).offset().top;
+		var widthfactor = this.width > 0 ? 1 : -1;
+		var heightfactor = this.height > 0 ? 1 : -1;
+		jQuery(this.elem).css("position", "absolute");
+		jQuery(this.elem).offset({left: offx, top: offy});
+		jQuery(this.elem).width(Math.round(right - left));
+		jQuery(this.elem).height(Math.round(bottom - top));
+		this.rotation2D = "-webkit-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
+										+"deg);-webkit-transform-origin:0% 0%;"+
+									"-moz-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
+										+"deg);-moz-transform-origin:0% 0%;"+
+									"-o-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
+										+"deg);-o-transform-origin:0% 0%;";
+		this.elem.style.cssText += ";"+/*this.CSSstyle +";"+*/ this.rotation2D/* + this.perspectiveValue + this.rotation3D*/;
+		this.lastLeft = 0;
+		 this.lastTop = 0;
+		 this.lastRight = 0;
+		 this.lastBottom = 0;
+		 this.lastWinWidth = 0;
+		 this.lastWinHeight = 0;
+		this.runtime.tickMe(this);
+		}
+		else if(boxtype == 4)
+		{pluginInstancesIndex++;inst_visible++;
+		 this.elem = document.createElement("div");
+		 this.elem.style.overflowY = "scroll";
+		 this.elem.innerHTML = '<fb:post href="'+social_url+'" width="'+this.width+'"></fb:post>';
+                 jQuery(this.elem).appendTo("body");
+		 var left = this.layer.layerToCanvas(this.x, this.y, true);
+		var top = this.layer.layerToCanvas(this.x, this.y, false);
+		var right = this.layer.layerToCanvas(this.x + this.width, this.y + this.height, true);
+		var bottom = this.layer.layerToCanvas(this.x + this.width, this.y + this.height, false);
+		var offx = Math.round(left) + jQuery(this.runtime.canvas).offset().left;
+		var offy = Math.round(top) + jQuery(this.runtime.canvas).offset().top;
+		var widthfactor = this.width > 0 ? 1 : -1;
+		var heightfactor = this.height > 0 ? 1 : -1;
+		jQuery(this.elem).css("position", "absolute");
+		jQuery(this.elem).offset({left: offx, top: offy});
+		jQuery(this.elem).width(Math.round(right - left));
+		jQuery(this.elem).height(Math.round(bottom - top));
+		this.rotation2D = "-webkit-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
+										+"deg);-webkit-transform-origin:0% 0%;"+
+									"-moz-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
+										+"deg);-moz-transform-origin:0% 0%;"+
+									"-o-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
+										+"deg);-o-transform-origin:0% 0%;";
+		this.elem.style.cssText += ";"+/*this.CSSstyle +";"+*/ this.rotation2D/* + this.perspectiveValue + this.rotation3D*/;
+		this.lastLeft = 0;
+		 this.lastTop = 0;
+		 this.lastRight = 0;
+		 this.lastBottom = 0;
+		 this.lastWinWidth = 0;
+		 this.lastWinHeight = 0;
+		this.runtime.tickMe(this);
+		}
+		else if(boxtype == 5)
+		{pluginInstancesIndex++;inst_visible++;
+		 this.elem = document.createElement("div");
+		 this.elem.innerHTML = '<fb:follow kid_directed_site="'+social_kids+'" href="'+social_url+'" colorscheme="'+social_scheme+'" layout="'+social_follow_layout+'" show_faces="'+social_showfaces+'"></fb:follow>';
+                 jQuery(this.elem).appendTo("body");
+		 var left = this.layer.layerToCanvas(this.x, this.y, true);
+		var top = this.layer.layerToCanvas(this.x, this.y, false);
+		var right = this.layer.layerToCanvas(this.x + this.width, this.y + this.height, true);
+		var bottom = this.layer.layerToCanvas(this.x + this.width, this.y + this.height, false);
+		var offx = Math.round(left) + jQuery(this.runtime.canvas).offset().left;
+		var offy = Math.round(top) + jQuery(this.runtime.canvas).offset().top;
+		var widthfactor = this.width > 0 ? 1 : -1;
+		var heightfactor = this.height > 0 ? 1 : -1;
+		jQuery(this.elem).css("position", "absolute");
+		jQuery(this.elem).offset({left: offx, top: offy});
+		jQuery(this.elem).width(Math.round(right - left));
+		jQuery(this.elem).height(Math.round(bottom - top));
+		this.rotation2D = "-webkit-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
+										+"deg);-webkit-transform-origin:0% 0%;"+
+									"-moz-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
+										+"deg);-moz-transform-origin:0% 0%;"+
+									"-o-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
+										+"deg);-o-transform-origin:0% 0%;";
+		this.elem.style.cssText += ";"+/*this.CSSstyle +";"+*/ this.rotation2D/* + this.perspectiveValue + this.rotation3D*/;
+		this.lastLeft = 0;
+		 this.lastTop = 0;
+		 this.lastRight = 0;
+		 this.lastBottom = 0;
+		 this.lastWinWidth = 0;
+		 this.lastWinHeight = 0;
+		this.runtime.tickMe(this);
+		}
+		else if(boxtype == 6)
+		{pluginInstancesIndex++;inst_visible++;
+		 this.elem = document.createElement("div");
+		 this.elem.style.overflowY = "scroll";
+		 this.elem.innerHTML = '<fb:activity site="'+social_domain+'" ref="'+social_ref+'" recommendations="'+social_activity_recommendations+'" max_age="'+social_activity_maxage+'" linktarget="'+social_activity_linktarget+'" action="'+social_activity_action+'" colorscheme="'+social_scheme+'" header="'+social_activity_header+'" filter="'+social_activity_filter+'"></fb:activity>';
+                 jQuery(this.elem).appendTo("body");
+		 var left = this.layer.layerToCanvas(this.x, this.y, true);
+		var top = this.layer.layerToCanvas(this.x, this.y, false);
+		var right = this.layer.layerToCanvas(this.x + this.width, this.y + this.height, true);
+		var bottom = this.layer.layerToCanvas(this.x + this.width, this.y + this.height, false);
+		var offx = Math.round(left) + jQuery(this.runtime.canvas).offset().left;
+		var offy = Math.round(top) + jQuery(this.runtime.canvas).offset().top;
+		var widthfactor = this.width > 0 ? 1 : -1;
+		var heightfactor = this.height > 0 ? 1 : -1;
+		jQuery(this.elem).css("position", "absolute");
+		jQuery(this.elem).offset({left: offx, top: offy});
+		jQuery(this.elem).width(Math.round(right - left));
+		jQuery(this.elem).height(Math.round(bottom - top));
+		this.rotation2D = "-webkit-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
+										+"deg);-webkit-transform-origin:0% 0%;"+
+									"-moz-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
+										+"deg);-moz-transform-origin:0% 0%;"+
+									"-o-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
+										+"deg);-o-transform-origin:0% 0%;";
+		this.elem.style.cssText += ";"+/*this.CSSstyle +";"+*/ this.rotation2D/* + this.perspectiveValue + this.rotation3D*/;
+		this.lastLeft = 0;
+		 this.lastTop = 0;
+		 this.lastRight = 0;
+		 this.lastBottom = 0;
+		 this.lastWinWidth = 0;
+		 this.lastWinHeight = 0;
+		this.runtime.tickMe(this);
+		}
+		else if(boxtype == 7)
+		{pluginInstancesIndex++;inst_visible++;
+		 this.elem = document.createElement("div");
+		 this.elem.style.overflowY = "scroll";
+		 this.elem.innerHTML = '<fb:recommendations site="'+social_domain+'" ref="'+social_ref+'" max_age="'+social_activity_maxage+'" linktarget="'+social_activity_linktarget+'" action="'+social_activity_action+'" colorscheme="'+social_scheme+'" header="'+social_activity_header+'""></fb:recommendations>';
+                 jQuery(this.elem).appendTo("body");
+		 var left = this.layer.layerToCanvas(this.x, this.y, true);
+		var top = this.layer.layerToCanvas(this.x, this.y, false);
+		var right = this.layer.layerToCanvas(this.x + this.width, this.y + this.height, true);
+		var bottom = this.layer.layerToCanvas(this.x + this.width, this.y + this.height, false);
+		var offx = Math.round(left) + jQuery(this.runtime.canvas).offset().left;
+		var offy = Math.round(top) + jQuery(this.runtime.canvas).offset().top;
+		var widthfactor = this.width > 0 ? 1 : -1;
+		var heightfactor = this.height > 0 ? 1 : -1;
+		jQuery(this.elem).css("position", "absolute");
+		jQuery(this.elem).offset({left: offx, top: offy});
+		jQuery(this.elem).width(Math.round(right - left));
+		jQuery(this.elem).height(Math.round(bottom - top));
+		this.rotation2D = "-webkit-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
+										+"deg);-webkit-transform-origin:0% 0%;"+
+									"-moz-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
+										+"deg);-moz-transform-origin:0% 0%;"+
+									"-o-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
+										+"deg);-o-transform-origin:0% 0%;";
+		this.elem.style.cssText += ";"+/*this.CSSstyle +";"+*/ this.rotation2D/* + this.perspectiveValue + this.rotation3D*/;
+		this.lastLeft = 0;
+		 this.lastTop = 0;
+		 this.lastRight = 0;
+		 this.lastBottom = 0;
+		 this.lastWinWidth = 0;
+		 this.lastWinHeight = 0;
+		this.runtime.tickMe(this);
+		}
+		else if(boxtype == 8)
+		{pluginInstancesIndex++;inst_visible++;
+		 this.elem = document.createElement("div");
+		 this.elem.innerHTML = '<fb:recommendations-bar href="'+social_url+'" read_time="'+social_readtime+'" action="'+social_action+'" max_age="'+social_activity_maxage+'" num_recommendations="'+social_posts+'" ref="'+social_ref+'" site="'+social_domain+'" trigger="'+social_trigger+'"></fb:recommendations-bar>';
+                 jQuery(this.elem).appendTo("body");
+		 var left = this.layer.layerToCanvas(this.x, this.y, true);
+		var top = this.layer.layerToCanvas(this.x, this.y, false);
+		var right = this.layer.layerToCanvas(this.x + this.width, this.y + this.height, true);
+		var bottom = this.layer.layerToCanvas(this.x + this.width, this.y + this.height, false);
+		var offx = Math.round(left) + jQuery(this.runtime.canvas).offset().left;
+		var offy = Math.round(top) + jQuery(this.runtime.canvas).offset().top;
+		var widthfactor = this.width > 0 ? 1 : -1;
+		var heightfactor = this.height > 0 ? 1 : -1;
+		jQuery(this.elem).css("position", "absolute");
+		jQuery(this.elem).offset({left: offx, top: offy});
+		jQuery(this.elem).width(Math.round(right - left));
+		jQuery(this.elem).height(Math.round(bottom - top));
+		this.rotation2D = "-webkit-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
+										+"deg);-webkit-transform-origin:0% 0%;"+
+									"-moz-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
+										+"deg);-moz-transform-origin:0% 0%;"+
+									"-o-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
+										+"deg);-o-transform-origin:0% 0%;";
+		this.elem.style.cssText += ";"+/*this.CSSstyle +";"+*/ this.rotation2D/* + this.perspectiveValue + this.rotation3D*/;
+		this.lastLeft = 0;
+		 this.lastTop = 0;
+		 this.lastRight = 0;
+		 this.lastBottom = 0;
+		 this.lastWinWidth = 0;
+		 this.lastWinHeight = 0;
+		this.runtime.tickMe(this);
+		}
+		else if(boxtype == 9)
+		{pluginInstancesIndex++;inst_visible++;
+		 this.elem = document.createElement("div");
+		 this.elem.style.overflowY = "scroll";
+		 this.elem.innerHTML = '<fb:like-box href="'+social_url+'" colorscheme="'+social_scheme+'" show_faces="'+social_showfaces+'" header="'+social_activity_header+'" show_border="'+social_border+'" force_wall="'+social_wall+'" stream="'+social_stream+'"></fb:like-box>';
+                 jQuery(this.elem).appendTo("body");
+		 var left = this.layer.layerToCanvas(this.x, this.y, true);
+		var top = this.layer.layerToCanvas(this.x, this.y, false);
+		var right = this.layer.layerToCanvas(this.x + this.width, this.y + this.height, true);
+		var bottom = this.layer.layerToCanvas(this.x + this.width, this.y + this.height, false);
+		var offx = Math.round(left) + jQuery(this.runtime.canvas).offset().left;
+		var offy = Math.round(top) + jQuery(this.runtime.canvas).offset().top;
+		var widthfactor = this.width > 0 ? 1 : -1;
+		var heightfactor = this.height > 0 ? 1 : -1;
+		jQuery(this.elem).css("position", "absolute");
+		jQuery(this.elem).offset({left: offx, top: offy});
+		jQuery(this.elem).width(Math.round(right - left));
+		jQuery(this.elem).height(Math.round(bottom - top));
+		this.rotation2D = "-webkit-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
+										+"deg);-webkit-transform-origin:0% 0%;"+
+									"-moz-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
+										+"deg);-moz-transform-origin:0% 0%;"+
+									"-o-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
+										+"deg);-o-transform-origin:0% 0%;";
+		this.elem.style.cssText += ";"+/*this.CSSstyle +";"+*/ this.rotation2D/* + this.perspectiveValue + this.rotation3D*/;
+		this.lastLeft = 0;
+		 this.lastTop = 0;
+		 this.lastRight = 0;
+		 this.lastBottom = 0;
+		 this.lastWinWidth = 0;
+		 this.lastWinHeight = 0;
+		this.runtime.tickMe(this);
+		}
+		else if(boxtype == 10)
+		{pluginInstancesIndex++;inst_visible++;
+		 this.elem = document.createElement("div");
+		 this.elem.innerHTML = '<fb:facepile href="'+social_url+'" app_id="'+list1+'" max_rows="'+social_posts+'" colorscheme="'+social_scheme+'" size="'+social_size+'" action="'+social_activity_action+'"></fb:facepile>';
+                 jQuery(this.elem).appendTo("body");
+		 var left = this.layer.layerToCanvas(this.x, this.y, true);
+		var top = this.layer.layerToCanvas(this.x, this.y, false);
+		var right = this.layer.layerToCanvas(this.x + this.width, this.y + this.height, true);
+		var bottom = this.layer.layerToCanvas(this.x + this.width, this.y + this.height, false);
+		var offx = Math.round(left) + jQuery(this.runtime.canvas).offset().left;
+		var offy = Math.round(top) + jQuery(this.runtime.canvas).offset().top;
+		var widthfactor = this.width > 0 ? 1 : -1;
+		var heightfactor = this.height > 0 ? 1 : -1;
+		jQuery(this.elem).css("position", "absolute");
+		jQuery(this.elem).offset({left: offx, top: offy});
+		jQuery(this.elem).width(Math.round(right - left));
+		jQuery(this.elem).height(Math.round(bottom - top));
+		this.rotation2D = "-webkit-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
+										+"deg);-webkit-transform-origin:0% 0%;"+
+									"-moz-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
+										+"deg);-moz-transform-origin:0% 0%;"+
+									"-o-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
+										+"deg);-o-transform-origin:0% 0%;";
+		this.elem.style.cssText += ";"+/*this.CSSstyle +";"+*/ this.rotation2D/* + this.perspectiveValue + this.rotation3D*/;
+		this.lastLeft = 0;
+		 this.lastTop = 0;
+		 this.lastRight = 0;
+		 this.lastBottom = 0;
+		 this.lastWinWidth = 0;
+		 this.lastWinHeight = 0;
+		this.runtime.tickMe(this);
+		 }
+		else{pluginInstancesIndex++;}
+		}//end no phonegap
+		else
+		{
+		 working_inst = this.uid;
+                 runonce = true;
+		 fbRuntime = this.runtime;
+		 fbInst = this;
+		 fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.APILoaded, fbInst);
+		}
 	};
 	instanceProto.onDestroy = function ()
 	{
+		jQuery(this.elem).remove();
+		this.elem = null;
 	};
 	instanceProto.saveToJSON = function ()
 	{
@@ -13130,64 +13854,879 @@ cr.plugins_.PhonegapFB = function(runtime)
 	instanceProto.loadFromJSON = function (o)
 	{
 	};
+	instanceProto.tick = function ()
+	{
+		this.updatePosition();
+	};
+	var last_canvas_offset = null;
+	var last_checked_tick = -1;
+	instanceProto.updatePosition = function (first)
+	{
+		if (this.runtime.isDomFree)
+			return;
+		var left = this.layer.layerToCanvas(this.x, this.y, true);
+		var top = this.layer.layerToCanvas(this.x, this.y, false);
+		var right = this.layer.layerToCanvas(this.x + this.width, this.y + this.height, true);
+		var bottom = this.layer.layerToCanvas(this.x + this.width, this.y + this.height, false);
+		var widthfactor = this.width > 0 ? 1 : -1;
+		var heightfactor = this.height > 0 ? 1 : -1;
+		var curWinWidth = window.innerWidth;
+		var curWinHeight = window.innerHeight;
+		if (!first && this.lastLeft === left && this.lastTop === top && this.lastRight === right && this.lastBottom === bottom && this.lastWinWidth === curWinWidth && this.lastWinHeight === curWinHeight)
+		{
+			return;
+		}
+		this.rotation2D = "-webkit-transform:rotate("+ 0
+										+"deg);-webkit-transform-origin:0% 0%;"+
+									"-moz-transform:rotate("+ 0
+										+"deg);-moz-transform-origin:0% 0%;"+
+									"-o-transform:rotate("+ 0
+										+"deg);-o-transform-origin:0% 0%;";
+		this.elem.style.cssText += ";"+/*this.CSSstyle +";"+*/ this.rotation2D/* + this.perspectiveValue + this.rotation3D*/;
+		this.lastLeft = left;
+		this.lastTop = top;
+		this.lastRight = right;
+		this.lastBottom = bottom;
+		this.lastWinWidth = curWinWidth;
+		this.lastWinHeight = curWinHeight;
+		var offx = Math.round(left) + jQuery(this.runtime.canvas).offset().left;
+		var offy = Math.round(top) + jQuery(this.runtime.canvas).offset().top;
+		jQuery(this.elem).css("position", "absolute");
+		jQuery(this.elem).offset({left: offx, top: offy});
+		jQuery(this.elem).width(Math.round(right - left));
+		jQuery(this.elem).height(Math.round(bottom - top));
+		this.rotation2D = "-webkit-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
+										+"deg);-webkit-transform-origin:0% 0%;"+
+									"-moz-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
+										+"deg);-moz-transform-origin:0% 0%;"+
+									"-o-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
+										+"deg);-o-transform-origin:0% 0%;";
+		this.elem.style.cssText += ";"+/*this.CSSstyle +";"+*/ this.rotation2D/* + this.perspectiveValue + this.rotation3D*/;
+		if (this.autoFontSize)
+			jQuery(this.elem).css("font-size", ((this.layer.getScale(true) / this.runtime.devicePixelRatio) - 0.2) + "em");
+	};
 	instanceProto.draw = function(ctx)
 	{
 	};
 	instanceProto.drawGL = function (glw)
 	{
 	};
+	instanceProto.getDebuggerValues = function (propsections)
+	{
+		propsections.push({
+			"title": "My debugger section",
+			"properties": [
+			]
+		});
+	};
+	instanceProto.onDebugValueEdited = function (header, name, value)
+	{
+		if (name === "My property")
+			this.myProperty = value;
+	};
 	function Cnds() {};
+	Cnds.prototype.api_logged = function (myparam){if(working_inst != this.uid){return false;}else {return true;}};
+	Cnds.prototype.fail_api_logged = function (myparam){if(working_inst != this.uid){return false;}else {return true;}};
+	Cnds.prototype.APILoaded = function (myparam){if(working_inst != this.uid){return false;}else {return true;}};
+	Cnds.prototype.Phonegap_true = function (myparam){if(working_inst != this.uid){return false;}else {return phonegap_flag;}};
+	Cnds.prototype.OnLogin = function (myparam){if(working_inst != this.uid){return false;}else {return true;}};
+	Cnds.prototype.OnLogout = function (myparam){if(working_inst != this.uid){return false;}else {return true;}};
+	Cnds.prototype.Onupdate = function (myparam){if(working_inst != this.uid){return false;}else {return true;}};
+	Cnds.prototype.Oninvitabledone = function (myparam){if(working_inst != this.uid){return false;}else {return true;}};
+	Cnds.prototype.Oninvitablefail = function (myparam){if(working_inst != this.uid){return false;}else {return true;}};
+	Cnds.prototype.Onrequestdone = function (myparam){if(working_inst != this.uid){return false;}else {return true;}};
+	Cnds.prototype.Onrequestdeleted = function (myparam){if(working_inst != this.uid){return false;}else {return true;}};
+	Cnds.prototype.Onpermissionfound = function (myparam){if(working_inst != this.uid){return false;}else {return true;}};
+	Cnds.prototype.Onpermissionmissing = function (myparam){if(working_inst != this.uid){return false;}else {return true;}};
+	Cnds.prototype.Request_true = function (myparam){if(working_inst != this.uid){}if (request_string == ""){return false;}else{return true;}};
+	Cnds.prototype.Login_Status = function (myparam){if(working_inst != this.uid){}if (Logged_Status == "connected"){return true;}else{return false;}};
+	Cnds.prototype.OnLoginfail = function (myparam){if(working_inst != this.uid){return false;}else {return true;}};
+	Cnds.prototype.OnLogoutfail = function (myparam){if(working_inst != this.uid){return false;}else {return true;}};
+	Cnds.prototype.Upload_Photo_Status = function (myparam){if(working_inst != this.uid){return false;}else {return true;}};
+	Cnds.prototype.FB_Error = function (myparam){if(working_inst != this.uid){return false;}else {return true;}};
+	Cnds.prototype.FB_game_friends = function (myparam){if(working_inst != this.uid){return false;}else {return true;}};
+	Cnds.prototype.FB_set_score = function (myparam){if(working_inst != this.uid){return false;}else {return true;}};
+	Cnds.prototype.FB_score_received = function (myparam){if(working_inst != this.uid){return false;}else {return true;}};
+	Cnds.prototype.Request_check = function (myparam){if(working_inst != this.uid){return false;}else {return true;}};
+	Cnds.prototype.FB_score_fail = function (myparam){if(working_inst != this.uid){return false;}else {return true;}};
+	Cnds.prototype.Upload_Photo_fail = function (myparam){if(working_inst != this.uid){return false;}else {return true;}};
+	Cnds.prototype.Onrequestdeletedfail = function (myparam){if(working_inst != this.uid){return false;}else {return true;}};
+	Cnds.prototype.Onpermissionchfail = function (myparam){if(working_inst != this.uid){return false;}else {return true;}};
+	Cnds.prototype.ios_logged = function (myparam)
+	{//ios_url.removeEventListener('loadstart', iabLoadStop);
+	 return true;};
+	Cnds.prototype.fail_ios_logged = function (myparam)
+	{//ios_url.removeEventListener('loadstart', iabLoadStop);
+	  return true;
+	 };
+	Cnds.prototype.Onrequestsendfail = function (myparam)
+	{if(working_inst != this.uid){return false;}
+		else {return true;}
+	};
+	Cnds.prototype.FB_game_friends_get_fail = function (myparam)
+	{if(working_inst != this.uid){return false;}
+		else {return true;}
+	};
+	Cnds.prototype.FB_score_received_fail = function (myparam)
+	{if(working_inst != this.uid){return false;}
+		else {return true;}
+	};
+	Cnds.prototype.on_liked = function (myparam)
+	{if(working_inst != this.uid){return false;}
+		else {return true;}
+	};
+	Cnds.prototype.on_disliked = function (myparam)
+	{if(working_inst != this.uid){return false;}
+		else {return true;}
+	};
+	Cnds.prototype.on_liked = function (myparam)
+	{if(working_inst != this.uid){return false;}
+		else {return true;}
+	};
+	Cnds.prototype.on_comment = function (myparam)
+	{if(working_inst != this.uid){return false;}
+		else {return true;}
+	};
+	Cnds.prototype.on_sendbutton = function (myparam)
+	{if(working_inst != this.uid){return false;}
+		else {return true;}
+	};
+	Cnds.prototype.Onsharestorysendsuccess = function (myparam)
+	{if(working_inst != this.uid){return false;}
+		else {return true;}
+	};
+	Cnds.prototype.on_parse = function (myparam)
+	{if(working_inst != this.uid){return false;}
+		else {return true;}
+	};
+	Cnds.prototype.Onachsuccess = function (myparam)
+	{if(working_inst != this.uid){return false;}
+		else {return true;}
+	};
+	Cnds.prototype.Onachfail = function (myparam)
+	{if(working_inst != this.uid){return false;}
+		else {return true;}
+	};
+	Cnds.prototype.Onsharestorysendfail = function (myparam)
+	{if(working_inst != this.uid){}
+	 if (Logged_Status == "connected")
+	 {
+	  return true;
+	 }
+	 else
+	 {
+	  return false;
+	 }
+	};
 	pluginProto.cnds = new Cnds();
 	function Acts() {};
-Acts.prototype.FBPGLogin = function ()
+	Acts.prototype.Sendsharerequest = function (ss_url)
+	{ if(working_inst != this.uid){return;}
+	FB.ui({method: 'share',
+	        href: ss_url,
+              }, function(response)
+	      {
+		if (response && !response.error)
+	          {
+	           fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.Onsharestorysendsuccess, fbInst);
+	          }
+	       else
+	          {
+	           error_mes = 'share_story,' + response.error.message;
+	           fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.FB_Error, fbInst);
+		   fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.Onsharestorysendfail, fbInst);
+	          }
+	      });
+	};
+	Acts.prototype.RecommendationsVisible = function (href1)
+	{ if(working_inst != this.uid){return;}
+	FB.XFBML.RecommendationsBar.markRead(href1);
+	};
+	Acts.prototype.Claimachievement = function (href1)
+	{ if(working_inst != this.uid){return;}
+	 FB.api("/me/achievements","POST",
+         {
+                 "object": {
+            "achievement": "{url-of-achievement-type}"
+              }
+         },
+    function (response)
+    {
+     if (response && !response.error)
+	          {
+	           fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.Onachsuccess, fbInst);
+	          }
+	       else
+	          {
+	           error_mes = 'share_story,' + response.error.message;
+	           fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.FB_Error, fbInst);
+		   fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.Onachfail, fbInst);
+	          }
+    }
+);
+	};
+	Acts.prototype.SetVisible = function (vis)
 	{
-            FB.Event.subscribe('auth.login', function(response) {
-                               alert('auth.login event');
-                               });
-		FB.login(
-                         function(response) {
-                         if (response.session) {
-                         alert('logged in');
-                         } else {
-                         alert('not logged in');
-                         }
-                         },
-                         { scope: "email" }
-                         );
-};
+		if(vis == 1)
+	 {console.log("visible"+ vis);
+		jQuery(this.elem).show();
+		this.visible = true;
+		FB.XFBML.parse();
+	 }
+	 else if(vis == 0)
+	 {console.log("not visible"+ vis);
+	  jQuery(this.elem).hide();
+          		this.visible = false;
+	 }console.log(this.runtime.plugins);
+	};
+	Acts.prototype.LogInOut = function (login_auth_type, login_scope,login_enables_profiles,login_profile_ids)
+	{if(working_inst != this.uid){return;}
+	 var login_temp1 = false;
+	 if (login_enables_profiles == "Yes") {login_temp1 = true;}
+	 if(login_auth_type == "Yes")
+	 {
+	  FB.login(function(response)
+	  {
+           if (response.authResponse)
+	   {
+            Check_Login(function(user_info_Array)
+	    {
+	     accessToken = user_info_Array[0];
+	     Logged_Status = user_info_Array[1];
+	     if (Logged_Status == 'connected')
+		   {fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.OnLogin, fbInst);
+		    request_exists = does_param_exist("request_ids");
+		    if(request_exists == true)
+		    {
+		     request_string =getUrlVars()["request_ids"];
+		     fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.Request_check, fbInst);
+		    }
+		   }
+	     else
+	     {fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.OnLogout, fbInst);}
+	     user_pic = user_info_Array[12];
+	     fbID = user_info_Array[2];
+	     firstname = user_info_Array[3];
+	     lastname = user_info_Array[4];
+	     profileLink = user_info_Array[5];
+	     fullname = user_info_Array[6];
+	     user_timezone = user_info_Array[7];
+	     userlastupdate = user_info_Array[8];
+	     verifieduser = user_info_Array[9];
+	     ugender = user_info_Array[10];
+	     ulocale = user_info_Array[11];
+	     error_mes = user_info_Array[13];
+	     if (error_mes != "") {fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.FB_Error, fbInst);}
+	     fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.Onupdate, fbInst);
+	    });
+          }
+	  else
+	  {
+	   error_mes = 'User cancelled login or did not fully authorize.';
+	   fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.FB_Error, fbInst);
+	   fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.OnLoginfail, fbInst);
+	  }
+         },
+	 {
+	 auth_type: 'rerequest',
+          scope: login_scope,
+          return_scopes: true,
+	  enable_profile_selector: login_temp1,
+	  profile_selector_ids: login_profile_ids
+         });
+	}
+	 else
+	 {
+	  FB.login(function(response)
+	   {
+            if (response.authResponse)
+	    {
+             Check_Login(function(user_info_Array)
+	     {
+	      accessToken = user_info_Array[0];
+	      Logged_Status = user_info_Array[1];
+	      if (Logged_Status == 'connected')
+		   {fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.OnLogin, fbInst);
+		    request_exists = does_param_exist("request_ids");
+		    if(request_exists == true)
+		    {
+		     request_string =getUrlVars()["request_ids"];
+		     fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.Request_check, fbInst);
+		    }
+		   }
+	      else
+	      {fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.OnLogout, fbInst);}
+	      user_pic = user_info_Array[12];
+	      fbID = user_info_Array[2];
+	      firstname = user_info_Array[3];
+	      lastname = user_info_Array[4];
+	      profileLink = user_info_Array[5];
+	      fullname = user_info_Array[6];
+	      user_timezone = user_info_Array[7];
+	      userlastupdate = user_info_Array[8];
+	      verifieduser = user_info_Array[9];
+	      ugender = user_info_Array[10];
+	      ulocale = user_info_Array[11];
+	      error_mes = user_info_Array[13];
+	      if (error_mes != "") {fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.FB_Error, fbInst);}
+	      fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.Onupdate, fbInst);
+	     });
+            }
+	    else
+	  {
+	   error_mes = 'User cancelled login or did not fully authorize.';
+	   fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.FB_Error, fbInst);
+	   fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.OnLoginfail, fbInst);
+	  }
+           },
+	  {
+	   scope: login_scope,
+           return_scopes: true,
+	   enable_profile_selector: login_temp1,
+	   profile_selector_ids: login_profile_ids
+          });
+	 }
+	};
+	Acts.prototype.Logout = function ()
+	{if(working_inst != this.uid){return;}
+	 FB.logout(function(response)
+	 {
+	  if (response && !response.error)
+	  {
+          Logged_Status = "unknown";
+	  accessToken = "";
+	  fbID = '';
+	  firstname = '';
+	  lastname = '';
+	  profileLink = '';
+	  fullname = '';
+	  user_timezone = '';
+	  userlastupdate = '';
+	  verifieduser = '';
+	  ugender = '';
+	  ulocale = '';
+	  fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.Onupdate, fbInst);
+	  fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.OnLogout, fbInst);
+	  }
+	  else
+	  {
+	   error_mes = 'User logout failed.';
+	   fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.FB_Error, fbInst);
+	   fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.OnLogoutfail, fbInst);
+	  }
+	 });
+	};
+	Acts.prototype.Get_Invitable = function ()
+	{if(working_inst != this.uid){return;}
+	 invitable_size = 0;
+	 invitable_array_name = [];
+	 invitable_array_id = [];
+	 invitable_array_pic = [];
+	 invitable_place = 0;
+	 FB.api("/me/invitable_friends",
+         function (response)
+	 {
+          if (response && !response.error)
+	  {
+	   invitable_size = response.data.length;
+	   for(var i = 0; i < invitable_size; i++)
+	   {
+	    if (i == 0)
+	    {
+	     invitable_array_name_current = response.data[i].name;
+	     invitable_array_id_current = response.data[i].id;
+	     invitable_array_pic_current = response.data[i].picture.data.url;
+	    }
+             invitable_array_name.push(response.data[i].name);
+	     invitable_array_id.push(response.data[i].id);
+	     invitable_array_pic.push(response.data[i].picture.data.url);
+	    if (i == (invitable_size-1))
+	    {
+	     fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.Oninvitabledone, fbInst);
+	    }
+	   }
+	  }
+	  else
+	  {
+	   error_mes = 'get_invitable,' + response.error.message;
+	   fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.FB_Error, fbInst);
+	   fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.Oninvitablefail, fbInst);
+	  }
+         });
+	};
+	Acts.prototype.Set_Invitable = function (g_i_num)
+	{if(working_inst != this.uid){return;}
+	 invitable_array_name_current = invitable_array_name[g_i_num];
+	 invitable_array_id_current = invitable_array_id[g_i_num];
+	 invitable_array_pic_current = invitable_array_pic[g_i_num];
+	};
+	Acts.prototype.Send_basic_Request = function (sbr_message,sbr_users)
+	{if(working_inst != this.uid){return;}
+	 if (sbr_users == "")
+	 {
+	  FB.ui({method: 'apprequests',
+          message: sbr_message
+         }, function(response)
+	 {
+          if (response && !response.error)
+	  {
+	   request_id = response.request;
+	   fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.Onrequestdone, fbInst);
+	  }
+	  else
+	  {
+	   error_mes = 'app_request,' + response.error.message;
+	   fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.FB_Error, fbInst);
+	  }
+         });
+	 }
+	 else
+	 {
+	  FB.ui({method: 'apprequests',
+          message: sbr_message,
+	  to: sbr_users,
+          }, function(response)
+	  {
+           if (response && !response.error)
+	  {
+	   request_id = response.request;
+	   fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.Onrequestdone, fbInst);
+	  }
+	  else
+	  {
+	   error_mes = 'app_request,' + response.error.message;
+	   fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.FB_Error, fbInst);
+	  }
+          });
+	 }
+	};
+	Acts.prototype.delete_Request = function (requestId)
+	{if(working_inst != this.uid){return;}
+	 FB.api(requestId, 'DELETE', function(response)
+	 {
+	  if (response && !response.error)
+	  {
+	   fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.Onrequestdeleted, fbInst);
+	  }
+	  else
+	  {
+	   error_mes = 'delete_request,' + response.error.message;
+	   fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.FB_Error, fbInst);
+	   fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.Onrequestdeletedfail, fbInst);
+	  }
+         });
+	};
+	Acts.prototype.check_permission = function (cp_permission)
+	{if(working_inst != this.uid){return;}
+	 FB.api("/v2.0/me/permissions?access_token="+accessToken,
+         function (response)
+	 {
+          if (response && !response.error)
+          {
+	   for(var i = 0; i < response.data.length; i++)
+	   {
+	    if (response.data[i].permission == cp_permission)
+	    {
+	     fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.Onpermissionfound, fbInst);
+	     break;
+	    }
+	    else if (response.data[i].permission != cp_permission && i == response.data.length-1 )
+	    {
+	     fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.Onpermissionmissing, fbInst);
+	    }
+           }
+          }
+	  else
+	  {
+	   error_mes = 'check_permission,' + response.error.message;
+	   fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.FB_Error, fbInst);
+	   fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.Onpermissionchfail, fbInst);
+	  }
+         });
+	};
 	pluginProto.acts = new Acts();
 	function Exps() {};
-	Exps.prototype.AllContacts = function (ret)	// 'ret' must always be the first parameter - always return the expression's result through it!
+	Exps.prototype.graphapicalldata = function (ret)
+	{ret.set_string(graph_api_data);};
+	Exps.prototype.LoginStatus = function (ret)
+	{ret.set_string(Logged_Status);};
+	Exps.prototype.UAccessToken = function (ret)
+	{ret.set_string(accessToken);};
+	Exps.prototype.USERID = function (ret)
+	{ret.set_string(fbID);};
+	Exps.prototype.UserFirstname = function (ret)
+	{ret.set_string(firstname);};
+	Exps.prototype.UserLastname = function (ret)
+	{ret.set_string(lastname);};
+	Exps.prototype.UserGender = function (ret)
+	{ret.set_string(ugender);};
+	Exps.prototype.UserFBLink = function (ret)
+	{ret.set_string(profileLink);};
+	Exps.prototype.UserFullname = function (ret)
+	{ret.set_string(fullname);};
+	Exps.prototype.UserTimezone = function (ret)
+	{ret.set_string(user_timezone);};
+	Exps.prototype.UserLastUpdated = function (ret)
+	{ret.set_string(userlastupdate);};
+	Exps.prototype.UserVerified = function (ret)
+	{ret.set_string(verifieduser);};
+	Exps.prototype.UserLocale = function (ret)
+	{ret.set_string(ulocale);};
+	Exps.prototype.InvitableSize = function (ret)
+	{ret.set_int(invitable_size);};
+	Exps.prototype.CurrentInvitableID = function (ret)
+	{ret.set_string(invitable_array_id_current);};
+	Exps.prototype.CurrentInvitableName = function (ret)
+	{ret.set_string(invitable_array_name_current);};
+	Exps.prototype.RequestID = function (ret)
+	{ret.set_string(request_id);};
+	Exps.prototype.CurrentInvitablePicture = function (ret)
+	{ret.set_string(invitable_array_pic_current);};
+	Exps.prototype.UserPRofilePic = function (ret)
+	{ret.set_string(user_pic);};
+	Exps.prototype.fb_error_info = function (ret)
+	{ret.set_string(error_mes);};
+	Exps.prototype.CapturedRequestID = function (ret)
+	{ret.set_string(decodeURIComponent(request_string));};
+	pluginProto.exps = new Exps();
+}());
+function Check_Login(callback)
+{
+ var C_L_I = [];
+ FB.getLoginStatus(function(response)
+	 {
+	  if (response && !response.error)
+	  {
+           if (response.status === 'connected')
+	   {
+           C_L_I[0] = response.authResponse.accessToken;
+	   C_L_I[1] = "connected";//logged status
+	    FB.api("/me",
+            function (response) {
+            if (response && !response.error) {
+             C_L_I[2] = response["id"];
+	     C_L_I[3] = response["first_name"];
+	     C_L_I[4] = response["last_name"];
+	     C_L_I[5] = response["link"];
+	     C_L_I[6] = response["name"];
+	     C_L_I[7] = response["timezone"];
+	     C_L_I[8] = response["updated_time"];
+	     C_L_I[9] = response["verified"];
+	     C_L_I[10] = response["gender"];
+	     C_L_I[11] = response["locale"];
+	      FB.api("/me/picture?redirect=0&type=large",
+              function (response)
+	      {
+               if (response && !response.error)
+	       {
+               C_L_I[12] = response.data.url;
+	       C_L_I[13] = "";
+	       callback(C_L_I);
+               }
+	       else
+	       {
+	        C_L_I[0] = "";
+	        C_L_I[1] = "unknown";
+	        C_L_I[2] = "";
+	        C_L_I[3] = "";
+	        C_L_I[4] = "";
+	        C_L_I[5] = "";
+	        C_L_I[6] = "";
+	        C_L_I[7] = "";
+	        C_L_I[8] = "";
+	        C_L_I[9] = "";
+	        C_L_I[10] = "";
+	        C_L_I[11] = "";
+	        C_L_I[12] = "";
+	        C_L_I[13] = 'get_status,' + response;
+	   callback(C_L_I);
+	  }
+              }
+              );
+             }
+             }
+           );
+           }
+	   else if (response.status === 'not_authorized')
+	   {
+	    C_L_I[0] = "";
+	    C_L_I[1] = "not_authorized";
+	    C_L_I[2] = "";
+	    C_L_I[3] = "";
+	    C_L_I[4] = "";
+	    C_L_I[5] = "";
+	    C_L_I[6] = "";
+	    C_L_I[7] = "";
+	    C_L_I[8] = "";
+	    C_L_I[9] = "";
+	    C_L_I[10] = "";
+	    C_L_I[11] = "";
+	    C_L_I[12] = "";
+	    C_L_I[13] = "";
+	    callback(C_L_I);
+           }
+	   else
+	   {
+	    C_L_I[0] = "";
+	    C_L_I[1] = "unknown";
+	    C_L_I[2] = "";
+	    C_L_I[3] = "";
+	    C_L_I[4] = "";
+	    C_L_I[5] = "";
+	    C_L_I[6] = "";
+	    C_L_I[7] = "";
+	    C_L_I[8] = "";
+	    C_L_I[9] = "";
+	    C_L_I[10] = "";
+	    C_L_I[11] = "";
+	    C_L_I[12] = "";
+	    C_L_I[13] = "";
+	      callback(C_L_I);
+            }
+	  }
+	  else
+	  {
+	   C_L_I[0] = "";
+	    C_L_I[1] = "unknown";
+	    C_L_I[2] = "";
+	    C_L_I[3] = "";
+	    C_L_I[4] = "";
+	    C_L_I[5] = "";
+	    C_L_I[6] = "";
+	    C_L_I[7] = "";
+	    C_L_I[8] = "";
+	    C_L_I[9] = "";
+	    C_L_I[10] = "";
+	    C_L_I[11] = "";
+	    C_L_I[12] = "";
+	   C_L_I[13] = 'get_status,' + response.error.message;
+	   callback(C_L_I);
+	  }
+         });
+}
+function getUrlVars()
+{
+    var vars = [], hash;
+    var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+    for(var i = 0; i < hashes.length; i++)
+    {
+        hash = hashes[i].split('=');
+        vars.push(hash[0]);
+        vars[hash[0]] = hash[1];
+    }
+    return vars;
+}
+function does_param_exist(field)
+{
+var url = window.location.href;
+if(url.indexOf('?' + field + '=') != -1)
+    return true;
+else if(url.indexOf('&' + field + '=') != -1)
+    return true;
+return false
+}
+function iabLoadStop(event)
+{
+}
+;
+;
+/*
+cr.plugins_.Phonegap = function(runtime)
+{
+	this.runtime = runtime;
+	Type
+		onCreate
+	Instance
+		onCreate
+		draw
+		drawGL
+	cnds
+	acts
+	exps
+};
+*/
+cr.plugins_.Phonegap = function(runtime)
+{
+	this.runtime = runtime;
+};
+(function ()
+{
+	var pluginProto = cr.plugins_.Phonegap.prototype;
+	pluginProto.Type = function(plugin)
 	{
-var contactret="";
-                var options = new ContactFindOptions();
-                options.filter = "naresh";
-                var fields = ["*"];
-                navigator.contacts.find(fields, onSuccess, onError, options);
-            function onSuccess(contacts) {
-                for (var i = 0; i < contacts.length; i++) {
-                    contactret=""+contactret+contacts[i].phoneNumbers+"|";
-                }
-            }
-            function onError(contactError) {
-                alert('onError!');
-            }
-		ret.set_string(contactret);				// return our value
+		this.plugin = plugin;
+		this.runtime = plugin.runtime;
 	};
-		Exps.prototype.ContactsCount = function (ret)	// 'ret' must always be the first parameter - always return the expression's result through it!
+	var typeProto = pluginProto.Type.prototype;
+	typeProto.onCreate = function()
 	{
-var len=-1;
-                var options = new ContactFindOptions();
-                options.filter = "naresh";
-                var fields = ["displayName", "name"];
-                navigator.contacts.find(fields, onSuccess, onError, options);
-            function onSuccess(contacts) {
-			len=contacts.length;
-            }
-            function onError(contactError) {
-                alert('onError!');
-            }
-		ret.set_any(len);				// return our value
+/*
+		var newScriptTag=document.createElement('script');
+		newScriptTag.setAttribute("type","text/javascript");
+		newScriptTag.setAttribute("src", "mylib.js");
+		document.getElementsByTagName("head")[0].appendChild(newScriptTag);
+		var scripts=document.getElementsByTagName("script");
+		var exist=false;
+		for(var i=0;i<scripts.length;i++){
+			if(scripts[i].src.indexOf("cordova.js")!=-1||scripts[i].src.indexOf("phonegap.js")!=-1){
+				exist=true;
+				break;
+			}
+		}
+		if(!exist){
+			var newScriptTag=document.createElement("script");
+			newScriptTag.setAttribute("type","text/javascript");
+			newScriptTag.setAttribute("src", "cordova.js");
+			document.getElementsByTagName("head")[0].appendChild(newScriptTag);
+		}
+*/
+		if(this.runtime.isBlackberry10 || this.runtime.isWindows8App || this.runtime.isWindowsPhone8 || this.runtime.isWindowsPhone81){
+			var scripts=document.getElementsByTagName("script");
+			var exist=false;
+			for(var i=0;i<scripts.length;i++){
+				if(scripts[i].src.indexOf("cordova.js")!=-1||scripts[i].src.indexOf("phonegap.js")!=-1){
+					exist=true;
+					break;
+				}
+			}
+			if(!exist){
+				var newScriptTag=document.createElement("script");
+				newScriptTag.setAttribute("type","text/javascript");
+				newScriptTag.setAttribute("src", "cordova.js");
+				document.getElementsByTagName("head")[0].appendChild(newScriptTag);
+			}
+		}
+	};
+	pluginProto.Instance = function(type)
+	{
+		this.type = type;
+		this.runtime = type.runtime;
+	};
+	var instanceProto = pluginProto.Instance.prototype;
+	instanceProto.onCreate = function()
+	{
+/*
+		var self=this;
+		window.addEventListener("resize", function () {//cranberrygame
+			self.runtime.trigger(cr.plugins_.Phonegap.prototype.cnds.TriggerCondition, self);
+		});
+*/
+		this.menu="";
+		var self=this;
+		document.addEventListener("backbutton",
+		function() {
+			self.runtime.trigger(pluginProto.cnds.OnBack, self);
+		}, false);
+		document.addEventListener("menubutton",
+		function() {
+			self.runtime.trigger(pluginProto.cnds.OnMenu, self);
+		}, false);
+		document.addEventListener("onMenuSelected",
+		function(info) {
+			self.menu=info["menu"];
+			self.runtime.trigger(pluginProto.cnds.OnMenuSelected, self);
+		}, false);
+	};
+	instanceProto.draw = function(ctx)
+	{
+	};
+	instanceProto.drawGL = function (glw)
+	{
+	};
+/*
+	instanceProto.at = function (x)
+	{
+		return this.arr[x];
+	};
+	instanceProto.set = function (x, val)
+	{
+		this.arr[x] = val;
+	};
+*/
+	function Cnds() {};
+/*
+	Cnds.prototype.MyCondition = function (myparam)
+	{
+		return myparam >= 0;
+	};
+	Cnds.prototype.TriggerCondition = function ()
+	{
+		return true;
+	};
+*/
+	Cnds.prototype.OnBack = function ()
+	{
+		return true;
+	};
+	Cnds.prototype.OnMenu = function ()
+	{
+		return true;
+	};
+	Cnds.prototype.OnMenuSelected = function ()
+	{
+		return true;
+	};
+	Cnds.prototype.SelectedMenuIs = function (_menu)
+	{
+		return this.menu == _menu;
+	};
+	pluginProto.cnds = new Cnds();
+	function Acts() {};
+/*
+	Acts.prototype.MyAction = function (myparam)
+	{
+		alert(myparam);
+	};
+	Acts.prototype.TriggerAction = function ()
+	{
+		var self=this;
+		self.runtime.trigger(cr.plugins_.Phonegap.prototype.cnds.TriggerCondition, self);
+	};
+*/
+	Acts.prototype.Close = function (myparam)
+	{
+		navigator["app"]["exitApp"]();
+	};
+	Acts.prototype.CloseIfTwice = function (myparam)
+	{
+		if(this.runtime.isAndroid || this.runtime.isWindowsPhone8 || this.runtime.isWindowsPhone81){
+			window["exitappiftwice"]["exitAppIfTwice"]();
+		}
+		else{
+			navigator["app"]["exitApp"]();
+		}
+	};
+	Acts.prototype.SetMenus = function (menus)
+	{
+		window["optionsmenu"]["setMenus"](
+		function(info) {
+		},
+		function(error) {
+		}, menus);
+	};
+	Acts.prototype.ShowMenus = function ()
+	{
+		window["optionsmenu"]["showMenus"](
+		function(info) {
+		},
+		function(error) {
+		});
+	};
+	pluginProto.acts = new Acts();
+	function Exps() {};
+/*
+	Exps.prototype.MyExpression = function (ret)	// 'ret' must always be the first parameter - always return the expression's result through it!
+	{
+		ret.set_int(1337);				// return our value
+	};
+	Exps.prototype.Text = function (ret, param) //cranberrygame
+	{
+		ret.set_string("Hello");		// for ef_return_string
+	};
+*/
+	Exps.prototype.Menu = function (ret)	// 'ret' must always be the first parameter - always return the expression's result through it!
+	{
+		ret.set_string(this.menu);		// for ef_return_string
 	};
 	pluginProto.exps = new Exps();
 }());
@@ -15278,7 +16817,19 @@ cr.getProjectModel = function() { return [
 		false
 	]
 ,	[
-		cr.plugins_.PhonegapFB,
+		cr.plugins_.Facebook3,
+		false,
+		true,
+		true,
+		true,
+		false,
+		false,
+		false,
+		false,
+		false
+	]
+,	[
+		cr.plugins_.Phonegap,
 		true,
 		false,
 		false,
@@ -15466,7 +17017,7 @@ cr.getProjectModel = function() { return [
 	]
 ,	[
 		"t8",
-		cr.plugins_.PhonegapFB,
+		cr.plugins_.Phonegap,
 		false,
 		[],
 		0,
@@ -15477,10 +17028,27 @@ cr.getProjectModel = function() { return [
 		],
 		false,
 		false,
-		4565349679632423,
+		3686759910056738,
 		[],
 		null
 		,[]
+	]
+,	[
+		"t9",
+		cr.plugins_.Facebook3,
+		false,
+		[],
+		0,
+		0,
+		null,
+		null,
+		[
+		],
+		true,
+		false,
+		755777006643006,
+		[],
+		null
 	]
 	],
 	[
@@ -15651,6 +17219,52 @@ cr.getProjectModel = function() { return [
 					0
 				]
 			]
+,			[
+				[264, 893, 0, 200, 25, 0, 0, 1, 0, 0, 0, 0, []],
+				9,
+				0,
+				[
+				],
+				[
+				],
+				[
+					"576508812455924",
+					67,
+					"v2.0",
+					0,
+					0,
+					0,
+					0,
+					11,
+					2,
+					2,
+					"Unavailable",
+					2,
+					4,
+					"Unavailable",
+					2,
+					2,
+					"Unavailable",
+					3,
+					"true",
+					4,
+					3,
+					"Unavailable",
+					"Unavailable",
+					2,
+					4,
+					"Unavailable",
+					"Unavailable",
+					3,
+					"Unavailable",
+					3,
+					2,
+					2,
+					2,
+					3,
+					0
+				]
+			]
 			],
 			[			]
 		]
@@ -15751,11 +17365,35 @@ cr.getProjectModel = function() { return [
 				]
 			]
 ,			[
-				8,
-				cr.plugins_.PhonegapFB.prototype.acts.FBPGLogin,
+				9,
+				cr.plugins_.Facebook3.prototype.acts.LogInOut,
 				null,
-				9569482283411952,
+				6525559588353268,
 				false
+				,[
+				[
+					3,
+					0
+				]
+,				[
+					1,
+					[
+						2,
+						"public_profile, email, user_friends "
+					]
+				]
+,				[
+					3,
+					1
+				]
+,				[
+					1,
+					[
+						2,
+						"1434636340147353,722983741076297"
+					]
+				]
+				]
 			]
 			]
 		]
@@ -15777,7 +17415,7 @@ cr.getProjectModel = function() { return [
 	false,
 	0,
 	0,
-	9,
+	10,
 	false,
 	true,
 	1,
