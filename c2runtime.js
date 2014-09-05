@@ -13171,12 +13171,7 @@ contact.save(onSuccess,onError);
 };
 Acts.prototype.FBPGLogin = function ()
 	{
-if (!(this.runtime.isAndroid || this.runtime.isBlackberry10 || this.runtime.isiOS || this.runtime.isWindows8App || this.runtime.isWindowsPhone8 || this.runtime.isWindowsPhone81))
-			return;
-		if (this.runtime.isAndroid && navigator.platform == 'Win32')//crosswalk emulator
-			return;
-		var self=this;
-		login();
+                login();
 };
 	pluginProto.acts = new Acts();
 	function Exps() {};
