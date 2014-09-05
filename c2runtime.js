@@ -13071,697 +13071,6 @@ cr.plugins_.Button = function(runtime)
 }());
 ;
 ;
-cr.plugins_.FBComplete = function(runtime)
-{
-	this.runtime = runtime;
-};
-(function ()
-{
-	var pluginProto = cr.plugins_.FBComplete.prototype;
-	pluginProto.Type = function(plugin)
-	{
-		this.plugin = plugin;
-		this.runtime = plugin.runtime;
-	};
-	var typeProto = pluginProto.Type.prototype;
-	var fbGameFriendsName = new Array();    var fbGameFriendsID = new Array(); var fbGameFriendsScore = new Array(); var fbRank = new Array();var fbfriendlength = 0;
-	var basic_done = 0;
-	var email = "";
-	var birthday = "";
-	var age_min = "";
-	var age_max = "";
-	var current_friend_rank = "";
-	var current_friend_id = "";
-	var current_friend_name = "";
-	var current_friend_score = "";
-	var fbRuntime = null;
-	var fbpicture = "";
-	var fbInst = null;
-	var fbScore = 0;
-	var pay_orderid = "";
-	  var pay_orderstatus = "";
-	  var pay_errorcode = "";
-	  var pay_errormessage = "";
-	var scoreerror = "";
-	var storypostid = "";
-	var currentstatus = "wishywashy";
-        var fblogoutcheck =  true;
-	var gender = "";
-	var locale = "";
-	var link = "";
-	var username = "";
-	var thirdpartyid = "";
-	var fullnamename = "";
-	var firstname = "";
-	var lastname = "";
-	var fbStatus = "unknown";
-	var fbUserID = "";
-	var UserAccessToken = "";
-	var Auth_Response_Status = "";
-	var Init_App_ID = "";
-	var Init_Allow_Cookies = false;
-	var Init_Allow_Logging = false;
-	var Init_Fetch_Fresh_Status = false;
-	var Init_Parse_Xfbml = false;
-	var Init_Authresponse_Init = false;
-	var Init_Allow_Frictionless_Requests = false;
-	var UserAccessTokenExpiresIn = 0;
-	var UserSignedRequest = "";
-	typeProto.onCreate = function()
-	{
-	};
-	pluginProto.Instance = function(type)
-	{
-		this.type = type;
-		this.runtime = type.runtime;
-	};
-	var instanceProto = pluginProto.Instance.prototype;
-	instanceProto.onCreate = function()
-	{
-				Init_App_ID = this.properties[0];
-				if(this.properties[1] == "Yes"){Init_Allow_Cookies = true;}
-		                if(this.properties[2] == "Yes"){Init_Allow_Logging = true;}
-		                if(this.properties[3] == "Yes"){Init_Fetch_Fresh_Status = true;}
-		                if(this.properties[4] == "Yes"){Init_Parse_Xfbml = true;}
-		                if(this.properties[5] == "Yes"){Init_Authresponse_Init = true;}
-		                if(this.properties[6] == "Yes"){Init_Allow_Frictionless_Requests = true;}
-				 fbRuntime = this.runtime;
-		                 fbInst = this;
-		window.fbAsyncInit = function() {
-    		var pname = location.pathname;
-		if (pname.substr(pname.length - 1) !== '/'){pname = pname.substr(0, pname.lastIndexOf('/') + 1);}
-    FB.init({
-      "appId"      : Init_App_ID, // App ID from the App Dashboard
-      "channelUrl" : '//' + location.hostname + pname + 'channel.html', // Channel File for x-domain communication
-      "status"     : Init_Fetch_Fresh_Status, // check the login status upon init?
-      "cookie"     : Init_Allow_Cookies, // set sessions cookies to allow your server to access the session?
-      "logging"    : Init_Allow_Logging,
-      "authResponse" :Init_Authresponse_Init,
-      "frictionlessRequests" :Init_Allow_Frictionless_Requests,
-      "hideFlashCallback" : null,
-      "xfbml"      : Init_Parse_Xfbml  // parse XFBML tags on this page?
-    });
-    FB.getLoginStatus(function(response) {
-     if (response["status"] == 'connected') {
-      fbStatus = "Validated User";
-       fbUserID = response["authResponse"]["userID"];
-       UserAccessToken = response["authResponse"]["accessToken"];
-       UserAccessTokenExpiresIn = response["authResponse"]["expiresIn"];
-       UserSignedRequest = response["authResponse"]["signedRequest"];
-       if(currentstatus != "Validated User"){currentstatus = "Validated User";fblogoutcheck = true;fbRuntime.trigger(cr.plugins_.FBComplete.prototype.cnds.OnLoggedIn, fbInst);}
-      fbRuntime.trigger(cr.plugins_.FBComplete.prototype.cnds.OnAPILoaded, fbInst);
-      }
-      else if (response["status"] == 'not_authorized') {
-       fbStatus = "Logged In No Install";
-       fbUserID = "";
-       UserAccessToken = "";
-       UserAccessTokenExpiresIn = 0;
-       UserSignedRequest = "";
-       if(currentstatus != "Logged In No Install"){currentstatus = "Logged In No Install";fblogoutcheck = false;fbRuntime.trigger(cr.plugins_.FBComplete.prototype.cnds.OnNotInstalled, fbInst);}
-       fbRuntime.trigger(cr.plugins_.FBComplete.prototype.cnds.OnAPILoaded, fbInst);
-      } else if (response["status"] == 'unknown') {
-	fbStatus = "Not On Facebook";
-	fbUserID = "";
-       UserAccessToken = "";
-       UserAccessTokenExpiresIn = 0;
-       UserSignedRequest = "";
-       if(currentstatus != "Not On Facebook"){currentstatus = "Not On Facebook";fblogoutcheck = false;fbRuntime.trigger(cr.plugins_.FBComplete.prototype.cnds.OnFacebookOut, fbInst);}
-       fbRuntime.trigger(cr.plugins_.FBComplete.prototype.cnds.OnAPILoaded, fbInst);
-  }
- }, true);
-  };
-  (function(d, debug){
-     var js, id = 'facebook-jssdk', ref = d.getElementsByTagName('script')[0];
-     if (d.getElementById(id)) {return;}
-     js = d.createElement('script'); js.id = id; js.async = true;
-     js.src = "//connect.facebook.net/en_US/all" + (debug ? "/debug" : "") + ".js";
-     ref.parentNode.insertBefore(js, ref);
-   }(document, /*debug*/ false));
-	};
-	instanceProto.draw = function(ctx)
-	{
-	};
-	instanceProto.drawGL = function (glw)
-	{
-	};
-	function Cnds() {};
-	Cnds.prototype.OnLoggedIn = function ()
-	{
-		return true;
-	};
-	Cnds.prototype.OnNotInstalled = function ()
-	{
-		return true;
-	};
-	Cnds.prototype.OnFacebookOut = function ()
-	{
-		return true;
-	};
-	Cnds.prototype.OnAPILoaded = function ()
-	{
-		return true;
-	};
-	Cnds.prototype.OnInfoReady = function ()
-	{
-		basic_done = 0;
-		return true;
-	};
-	Cnds.prototype.IsLoggedIn = function ()
-	{
-		return fblogoutcheck;
-	};
-	Cnds.prototype.OnFeedSuccess = function ()
-	{
-		return true;
-	};
-	Cnds.prototype.OnFeedFailed = function ()
-	{
-		return true;
-	};
-	Cnds.prototype.OnPaySuccess = function ()
-	{
-		return true;
-	};
-	Cnds.prototype.OnPayFailure = function ()
-	{
-		return true;
-	};
-	Cnds.prototype.OnHiscore = function ()
-	{
-		return true;
-	};
-	Cnds.prototype.OnPhotoFail = function ()
-	{
-		return true;
-	};
-	Cnds.prototype.OnPhotoSuccess = function ()
-	{
-		return true;
-	};
-	Cnds.prototype.OnUserHiscoreSubmit = function ()
-	{
-		return true;
-	};
-	Cnds.prototype.OnUserHiscoreReceive = function ()
-	{
-		return true;
-	};
-	Cnds.prototype.OnMessageSubmit = function ()
-	{
-		return true;
-	};
-	Cnds.prototype.OnMessageFail = function ()
-	{
-		return true;
-	};
-	pluginProto.cnds = new Cnds();
-	function Acts() {};
-	Acts.prototype.UserLogin = function (response_Type, redirect_url,login_permissions,login_state,login_display)
-	{
-	 var oauth_url = 'https://www.facebook.com/dialog/oauth/';
-            oauth_url += '?client_id='+Init_App_ID;
-            oauth_url += '&redirect_uri=' + encodeURIComponent(redirect_url);
-            oauth_url += '&scope='+login_permissions;
-	    oauth_url += '&state='+login_state;
-	    if(login_display == 1){oauth_url += '&display=iframe';}
-	    else if(login_display == 2){oauth_url += '&display=page';}
-	    else if(login_display == 3){oauth_url += '&display=popup';}
-	    else if(login_display == 4){oauth_url += '&display=touch';}
-	    else if(login_display == 0){}
-	    if(response_Type == 0){oauth_url += '&response_type=token';}
-	    else if(response_Type == 1){oauth_url += '&response_type=code';}
-            window.top.location = oauth_url;
-	};
-	Acts.prototype.UpdateStatus = function ()
-	{
-		var fbRuntimea = this.runtime;
-		                var fbInsta = this;
-		FB.getLoginStatus(function(response) {
-     if (response["status"] == 'connected') {
-      fbStatus = "Validated User";
-       fbUserID = response["authResponse"]["userID"];
-       UserAccessToken = response["authResponse"]["accessToken"];
-       UserAccessTokenExpiresIn = response["authResponse"]["expiresIn"];
-       UserSignedRequest = response["authResponse"]["signedRequest"];
-       if(currentstatus != "Validated User"){currentstatus = "Validated User";fblogoutcheck = true;fbRuntimea.trigger(cr.plugins_.FBComplete.prototype.cnds.OnLoggedIn, fbInsta);}
-      } else if (response["status"] == 'not_authorized') {
-       fbStatus = "Logged In No Install";
-       fbUserID = "";
-       UserAccessToken = "";
-       UserAccessTokenExpiresIn = 0;
-       UserSignedRequest = "";
-       if(currentstatus != "Logged In No Install"){currentstatus = "Logged In No Install";fblogoutcheck = false;fbRuntimea.trigger(cr.plugins_.FBComplete.prototype.cnds.OnNotInstalled, fbInsta);}
-      } else if (response["status"] == 'unknown') {
-	fbStatus = "Not On Facebook";
-	fbUserID = "";
-       UserAccessToken = "";
-       UserAccessTokenExpiresIn = 0;
-       UserSignedRequest = "";
-       if(currentstatus != "Not On Facebook"){currentstatus = "Not On Facebook";fblogoutcheck = false;fbRuntimea.trigger(cr.plugins_.FBComplete.prototype.cnds.OnFacebookOut, fbInsta);}
-           }
-          }, true);
-	};
-	Acts.prototype.UpdateBasicUser = function ()
-	{
-	 FB.api('/me', function(response) {
-		if(response["birthday"]){birthday = response["birthday"];}
-		else if(!response["birthday"]){birthday ="permissions";}// return our value
-		if(response["email"]){email = response["email"];}
-		else if(!response["email"]){email ="permissions";}// return our value
-		if(response["name"]){fullnamename = response["name"];}
-		else if(!response["name"]){fullnamename ="permissions";}// return our value
-		if(response["first_name"]){firstname = response["first_name"];}
-		else if(!response["first_name"]){firstname ="permissions";}// return our value
-		if(response["last_name"]){lastname = response["last_name"];}
-		else if(!response["last_name"]){lastname ="permissions";}// return our value
-		if(response["gender"]){gender = response["gender"];}
-		else if(!response["gender"]){gender ="permissions";}// return our value
-		if(response["locale"]){locale = response["locale"];}
-		else if(!response["locale"]){locale ="permissions";}// return our value
-		if(response["link"]){link = response["link"];}
-		else if(!response["link"]){link ="permissions";}// return our value
-		if(response["username"]){username = response["username"];}
-		else if(!response["username"]){username ="permissions";}// return our value
-		if(basic_done == 3){fbRuntime.trigger(cr.plugins_.FBComplete.prototype.cnds.OnInfoReady, fbInst);}
-		else{basic_done ++;}
-		});
-	 FB.api('/me?fields=third_party_id&access_token='+UserAccessToken, function (userData) {
-                if(userData["third_party_id"]){
-			thirdpartyid = userData["third_party_id"];
-			if(basic_done == 3){fbRuntime.trigger(cr.plugins_.FBComplete.prototype.cnds.OnInfoReady, fbInst);}
-		        else{basic_done ++;}
-			}
-		else if(!userData["third_party_id"]){
-			thirdpartyid ="permissions";
-			if(basic_done == 3){fbRuntime.trigger(cr.plugins_.FBComplete.prototype.cnds.OnInfoReady, fbInst);}
-		        else{basic_done ++;}
-			}// return our value
-                });
-	 FB.api('/me?fields=picture&redirect=false&access_token='+UserAccessToken, function (userData) {
-                if(userData["picture"]){
-			fbpicture = userData["picture"]["data"]["url"];
-			if(basic_done == 3){fbRuntime.trigger(cr.plugins_.FBComplete.prototype.cnds.OnInfoReady, fbInst);}
-		        else{basic_done ++;}
-			}
-		else if(!userData["picture"]){
-			fbpicture ="permissions";
-			if(basic_done == 3){fbRuntime.trigger(cr.plugins_.FBComplete.prototype.cnds.OnInfoReady, fbInst);}
-		        else{basic_done ++;}
-			}// return our value
-                });
-	 FB.api('/me?fields=age_range&access_token='+UserAccessToken, function (userData) {
-                if(userData["age_range"]){if(userData["age_range"]["min"]){age_min = userData["age_range"]["min"];}else{age_min = "none"}if(userData["age_range"]["max"]){age_max = userData["age_range"]["max"]; }else{age_max = "none"}
-		if(basic_done == 3){fbRuntime.trigger(cr.plugins_.FBComplete.prototype.cnds.OnInfoReady, fbInst);}
-		else{basic_done ++;}
-		}
-		else if(!userData["age_range"]){
-			age_min ="permissions";
-			if(basic_done == 3){fbRuntime.trigger(cr.plugins_.FBComplete.prototype.cnds.OnInfoReady, fbInst);}
-		        else{basic_done ++;}
-			}// return our value
-                });
-	};
-	 Acts.prototype.FacebookLogout = function ()
-	{
-	 FB.logout(function(response) {
-           fblogoutcheck = false;
-          });
-	};
-	Acts.prototype.DeleteApp = function ()
-	{
-	 FB.api('/me/permissions?access_token='+UserAccessToken, 'delete', function(response) {
-          });
-	 fblogoutcheck = false;
-	};
-	Acts.prototype.PostStory = function (sfrom,sto,story,ssource,picture,sname,scaption,sdescription,slink,sref)
-	{
-		var fbRuntimea = this.runtime;
-		                var fbInsta = this;
-	 var feedstring = 'me/feed?';
-	 if(sfrom != ""){feedstring += 'from=' + parseInt(sfrom);}else{feedstring += 'from=' + fbUserID;}
-	 if(sto != ""){feedstring += '&to=' + parseInt(sto);}
-	 if(story != ""){feedstring += '&message=' + story;}
-	 if(ssource != ""){feedstring += '&source=' + ssource;}
-	 if(picture != ""){feedstring += '&picture=' + picture;}
-	 if(sname != ""){feedstring += '&name=' + sname;}
-	 if(scaption != ""){feedstring += '&caption=' + scaption;}
-	 if(sdescription != ""){feedstring += '&description=' + sdescription;}
-	 if(slink != ""){feedstring += '&link=' + slink;}
-	 if(sref != ""){feedstring += '&ref=' + sref;}
-	FB.api(feedstring, 'post', {}, function(response) {
-  if (!response || response.error) {
-    storypostid =response["error"]["message"];
-    fbRuntime.trigger(cr.plugins_.FBComplete.prototype.cnds.OnFeedFailed, fbInst);
-  } else {
-    storypostid =response["id"];
-    fbRuntime.trigger(cr.plugins_.FBComplete.prototype.cnds.OnFeedSuccess, fbInst);
-  }
-});
-	};
-	Acts.prototype.PublishScore = function (score_)
-	{
-		FB.api('/me/scores?access_token='+UserAccessToken+'&score='+score_, 'post', {}, function(response) {
-                 if (!response || response.error){
-			scoreerror = "Permissions";
-		 }
-		 else{scoreerror = "Success";
-		 fbRuntime.trigger(cr.plugins_.FBComplete.prototype.cnds.OnUserHiscoreSubmit, fbInst);
-		 }
-                });
-	};
-	Acts.prototype.RequestUserHiscore = function (appname)
-	{
-		FB.api('/me/scores?access_token='+UserAccessToken, 'GET', {}, function(response) {
-			fbScore = 0;
-			var arr = response["data"];
-			if (!arr)
-			{
-				scoreerror = "Request for user hi-score failed";
-				return;
-			}
-			var i, len;
-			for (i = 0, len = arr.length; i < len; i++)
-			{
-				if (arr[i]["application"]["namespace"] == appname && arr[i]["score"] > fbScore)
-					fbScore = arr[i]["score"];fbRuntime.trigger(cr.plugins_.FBComplete.prototype.cnds.OnUserHiscoreReceive, fbInst);
-			}
-			if (!response || response.error) {
-			  scoreerror = "Permissions"
-		    } else {
-			  scoreerror = "Success";
-		    }
-		});
-	};
-	Acts.prototype.RequestStory = function (sfrom,sto,ssource,pictures,sname,scaption,sdescription,slink,sref)
-	{
-		FB.ui({
-				"method": "feed",
-				"from": parseInt(sfrom),
-				"to": parseInt(sto),
-				"source": ssource,
-				"picture": pictures,
-				"name": sname,
-				"caption": scaption,
-				"description": sdescription,
-				"link": slink,
-				"ref": sref
-			  }, function(response) {
-				var fbRuntimeb = this.runtime;
-		                var fbInstb = this;
-				if (!response || response.error) {
-                                  storypostid =response["error"]["message"];
-				  fbRuntime.trigger(cr.plugins_.FBComplete.prototype.cnds.OnFeedFailed, fbInst);
-                                } else {
-                                  storypostid =response["post_id"];
-				  fbRuntime.trigger(cr.plugins_.FBComplete.prototype.cnds.OnFeedSuccess, fbInst);
-                                }
-			});
-	};
-	Acts.prototype.InvokePay = function (itemids)
-	{
-		FB.ui({"method": 'pay', "action": 'buy_item', "order_info": {'item_id': itemids}, "dev_purchase_params": {'oscif': true}
-			  }, function(data) {
-				if (data['order_id']) {
-               pay_orderid = data['order_id'];
-	       pay_orderstatus = data['status'];
-	       fbRuntime.trigger(cr.plugins_.FBComplete.prototype.cnds.OnPaySuccess, fbInst);
-        } else if (data['error_code']) {
-          pay_errorcode = data['error_code'];
-          pay_errormessage = data['error_message'];
-	  fbRuntime.trigger(cr.plugins_.FBComplete.prototype.cnds.OnPayFailure, fbInst);
-        } else {
-          pay_errormessage = "Payment failed";
-	  fbRuntime.trigger(cr.plugins_.FBComplete.prototype.cnds.OnPayFailure, fbInst);
-        }
-			});
-	};
-	Acts.prototype.FriendsPlaying = function (n)
-	{
-		FB.api('/' + Init_App_ID + '/scores', 'GET', {}, function(response) {
-			var arr = response["data"];
-			if (!arr)
-			{
-				console.error("Hi-scores request failed: " + response);
-				return;
-			}
-			arr.sort(function(a, b) {
-				return b["score"] - a["score"];
-			});
-			var i = 0, len = Math.min(arr.length, n);
-			fbfriendlength = arr.length;
-			for ( ; i < len; i++)
-			{
-				fbGameFriendsScore[i] = arr[i]["score"];
-				fbGameFriendsName[i] = arr[i]["user"]["name"];
-				fbGameFriendsID[i] = arr[i]["user"]["id"];
-				fbRank[i] = i + 1;
-			}
-			fbRuntime.trigger(cr.plugins_.FBComplete.prototype.cnds.OnHiscore, fbInst);
-			if (!response || response.error) {
-			  fbGameFriendsScore[i] = "failed";
-				fbGameFriendsName[i] = "failed";
-				fbGameFriendsID[i] = "failed";
-				fbRank[i] = "failed";
-		    } else {
-			  fbGameFriendsScore[i] = "failed";
-				fbGameFriendsName[i] = "failed";
-				fbGameFriendsID[i] = "failed";
-				fbRank[i] = "failed";
-		    }
-		});
-	};
-	Acts.prototype.GetCurrentGameFriend = function (friend_id)
-	{
-	 friend_id = friend_id - 1;
-	current_friend_rank = fbRank[friend_id];
-	current_friend_id = fbGameFriendsID[friend_id];
-	current_friend_name = fbGameFriendsName[friend_id];
-	current_friend_score = fbGameFriendsScore[friend_id];
-	};
-	Acts.prototype.UserLoginPopUp = function (permissions)
-	{
-	FB.login(function(response) {
-         if (response.authResponse) {
-          FB.api('/me', function(response) {
-		if(response["birthday"]){birthday = response["birthday"];}
-		else if(!response["birthday"]){birthday ="permissions";}// return our value
-		if(response["email"]){email = response["email"];}
-		else if(!response["email"]){email ="permissions";}// return our value
-		if(response["name"]){fullnamename = response["name"];}
-		else if(!response["name"]){fullnamename ="permissions";}// return our value
-		if(response["first_name"]){firstname = response["first_name"];}
-		else if(!response["first_name"]){firstname ="permissions";}// return our value
-		if(response["last_name"]){lastname = response["last_name"];}
-		else if(!response["last_name"]){lastname ="permissions";}// return our value
-		if(response["gender"]){gender = response["gender"];}
-		else if(!response["gender"]){gender ="permissions";}// return our value
-		if(response["locale"]){locale = response["locale"];}
-		else if(!response["locale"]){locale ="permissions";}// return our value
-		if(response["link"]){link = response["link"];}
-		else if(!response["link"]){link ="permissions";}// return our value
-		if(response["username"]){username = response["username"];}
-		else if(!response["username"]){username ="permissions";}// return our value
-		});
-	 FB.api('/me?fields=third_party_id&access_token='+UserAccessToken, function (userData) {
-                if(userData["third_party_id"]){thirdpartyid = userData["third_party_id"];}
-		else if(!userData["third_party_id"]){thirdpartyid ="permissions";}// return our value
-                });
-	 FB.api('/me?fields=picture&redirect=false&access_token='+UserAccessToken, function (userData) {
-                if(userData["picture"]){fbpicture = userData["picture"]["data"]["url"];}
-		else if(!userData["picture"]){fbpicture ="permissions";}// return our value
-                });
-	 FB.api('/me?fields=age_range&access_token='+UserAccessToken, function (userData) {
-                if(userData["age_range"]){if(userData["age_range"]["min"]){age_min = userData["age_range"]["min"];}else{age_min = "none"}if(userData["age_range"]["max"]){age_max = userData["age_range"]["max"]; }else{age_max = "none"}}
-		else if(!userData["age_range"]){age_min ="permissions";}// return our value
-                });
-	 fbRuntime.trigger(cr.plugins_.FBComplete.prototype.cnds.OnInfoReady, fbInst);
-   } else {
-     FB.getLoginStatus(function(response) {
-     if (response["status"] == 'connected') {
-      fbStatus = "Validated User";
-       fbUserID = response["authResponse"]["userID"];
-       UserAccessToken = response["authResponse"]["accessToken"];
-       UserAccessTokenExpiresIn = response["authResponse"]["expiresIn"];
-       UserSignedRequest = response["authResponse"]["signedRequest"];
-       if(currentstatus != "Validated User"){currentstatus = "Validated User";fblogoutcheck = true;fbRuntime.trigger(cr.plugins_.FBComplete.prototype.cnds.OnLoggedIn, fbInst);}
-      } else if (response["status"] == 'not_authorized') {
-       fbStatus = "Logged In No Install";
-       fbUserID = "";
-       UserAccessToken = "";
-       UserAccessTokenExpiresIn = 0;
-       UserSignedRequest = "";
-       if(currentstatus != "Logged In No Install"){currentstatus = "Logged In No Install";fblogoutcheck = false;fbRuntime.trigger(cr.plugins_.FBComplete.prototype.cnds.OnNotInstalled, fbInst);}
-      } else if (response["status"] == 'unknown') {
-	fbStatus = "Not On Facebook";
-	fbUserID = "";
-       UserAccessToken = "";
-       UserAccessTokenExpiresIn = 0;
-       UserSignedRequest = "";
-       if(currentstatus != "Not On Facebook"){currentstatus = "Not On Facebook";fblogoutcheck = false;fbRuntime.trigger(cr.plugins_.FBComplete.prototype.cnds.OnFacebookOut, fbInst);}
-           }
-          }, true);
-   }
- }, {scope: permissions});
-	};
-	Acts.prototype.UploadPhoto = function (image, descrip)
-	{
-	 var imgURL = image;
-    FB.api('/me/photos', 'post', {
-        message:descrip,
-        url:imgURL
-    }, function(response){
-        if (!response || response.error) {
-            fbRuntime.trigger(cr.plugins_.FBComplete.prototype.cnds.OnPhotoFail, fbInst);
-        } else {
-            fbRuntime.trigger(cr.plugins_.FBComplete.prototype.cnds.OnPhotoSuccess, fbInst);
-        }
-    });
-	};
-	Acts.prototype.SendMessage = function (idss, pic, desc, links, name)
-	{
-		var fark = '';
-		fark = idss;
-	 FB.ui({
-          "method": 'send',
-          'name': name,
-          'link': links,
-          'description': desc,
-	  'picture': pic,
-	  'to': fark,
-	  }, function(response) {
-				if (response) {
-                                 fbRuntime.trigger(cr.plugins_.FBComplete.prototype.cnds.OnMessageSubmit, fbInst);
-                                } else {
-                                 fbRuntime.trigger(cr.plugins_.FBComplete.prototype.cnds.OnMessageFail, fbInst);
-                                }
-                           });
-	};
-	pluginProto.acts = new Acts();
-	function Exps() {};
-	Exps.prototype.UserID = function (ret)	// 'ret' must always be the first parameter - always return the expression's result through it!
-	{
-		ret.set_string(fbUserID);				// return our value
-	};
-	Exps.prototype.UserLoginStatus = function (ret)	// 'ret' must always be the first parameter - always return the expression's result through it!
-	{
-		ret.set_string(fbStatus);				// return our value
-	};
-	Exps.prototype.UserAccessTokenExpiresIn = function (ret)	// 'ret' must always be the first parameter - always return the expression's result through it!
-	{
-		ret.set_int(UserAccessTokenExpiresIn);				// return our value
-	};
-	Exps.prototype.UserAccessToken = function (ret)	// 'ret' must always be the first parameter - always return the expression's result through it!
-	{
-		ret.set_string(UserAccessToken);				// return our value
-	};
-	Exps.prototype.UserSignedRequest = function (ret)	// 'ret' must always be the first parameter - always return the expression's result through it!
-	{
-		ret.set_string(UserSignedRequest);				// return our value
-	};
-	Exps.prototype.UserFullName = function (ret)	// 'ret' must always be the first parameter - always return the expression's result through it!
-	{
-		ret.set_string(fullnamename);// for ef_return_any, accepts either a number or string
-	};
-	Exps.prototype.UserFirstName = function (ret)	// 'ret' must always be the first parameter - always return the expression's result through it!
-	{
-		ret.set_string(firstname);// for ef_return_any, accepts either a number or string
-	};
-	Exps.prototype.UserLastName = function (ret)	// 'ret' must always be the first parameter - always return the expression's result through it!
-	{
-		ret.set_string(lastname);// for ef_return_any, accepts either a number or string
-	};
-	Exps.prototype.ThirdPartyID = function (ret)	// 'ret' must always be the first parameter - always return the expression's result through it!
-	{
-		ret.set_string(thirdpartyid);// for ef_return_any, accepts either a number or string
-	};
-	Exps.prototype.UserGender = function (ret)	// 'ret' must always be the first parameter - always return the expression's result through it!
-	{
-		ret.set_string(gender);// for ef_return_any, accepts either a number or string
-	};
-	Exps.prototype.UserLocale = function (ret)	// 'ret' must always be the first parameter - always return the expression's result through it!
-	{
-		ret.set_string(locale);// for ef_return_any, accepts either a number or string
-	};
-	Exps.prototype.UserLink = function (ret)	// 'ret' must always be the first parameter - always return the expression's result through it!
-	{
-		ret.set_string(link);// for ef_return_any, accepts either a number or string
-	};
-	Exps.prototype.UserUserName = function (ret)	// 'ret' must always be the first parameter - always return the expression's result through it!
-	{
-		ret.set_string(username);// for ef_return_any, accepts either a number or string
-	};
-	Exps.prototype.StoryFeedPostID = function (ret)	// 'ret' must always be the first parameter - always return the expression's result through it!
-	{
-		ret.set_string(storypostid);// for ef_return_any, accepts either a number or string
-	};
-	Exps.prototype.UserPicture = function (ret)	// 'ret' must always be the first parameter - always return the expression's result through it!
-	{
-		ret.set_string(fbpicture);// for ef_return_any, accepts either a number or string
-	};
-	Exps.prototype.ScoreError = function (ret)	// 'ret' must always be the first parameter - always return the expression's result through it!
-	{
-		ret.set_string(scoreerror);// for ef_return_any, accepts either a number or string
-	};
-	Exps.prototype.Score = function (ret)
-	{
-		ret.set_int(fbScore);
-	};
-	Exps.prototype.PayStatus = function (ret)
-	{
-		ret.set_string(pay_orderstatus);
-	};
-	Exps.prototype.PayID = function (ret)
-	{
-		ret.set_string(pay_orderid);
-	};
-	Exps.prototype.PayErrorCode = function (ret)
-	{
-		ret.set_string(pay_errorcode);
-	};
-	Exps.prototype.PayErrorMessage = function (ret)
-	{
-		ret.set_string(pay_errormessage);
-	};
-	Exps.prototype.FriendsScore = function (ret)
-	{
-		ret.set_string(current_friend_score);
-	};
-	Exps.prototype.FriendsName = function (ret)
-	{
-		ret.set_string(current_friend_name);
-	};
-	Exps.prototype.FriendsID = function (ret)
-	{
-		ret.set_string(current_friend_id);
-	};
-	Exps.prototype.FriendsRank = function (ret)
-	{
-		ret.set_string(current_friend_rank);
-	};
-	Exps.prototype.FriendsLength = function (ret)
-	{
-		ret.set_int(fbfriendlength);
-	};
-	Exps.prototype.MinAge = function (ret)
-	{
-		ret.set_string(age_min);
-	};
-	Exps.prototype.MaxAge = function (ret)
-	{
-		ret.set_string(age_max);
-	};
-	Exps.prototype.Email = function (ret)
-	{
-		ret.set_string(email);
-	};
-	Exps.prototype.Birthday = function (ret)
-	{
-		ret.set_string(birthday);
-	};
-	pluginProto.exps = new Exps();
-}());
-;
-;
 cr.plugins_.PhonegapContacts = function(runtime)
 {
 	this.runtime = runtime;
@@ -13793,6 +13102,36 @@ cr.plugins_.PhonegapContacts = function(runtime)
 				document.getElementsByTagName("head")[0].appendChild(newScriptTag);
 			}
 		}
+		if ((typeof cordova == 'undefined') && (typeof Cordova == 'undefined')) alert('Cordova variable does not exist. Check that you have included cordova.js correctly');
+            if (typeof CDV == 'undefined') alert('CDV variable does not exist. Check that you have included cdv-plugin-fb-connect.js correctly');
+            if (typeof FB == 'undefined') alert('FB variable does not exist. Check that you have included the Facebook JS SDK file.');
+            FB.Event.subscribe('auth.login', function(response) {
+                               alert('auth.login event');
+                               });
+            FB.Event.subscribe('auth.logout', function(response) {
+                               alert('auth.logout event');
+                               });
+            FB.Event.subscribe('auth.sessionChange', function(response) {
+                               alert('auth.sessionChange event');
+                               });
+            FB.Event.subscribe('auth.statusChange', function(response) {
+                               alert('auth.statusChange event');
+                               });
+            /*function getSession() {
+                alert("session: " + JSON.stringify(FB.getSession()));
+            }
+            */
+            function getLoginStatus() {
+                FB.getLoginStatus(function(response) {
+                                  if (response.status == 'connected') {
+                                  alert('logged in');
+                                  } else {
+                                  alert('not logged in');
+                                  }
+                                  });
+            }
+            var friendIDs = [];
+			var fdata;
 	};
 	pluginProto.Instance = function(type)
 	{
@@ -13825,10 +13164,6 @@ cr.plugins_.PhonegapContacts = function(runtime)
 	{
 	};
 	function Cnds() {};
-	Cnds.prototype.MyCondition = function (myparam)
-	{
-		return myparam=="bold";
-	};
 	pluginProto.cnds = new Cnds();
 	function Acts() {};
 	Acts.prototype.SaveContact = function (displayName,mobile,email,weburl,picurl)
@@ -13864,6 +13199,24 @@ contact.urls = website;
 contact.photos=photos;
 contact.save(onSuccess,onError);
 };
+Acts.prototype.FBPGLogin = function ()
+	{
+if (!(this.runtime.isAndroid || this.runtime.isBlackberry10 || this.runtime.isiOS || this.runtime.isWindows8App || this.runtime.isWindowsPhone8 || this.runtime.isWindowsPhone81))
+			return;
+		if (this.runtime.isAndroid && navigator.platform == 'Win32')//crosswalk emulator
+			return;
+		var self=this;
+		 FB.login(
+                         function(response) {
+                         if (response.session) {
+                         alert('logged in');
+                         } else {
+                         alert('not logged in');
+                         }
+                         },
+                         { scope: "email" }
+                         );
+		};
 	pluginProto.acts = new Acts();
 	function Exps() {};
 	Exps.prototype.AllContacts = function (ret)	// 'ret' must always be the first parameter - always return the expression's result through it!
@@ -15987,18 +15340,6 @@ cr.getProjectModel = function() { return [
 		false
 	]
 ,	[
-		cr.plugins_.FBComplete,
-		true,
-		false,
-		false,
-		false,
-		false,
-		false,
-		false,
-		false,
-		false
-	]
-,	[
 		cr.plugins_.PhonegapContacts,
 		true,
 		false,
@@ -16202,24 +15543,6 @@ cr.getProjectModel = function() { return [
 		2702881991591942,
 		[],
 		null
-	]
-,	[
-		"t9",
-		cr.plugins_.FBComplete,
-		false,
-		[],
-		0,
-		0,
-		null,
-		null,
-		[
-		],
-		false,
-		false,
-		9493103923728944,
-		[],
-		null
-		,["576508812455924",0,0,0,0,0,0]
 	]
 	],
 	[
@@ -16590,58 +15913,11 @@ cr.getProjectModel = function() { return [
 				]
 			]
 ,			[
-				9,
-				cr.plugins_.FBComplete.prototype.acts.UserLoginPopUp,
+				0,
+				cr.plugins_.PhonegapContacts.prototype.acts.FBPGLogin,
 				null,
-				5079523475255493,
+				6820685033619173,
 				false
-				,[
-				[
-					1,
-					[
-						2,
-						"public_profile,email,user_friends"
-					]
-				]
-				]
-			]
-			]
-		]
-,		[
-			0,
-			null,
-			false,
-			null,
-			3521256417124741,
-			[
-			[
-				9,
-				cr.plugins_.FBComplete.prototype.cnds.OnLoggedIn,
-				null,
-				1,
-				false,
-				false,
-				false,
-				2028572587933889,
-				false
-			]
-			],
-			[
-			[
-				7,
-				cr.plugins_.Text.prototype.acts.SetText,
-				null,
-				6510333945787195,
-				false
-				,[
-				[
-					7,
-					[
-						2,
-						"yes"
-					]
-				]
-				]
 			]
 			]
 		]
