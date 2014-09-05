@@ -13069,83 +13069,34 @@ cr.plugins_.Button = function(runtime)
 	function Exps() {};
 	pluginProto.exps = new Exps();
 }());
+var FB_Properties = {};
+	var User  = {};
+	var FB_API  = {};
+	FB_API["initialize run"] = "No";
+	FB_API["API READY"] = "No";
+	FB_API["URL GRAPHAPI"] = "https://graph.facebook.com/";
+        FB_API["URL GRAPH ME FIELDS"] = "?fields=website,work,third_party_id,verified,religion,significant_other,timezone,relationship_status,quotes,languages,last_name,link,locale,location,middle_name,name,name_format,political,installed,is_verified,id,about,age_range,bio,birthday,context,cover,currency,devices,education,email,favorite_athletes,favorite_teams,first_name,gender,hometown,inspirational_people&access_token=";
+        FB_API["API Error Code"] = "Not Ready";
+                   FB_API["API Error Message"] = "Not Ready";
+                   FB_API["API Error Type"] = "Not Ready";
+	FB_API["APP TOKEN"] = "Unsecure";
+	FB_API["GRAPH API DATA"] = "None";
+User_Reset_Vars();
 ;
 ;
-var ios_url, ios_access_token;
-var ios_trigger_once = false;
-cr.plugins_.Facebook3 = function(runtime)
+cr.plugins_.Facebook2_1 = function(runtime)
 {
 	this.runtime = runtime;
 };
 (function ()
 {
-	var pluginProto = cr.plugins_.Facebook3.prototype;
+	var pluginProto = cr.plugins_.Facebook2_1.prototype;
 	pluginProto.Type = function(plugin)
 	{
 		this.plugin = plugin;
 		this.runtime = plugin.runtime;
 	};
-        var typeProto = pluginProto.Type.prototype;
-	var languages;
-	var runonce = false;
-	var Logged_Status = "unchecked";
-	var accessToken = "";
-	var FB_Ready = false;
-	var list1 = "";
-	var fb_vers = '';
-	var cookievar = false;
-	var statusvar = false;
-	var frictionvar = false;
-	var xfbmlvar = false;
-	var fbRuntime = null;
-	var fbInst = null;
-	var fbID = "";
-	var firstname = "";
-	var lastname = "";
-	var profileLink = "";
-	var fullname = "";
-	var user_timezone = "";
-	var userlastupdate = "";
-	var verifieduser = "";
-	var ugender = "";
-	var ulocale = "";
-	var boxtype   = 1;
-	var invitable_size = 0;
-	var invitable_array_name = [];
-	var invitable_array_id = [];
-	var invitable_array_pic = [];
-	var user_info_Array = [];
-	var invitable_array_name_current;
-	var invitable_array_id_current;
-	var invitable_array_pic_current;
-	var invitable_place = 0;
-	var request_id;
-	var user_pic;
-	var error_mes = "";
-	var friends_array_name = [];
-	var friends_array_id = [];
-	var friends_array_pic = [];
-	var friends_array_name_current;
-	var friends_array_id_current;
-	var friends_array_pic_current;
-	var friends_place = 0;
-	var friends_size = 0;
-	var user_score = 0;
-	var request_exists = false;
-        var request_string = "";
-	var social_action, social_scheme,social_kids,social_layout,social_share,social_showfaces;
-	var social_url, social_ref,social_posts,social_order,social_share_layout, social_follow_layout;
-	var social_activity_action,social_activity_filter,social_activity_header,social_activity_linktarget;
-	var social_activity_maxage,social_activity_recommendations,social_domain,social_readtime,social_trigger;
-	var social_wall,social_border,social_stream,social_size;
-	var social_trigger =0;
-	var pluginInstancesIndex = 0;
-	var inst_count = 0,inst_visible = 0;
-	var this_X,this_Y;
-	var working_inst;
-	var phonegap_flag = false;
-	var graph_api_data = "";
-	var user_updating = false;
+	var typeProto = pluginProto.Type.prototype;
 	typeProto.onCreate = function()
 	{
 	};
@@ -13157,694 +13108,84 @@ cr.plugins_.Facebook3 = function(runtime)
 	var instanceProto = pluginProto.Instance.prototype;
 	instanceProto.onCreate = function()
 	{
-		list1 = this.properties[0];
-		 fb_vers = this.properties[2];
-		 phonegap_flag = parseInt(this.properties[34]);
-		 if (phonegap_flag == 0) {phonegap_flag = true;}
-	         else{phonegap_flag = false;}
-		boxtype =parseInt(this.properties[7]);
-		inst_count = 0;//this.properties[18];
-		social_share_layout = this.properties[19];
-		social_follow_layout = this.properties[20];
-		 social_ref = this.properties[13];
-	         social_url = this.properties[10];
-		 social_action = parseInt(this.properties[8]);
-	         social_scheme = parseInt(this.properties[9]);
-	         social_kids = parseInt(this.properties[11]);
-	         social_layout = parseInt(this.properties[12]);
-	         social_share = parseInt(this.properties[14]);
-	         social_showfaces = parseInt(this.properties[15]);
-		 social_posts = this.properties[16];
-		 social_order = parseInt(this.properties[17]);
-		 social_activity_action = this.properties[21];
-		 social_activity_filter = this.properties[22];
-		 social_activity_header = parseInt(this.properties[23]);
-		 social_activity_linktarget = parseInt(this.properties[24]);
-		 social_activity_maxage = parseInt(this.properties[25]);
-		 social_domain = this.properties[26];
-		 social_trigger = parseInt(this.properties[29]);
-		 social_readtime = this.properties[28];
-		 social_activity_recommendations = parseInt(this.properties[27]);
-		 social_wall = parseInt(this.properties[30]);
-		 social_border = this.properties[31];
-		 social_stream = parseInt(this.properties[32]);
-		 social_size = parseInt(this.properties[33]);
-		 if (social_size == 0) {social_size = "small";}
-	         else if (social_size == 1){social_size = "medium";}
-	         else {social_size = "large";}
-		 if (social_wall == 0) {social_wall = true;} else{social_wall =false ;}
-		 if (social_border == 0) {social_border = true;} else{social_border =false ;}
-		 if (social_stream == 0) {social_stream = true;} else{social_stream =false ;}
-		 if (social_trigger == 0) {social_trigger = "onvisible";} else{social_trigger ="manual" ;}
-		 if (social_activity_linktarget == 0) {social_activity_linktarget = "_blank";}
-	         else if (social_activity_linktarget == 1){social_activity_linktarget = "_self";}
-	         else if (social_activity_linktarget == 2){social_activity_linktarget = "_parent";}
-	         else {social_activity_linktarget = "_top";}
-		 if (social_activity_recommendations == 0) {social_activity_recommendations = "true";} else{social_activity_recommendations ="false" ;}
-		 if (social_activity_header == 0) {social_activity_header = "true";} else{social_activity_header ="false" ;}
-		 if (social_action == 1) {social_action = "recommend";} else{social_action ="like" ;}
-	         if (social_scheme == 1) {social_scheme = "dark";} else{social_scheme = "light";}
-	         if (social_kids == 1) {social_kids = false;} else{social_kids = true;}
-	         if (social_share == 1) {social_share = false;} else{social_share = true;}
-	         if (social_showfaces == 1) {social_showfaces = false;} else{social_showfaces = true;}
-		 if (social_order == 0) {social_order = "social";}
-	         else if (social_order == 1){social_order = "reverse_time";}
-	         else {social_order = "time";}
-	         if (social_layout == 0) {social_layout = "standard";}
-	         else if (social_layout == 1){social_layout = "button_count";}
-	         else if (social_layout == 2){social_layout = "button";}
-	         else {social_layout = "box_count";}
-		  if (social_share_layout == 0) {social_share_layout = "box_count";}
-	         else if (social_share_layout == 1){social_share_layout = "button_count";}
-	         else if (social_share_layout == 2){social_share_layout = "button";}
-	         else {social_share_layout = "icon";}
-		 if (social_follow_layout == 0) {social_follow_layout = "standard";}
-	         else if (social_follow_layout == 1){social_follow_layout = "box_count";}
-	         else {social_follow_layout = "button_count";}
-		if(runonce==false && this.properties[0] != "" && phonegap_flag == false)
-		{
-		 working_inst = this.uid;
-                 runonce = true;
-		 fbRuntime = this.runtime;
-		 fbInst = this;
-		 var assigned = parseInt(this.properties[1]);
-		 if (assigned == 0) {languages = "zh_TW";}
-		 else if (assigned == 1) {languages = "zh_HK";}
-		 else if (assigned == 2) {languages = "zh_CN";}
-		 else if (assigned == 3) {languages = "vi_VN";}
-		 else if (assigned == 4) {languages = "ur_PK";}
-		 else if (assigned == 5) {languages = "uk_UA";}
-		 else if (assigned == 6) {languages = "tr_TR";}
-		 else if (assigned == 7) {languages = "tl_PH";}
-		 else if (assigned == 8) {languages = "th_TH";}
-		 else if (assigned == 9) {languages = "te_IN";}
-		 else if (assigned == 10) {languages = "ta_IN";}
-		 else if (assigned == 11) {languages = "sw_KE";}
-		 else if (assigned == 12) {languages = "sv_SE";}
-		 else if (assigned == 13) {languages = "sr_RS";}
-		 else if (assigned == 14) {languages = "sq_AL";}
-		 else if (assigned == 15) {languages = "sl_SI";}
-		 else if (assigned == 16) {languages = "sk_SK";}
-		 else if (assigned == 17) {languages = "si_LK";}
-		 else if (assigned == 18) {languages = "ru_RU";}
-		 else if (assigned == 19) {languages = "ro_RO";}
-		 else if (assigned == 20) {languages = "pt_PT";}
-		 else if (assigned == 21) {languages = "pt_BR";}
-	         else if (assigned == 22) {languages = "ps_AF";}
-		 else if (assigned == 23) {languages = "pl_PL";}
-		 else if (assigned == 24) {languages = "pa_IN";}
-		 else if (assigned == 25) {languages = "nn_NO";}
-		 else if (assigned == 26) {languages = "nl_NL";}
-		 else if (assigned == 27) {languages = "ne_NP";}
-		 else if (assigned == 28) {languages = "nb_NO";}
-		 else if (assigned == 29) {languages = "ms_MY";}
-		 else if (assigned == 30) {languages = "ml_IN";}
-		 else if (assigned == 31) {languages = "mk_MK";}
-		 else if (assigned == 32) {languages = "lv_LV";}
-		 else if (assigned == 33) {languages = "lt_LT";}
-		 else if (assigned == 34) {languages = "la_VA";}
-		 else if (assigned == 35) {languages = "ku_TR";}
-		 else if (assigned == 36) {languages = "ko_KR";}
-		 else if (assigned == 37) {languages = "kn_IN";}
-		 else if (assigned == 38) {languages = "km_KH";}
-		 else if (assigned == 39) {languages = "ka_GE";}
-		 else if (assigned == 40) {languages = "jv_ID";}
-		 else if (assigned == 41) {languages = "ja_JP";}
-		 else if (assigned == 42) {languages = "it_IT";}
-		 else if (assigned == 43) {languages = "is_IS";}
-		 else if (assigned == 44) {languages = "id_ID";}
-		 else if (assigned == 45) {languages = "hy_AM";}
-		 else if (assigned == 46) {languages = "hu_HU";}
-		 else if (assigned == 47) {languages = "hr_HR";}
-		 else if (assigned == 48) {languages = "hi_IN";}
-		 else if (assigned == 49) {languages = "he_IL";}
-		 else if (assigned == 50) {languages = "gn_PY";}
-		 else if (assigned == 51) {languages = "gl_ES";}
-		 else if (assigned == 52) {languages = "ga_IE";}
-		 else if (assigned == 53) {languages = "fy_NL";}
-		 else if (assigned == 54) {languages = "fr_FR";}
-		 else if (assigned == 55) {languages = "fr_CA";}
-		 else if (assigned == 56) {languages = "fo_FO";}
-		 else if (assigned == 57) {languages = "fi_FI";}
-		 else if (assigned == 58) {languages = "fb_LT";}
-		 else if (assigned == 59) {languages = "fa_IR";}
-		 else if (assigned == 60) {languages = "eu_ES";}
-		 else if (assigned == 61) {languages = "et_EE";}
-		 else if (assigned == 62) {languages = "es_LA";}
-		 else if (assigned == 63) {languages = "es_ES";}
-		 else if (assigned == 64) {languages = "eo_EO";}
-		 else if (assigned == 65) {languages = "en_US";}
-		 else if (assigned == 66) {languages = "en_UD";}
-		 else if (assigned == 67) {languages = "en_PI";}
-		 else if (assigned == 68) {languages = "en_GB";}
-		 else if (assigned == 69) {languages = "el_GR";}
-		 else if (assigned == 70) {languages = "de_DE";}
-		 else if (assigned == 71) {languages = "da_DK";}
-		 else if (assigned == 72) {languages = "cy_GB";}
-		 else if (assigned == 73) {languages = "cx_PH";}
-		 else if (assigned == 74) {languages = "cs_CZ";}
-		 else if (assigned == 75) {languages = "ca_ES";}
-		 else if (assigned == 76) {languages = "bs_BA";}
-		 else if (assigned == 77) {languages = "bn_IN";}
-		 else if (assigned == 78) {languages = "bg_BG";}
-		 else if (assigned == 79) {languages = "be_BY";}
-		 else if (assigned == 80) {languages = "az_AZ";}
-		 else if (assigned == 81) {languages = "ar_AR";}
-		 else if (assigned == 82) {languages = "af_ZA";}
-		 else languages = languages = "en_US";
-		 xfbmlvar = parseInt(this.properties[5]);
-		 if (xfbmlvar == 1) {xfbmlvar = false;} else{xfbmlvar = true;}
-		 cookievar = parseInt(this.properties[3]);
-		 if (cookievar == 1) {cookievar = false;} else{cookievar = true;}
-		 statusvar = parseInt(this.properties[4]);
-		 if (statusvar == 1) {statusvar = false;} else{statusvar = true;}
-		 frictionvar = parseInt(this.properties[6]);
-		 if (frictionvar == 1) {frictionvar = false;} else{frictionvar = true;}
-		 request_exists = does_param_exist("language");
-		     if(request_exists == true)
-		     {languages =getUrlVars()["language"].substring(0, 5);}
-		window.fbAsyncInit = function()
-		{
-                 FB.init({
-                          appId      : parseInt(list1),
-                          xfbml      : xfbmlvar,
-			  cookie     :  cookievar,
-			  status     :  statusvar,
-			  frictionlessRequests : frictionvar,
-                          version    : fb_vers
-                        });
-		 FB_Ready = true;
-		 FB.Canvas.setAutoGrow();
-		 	fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.APILoaded, fbInst);
-		 FB.Event.subscribe('message.send', function(response)
-		 {
-		  fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.on_sendbutton, fbInst);
-		 });
-		 FB.Event.subscribe('xfbml.render', function(response)
-		 {
-		  fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.on_parse, fbInst);
-		 });
-		 FB.Event.subscribe('comment.create', function(response)
-		 {
-		  fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.on_comment, fbInst);
-		 });
-		 FB.Event.subscribe('comment.remove', function(response)
-		 {
-		  fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.on_discomment, fbInst);
-		 });
-		 FB.Event.subscribe('edge.create', function(response)
-		 {
-		  fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.on_liked, fbInst);
-		 });
-		 FB.Event.subscribe('edge.remove', function(response)
-		 {
-		  fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.on_disliked, fbInst);
-		 });
-		 FB.Event.subscribe('auth.authResponseChanged', function(response)
-		 {if (user_updating == true) {return}user_updating = true;
-		  Check_Login(function(user_info_Array)
-		  {
-	           accessToken = user_info_Array[0];
-	           Logged_Status = user_info_Array[1];
-		   if (Logged_Status == 'connected')
-		    {fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.OnLogin, fbInst);
-		     request_exists = does_param_exist("request_ids");
-		     if(request_exists == true)
-		     {
-		      request_string =getUrlVars()["request_ids"];
-		      fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.Request_check, fbInst);
-		     }
-		    }
-		   else
-		    {fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.OnLogout, fbInst);}
-		     user_pic = user_info_Array[12];
-		     fbID = user_info_Array[2];
-	             firstname = user_info_Array[3];
-	             lastname = user_info_Array[4];
-	             profileLink = user_info_Array[5];
-	             fullname = user_info_Array[6];
-	             user_timezone = user_info_Array[7];
-	             userlastupdate = user_info_Array[8];
-	             verifieduser = user_info_Array[9];
-	             ugender = user_info_Array[10];
-	             ulocale = user_info_Array[11];
-		     error_mes = user_info_Array[13];
-		     if (error_mes != "") {fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.FB_Error, fbInst);}
-		  fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.Onupdate, fbInst);
-		  user_updating = false;
-		 });
-		 });
-		 FB.Event.subscribe('auth.statusChange', function(response)
-		 {if (user_updating == true) {return}user_updating = true;
-		  Check_Login(function(user_info_Array)
-		  {
-	           accessToken = user_info_Array[0];
-	           Logged_Status = user_info_Array[1];
-		   if (Logged_Status == 'connected')
-		    {/*fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.OnLogin, fbInst);*/
-		     request_exists = does_param_exist("request_ids");
-		     if(request_exists == true)
-		     {
-		      request_string =getUrlVars()["request_ids"];
-		      fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.Request_check, fbInst);
-		     }
-		    }
-		   else
-		    {/*fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.OnLogout, fbInst);*/}
-		     user_pic = user_info_Array[12];
-		     fbID = user_info_Array[2];
-	             firstname = user_info_Array[3];
-	             lastname = user_info_Array[4];
-	             profileLink = user_info_Array[5];
-	             fullname = user_info_Array[6];
-	             user_timezone = user_info_Array[7];
-	             userlastupdate = user_info_Array[8];
-	             verifieduser = user_info_Array[9];
-	             ugender = user_info_Array[10];
-	             ulocale = user_info_Array[11];
-		     error_mes = user_info_Array[13];
-		     if (error_mes != "") {fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.FB_Error, fbInst);}
-		  fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.Onupdate, fbInst);
-		  user_updating = false;
-		 });
-		 });user_updating = true;
-		 Check_Login(function(user_info_Array)
-		 {
-	          accessToken = user_info_Array[0];
-	          Logged_Status = user_info_Array[1];
-		  if (Logged_Status == 'connected')
-		   {fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.OnLogin, fbInst);
-		    request_exists = does_param_exist("request_ids");
-		    if(request_exists == true)
-		    {
-		     request_string =getUrlVars()["request_ids"];
-		     fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.Request_check, fbInst);
-		    }
-		   }
-		  else
-		   {fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.OnLogout, fbInst);}
-		  user_pic = user_info_Array[12];
-		  fbID = user_info_Array[2];
-	          firstname = user_info_Array[3];
-	          lastname = user_info_Array[4];
-	          profileLink = user_info_Array[5];
-	          fullname = user_info_Array[6];
-	          user_timezone = user_info_Array[7];
-	          userlastupdate = user_info_Array[8];
-	          verifieduser = user_info_Array[9];
-	          ugender = user_info_Array[10];
-	          ulocale = user_info_Array[11];
-		  error_mes = user_info_Array[13];
-		  if (error_mes != "") {fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.FB_Error, fbInst);}
-		  fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.Onupdate, fbInst);
-		  user_updating = false;
-	         });
-	        };
-		(function(d, s, id)
-	        {
-                 var js, fjs = d.getElementsByTagName(s)[0];
-                 if (d.getElementById(id)) {return;}
-                 js = d.createElement(s); js.id = id;
-                 js.src = "//connect.facebook.net/" + languages + "/sdk.js";
-                 fjs.parentNode.insertBefore(js, fjs);
-                }(document, 'script', 'facebook-jssdk'));
-                }
-		if (phonegap_flag == false)
-		{
-		 if(boxtype == 0)
-	        {pluginInstancesIndex++;
-		 this.elem = document.createElement("div");
-		 this.elem.innerHTML = '<fb:like class="fb-like" data-kid-directed-site="'+social_kids+'" data-colorscheme="'+social_scheme+'" data-ref="'+social_ref+'" data-href="'+social_url+'" data-layout="'+social_layout+'" data-action="'+social_action+'" data-show-faces="'+social_showfaces+'" data-share="'+social_share+'"></fb:like>';
-                 inst_visible++;
-		 jQuery(this.elem).appendTo("body");
-		 var left = this.layer.layerToCanvas(this.x, this.y, true);
-		var top = this.layer.layerToCanvas(this.x, this.y, false);
-		var right = this.layer.layerToCanvas(this.x + this.width, this.y + this.height, true);
-		var bottom = this.layer.layerToCanvas(this.x + this.width, this.y + this.height, false);
-		var offx = Math.round(left) + jQuery(this.runtime.canvas).offset().left;
-		var offy = Math.round(top) + jQuery(this.runtime.canvas).offset().top;
-		var widthfactor = this.width > 0 ? 1 : -1;
-		var heightfactor = this.height > 0 ? 1 : -1;
-		jQuery(this.elem).css("position", "absolute");
-		jQuery(this.elem).offset({left: offx, top: offy});
-		jQuery(this.elem).width(Math.round(right - left));
-		jQuery(this.elem).height(Math.round(bottom - top));
-		this.rotation2D = "-webkit-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
-										+"deg);-webkit-transform-origin:0% 0%;"+
-									"-moz-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
-										+"deg);-moz-transform-origin:0% 0%;"+
-									"-o-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
-										+"deg);-o-transform-origin:0% 0%;";
-		this.elem.style.cssText += ";"+/*this.CSSstyle +";"+*/ this.rotation2D/* + this.perspectiveValue + this.rotation3D*/;
-		this.lastLeft = 0;
-		 this.lastTop = 0;
-		 this.lastRight = 0;
-		 this.lastBottom = 0;
-		 this.lastWinWidth = 0;
-		 this.lastWinHeight = 0;
-		this.runtime.tickMe(this);
-		}
-		else if(boxtype == 1)
-		{pluginInstancesIndex++;inst_visible++;
-		 this.elem = document.createElement("div");
-		 this.elem.style.overflowY = "scroll";
-		 jQuery(this.elem).css("position", "absolute");
-		 this.elem.innerHTML = '<fb:comments class="fb-comments" data-order-by="'+social_order+'" data-colorscheme="'+social_scheme+'" data-numposts="'+social_posts+'" data-href="'+social_url+'"</fb:comments>';
-                 jQuery(this.elem).appendTo("body");
-		 var left = this.layer.layerToCanvas(this.x, this.y, true);
-		var top = this.layer.layerToCanvas(this.x, this.y, false);
-		var right = this.layer.layerToCanvas(this.x + this.width, this.y + this.height, true);
-		var bottom = this.layer.layerToCanvas(this.x + this.width, this.y + this.height, false);
-		var offx = Math.round(left) + jQuery(this.runtime.canvas).offset().left;
-		var offy = Math.round(top) + jQuery(this.runtime.canvas).offset().top;
-		var widthfactor = this.width > 0 ? 1 : -1;
-		var heightfactor = this.height > 0 ? 1 : -1;
-		jQuery(this.elem).css("position", "absolute");
-		jQuery(this.elem).offset({left: offx, top: offy});
-		jQuery(this.elem).width(Math.round(right - left));
-		jQuery(this.elem).height(Math.round(bottom - top));
-		this.rotation2D = "-webkit-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
-										+"deg);-webkit-transform-origin:0% 0%;"+
-									"-moz-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
-										+"deg);-moz-transform-origin:0% 0%;"+
-									"-o-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
-										+"deg);-o-transform-origin:0% 0%;";
-		this.elem.style.cssText += ";"+/*this.CSSstyle +";"+*/ this.rotation2D/* + this.perspectiveValue + this.rotation3D*/;
-		this.lastLeft = 0;
-		 this.lastTop = 0;
-		 this.lastRight = 0;
-		 this.lastBottom = 0;
-		 this.lastWinWidth = 0;
-		 this.lastWinHeight = 0;
-		this.runtime.tickMe(this);
-		}
-		else if(boxtype == 2)
-		{pluginInstancesIndex++;inst_visible++;
-		 this.elem = document.createElement("div");
-		 this.elem.innerHTML = '<fb:share-button href="'+social_url+'" data-type="'+social_share_layout+'"></fb:share-button>';
-                 jQuery(this.elem).appendTo("body");
-		 var left = this.layer.layerToCanvas(this.x, this.y, true);
-		var top = this.layer.layerToCanvas(this.x, this.y, false);
-		var right = this.layer.layerToCanvas(this.x + this.width, this.y + this.height, true);
-		var bottom = this.layer.layerToCanvas(this.x + this.width, this.y + this.height, false);
-		var offx = Math.round(left) + jQuery(this.runtime.canvas).offset().left;
-		var offy = Math.round(top) + jQuery(this.runtime.canvas).offset().top;
-		var widthfactor = this.width > 0 ? 1 : -1;
-		var heightfactor = this.height > 0 ? 1 : -1;
-		jQuery(this.elem).css("position", "absolute");
-		jQuery(this.elem).offset({left: offx, top: offy});
-		jQuery(this.elem).width(Math.round(right - left));
-		jQuery(this.elem).height(Math.round(bottom - top));
-		this.rotation2D = "-webkit-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
-										+"deg);-webkit-transform-origin:0% 0%;"+
-									"-moz-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
-										+"deg);-moz-transform-origin:0% 0%;"+
-									"-o-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
-										+"deg);-o-transform-origin:0% 0%;";
-		this.elem.style.cssText += ";"+/*this.CSSstyle +";"+*/ this.rotation2D/* + this.perspectiveValue + this.rotation3D*/;
-		this.lastLeft = 0;
-		 this.lastTop = 0;
-		 this.lastRight = 0;
-		 this.lastBottom = 0;
-		 this.lastWinWidth = 0;
-		 this.lastWinHeight = 0;
-		this.runtime.tickMe(this);
-		 }
-		else if(boxtype == 3)
-		{pluginInstancesIndex++;inst_visible++;
-		 this.elem = document.createElement("div");
-		 this.elem.innerHTML = '<fb:send href="'+social_url+'" colorscheme="'+social_scheme+'" data-kid-directed-site="'+social_kids+'"data-ref="'+social_ref+'" ></fb:send>';
-                 jQuery(this.elem).appendTo("body");
-		 var left = this.layer.layerToCanvas(this.x, this.y, true);
-		var top = this.layer.layerToCanvas(this.x, this.y, false);
-		var right = this.layer.layerToCanvas(this.x + this.width, this.y + this.height, true);
-		var bottom = this.layer.layerToCanvas(this.x + this.width, this.y + this.height, false);
-		var offx = Math.round(left) + jQuery(this.runtime.canvas).offset().left;
-		var offy = Math.round(top) + jQuery(this.runtime.canvas).offset().top;
-		var widthfactor = this.width > 0 ? 1 : -1;
-		var heightfactor = this.height > 0 ? 1 : -1;
-		jQuery(this.elem).css("position", "absolute");
-		jQuery(this.elem).offset({left: offx, top: offy});
-		jQuery(this.elem).width(Math.round(right - left));
-		jQuery(this.elem).height(Math.round(bottom - top));
-		this.rotation2D = "-webkit-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
-										+"deg);-webkit-transform-origin:0% 0%;"+
-									"-moz-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
-										+"deg);-moz-transform-origin:0% 0%;"+
-									"-o-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
-										+"deg);-o-transform-origin:0% 0%;";
-		this.elem.style.cssText += ";"+/*this.CSSstyle +";"+*/ this.rotation2D/* + this.perspectiveValue + this.rotation3D*/;
-		this.lastLeft = 0;
-		 this.lastTop = 0;
-		 this.lastRight = 0;
-		 this.lastBottom = 0;
-		 this.lastWinWidth = 0;
-		 this.lastWinHeight = 0;
-		this.runtime.tickMe(this);
-		}
-		else if(boxtype == 4)
-		{pluginInstancesIndex++;inst_visible++;
-		 this.elem = document.createElement("div");
-		 this.elem.style.overflowY = "scroll";
-		 this.elem.innerHTML = '<fb:post href="'+social_url+'" width="'+this.width+'"></fb:post>';
-                 jQuery(this.elem).appendTo("body");
-		 var left = this.layer.layerToCanvas(this.x, this.y, true);
-		var top = this.layer.layerToCanvas(this.x, this.y, false);
-		var right = this.layer.layerToCanvas(this.x + this.width, this.y + this.height, true);
-		var bottom = this.layer.layerToCanvas(this.x + this.width, this.y + this.height, false);
-		var offx = Math.round(left) + jQuery(this.runtime.canvas).offset().left;
-		var offy = Math.round(top) + jQuery(this.runtime.canvas).offset().top;
-		var widthfactor = this.width > 0 ? 1 : -1;
-		var heightfactor = this.height > 0 ? 1 : -1;
-		jQuery(this.elem).css("position", "absolute");
-		jQuery(this.elem).offset({left: offx, top: offy});
-		jQuery(this.elem).width(Math.round(right - left));
-		jQuery(this.elem).height(Math.round(bottom - top));
-		this.rotation2D = "-webkit-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
-										+"deg);-webkit-transform-origin:0% 0%;"+
-									"-moz-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
-										+"deg);-moz-transform-origin:0% 0%;"+
-									"-o-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
-										+"deg);-o-transform-origin:0% 0%;";
-		this.elem.style.cssText += ";"+/*this.CSSstyle +";"+*/ this.rotation2D/* + this.perspectiveValue + this.rotation3D*/;
-		this.lastLeft = 0;
-		 this.lastTop = 0;
-		 this.lastRight = 0;
-		 this.lastBottom = 0;
-		 this.lastWinWidth = 0;
-		 this.lastWinHeight = 0;
-		this.runtime.tickMe(this);
-		}
-		else if(boxtype == 5)
-		{pluginInstancesIndex++;inst_visible++;
-		 this.elem = document.createElement("div");
-		 this.elem.innerHTML = '<fb:follow kid_directed_site="'+social_kids+'" href="'+social_url+'" colorscheme="'+social_scheme+'" layout="'+social_follow_layout+'" show_faces="'+social_showfaces+'"></fb:follow>';
-                 jQuery(this.elem).appendTo("body");
-		 var left = this.layer.layerToCanvas(this.x, this.y, true);
-		var top = this.layer.layerToCanvas(this.x, this.y, false);
-		var right = this.layer.layerToCanvas(this.x + this.width, this.y + this.height, true);
-		var bottom = this.layer.layerToCanvas(this.x + this.width, this.y + this.height, false);
-		var offx = Math.round(left) + jQuery(this.runtime.canvas).offset().left;
-		var offy = Math.round(top) + jQuery(this.runtime.canvas).offset().top;
-		var widthfactor = this.width > 0 ? 1 : -1;
-		var heightfactor = this.height > 0 ? 1 : -1;
-		jQuery(this.elem).css("position", "absolute");
-		jQuery(this.elem).offset({left: offx, top: offy});
-		jQuery(this.elem).width(Math.round(right - left));
-		jQuery(this.elem).height(Math.round(bottom - top));
-		this.rotation2D = "-webkit-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
-										+"deg);-webkit-transform-origin:0% 0%;"+
-									"-moz-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
-										+"deg);-moz-transform-origin:0% 0%;"+
-									"-o-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
-										+"deg);-o-transform-origin:0% 0%;";
-		this.elem.style.cssText += ";"+/*this.CSSstyle +";"+*/ this.rotation2D/* + this.perspectiveValue + this.rotation3D*/;
-		this.lastLeft = 0;
-		 this.lastTop = 0;
-		 this.lastRight = 0;
-		 this.lastBottom = 0;
-		 this.lastWinWidth = 0;
-		 this.lastWinHeight = 0;
-		this.runtime.tickMe(this);
-		}
-		else if(boxtype == 6)
-		{pluginInstancesIndex++;inst_visible++;
-		 this.elem = document.createElement("div");
-		 this.elem.style.overflowY = "scroll";
-		 this.elem.innerHTML = '<fb:activity site="'+social_domain+'" ref="'+social_ref+'" recommendations="'+social_activity_recommendations+'" max_age="'+social_activity_maxage+'" linktarget="'+social_activity_linktarget+'" action="'+social_activity_action+'" colorscheme="'+social_scheme+'" header="'+social_activity_header+'" filter="'+social_activity_filter+'"></fb:activity>';
-                 jQuery(this.elem).appendTo("body");
-		 var left = this.layer.layerToCanvas(this.x, this.y, true);
-		var top = this.layer.layerToCanvas(this.x, this.y, false);
-		var right = this.layer.layerToCanvas(this.x + this.width, this.y + this.height, true);
-		var bottom = this.layer.layerToCanvas(this.x + this.width, this.y + this.height, false);
-		var offx = Math.round(left) + jQuery(this.runtime.canvas).offset().left;
-		var offy = Math.round(top) + jQuery(this.runtime.canvas).offset().top;
-		var widthfactor = this.width > 0 ? 1 : -1;
-		var heightfactor = this.height > 0 ? 1 : -1;
-		jQuery(this.elem).css("position", "absolute");
-		jQuery(this.elem).offset({left: offx, top: offy});
-		jQuery(this.elem).width(Math.round(right - left));
-		jQuery(this.elem).height(Math.round(bottom - top));
-		this.rotation2D = "-webkit-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
-										+"deg);-webkit-transform-origin:0% 0%;"+
-									"-moz-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
-										+"deg);-moz-transform-origin:0% 0%;"+
-									"-o-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
-										+"deg);-o-transform-origin:0% 0%;";
-		this.elem.style.cssText += ";"+/*this.CSSstyle +";"+*/ this.rotation2D/* + this.perspectiveValue + this.rotation3D*/;
-		this.lastLeft = 0;
-		 this.lastTop = 0;
-		 this.lastRight = 0;
-		 this.lastBottom = 0;
-		 this.lastWinWidth = 0;
-		 this.lastWinHeight = 0;
-		this.runtime.tickMe(this);
-		}
-		else if(boxtype == 7)
-		{pluginInstancesIndex++;inst_visible++;
-		 this.elem = document.createElement("div");
-		 this.elem.style.overflowY = "scroll";
-		 this.elem.innerHTML = '<fb:recommendations site="'+social_domain+'" ref="'+social_ref+'" max_age="'+social_activity_maxage+'" linktarget="'+social_activity_linktarget+'" action="'+social_activity_action+'" colorscheme="'+social_scheme+'" header="'+social_activity_header+'""></fb:recommendations>';
-                 jQuery(this.elem).appendTo("body");
-		 var left = this.layer.layerToCanvas(this.x, this.y, true);
-		var top = this.layer.layerToCanvas(this.x, this.y, false);
-		var right = this.layer.layerToCanvas(this.x + this.width, this.y + this.height, true);
-		var bottom = this.layer.layerToCanvas(this.x + this.width, this.y + this.height, false);
-		var offx = Math.round(left) + jQuery(this.runtime.canvas).offset().left;
-		var offy = Math.round(top) + jQuery(this.runtime.canvas).offset().top;
-		var widthfactor = this.width > 0 ? 1 : -1;
-		var heightfactor = this.height > 0 ? 1 : -1;
-		jQuery(this.elem).css("position", "absolute");
-		jQuery(this.elem).offset({left: offx, top: offy});
-		jQuery(this.elem).width(Math.round(right - left));
-		jQuery(this.elem).height(Math.round(bottom - top));
-		this.rotation2D = "-webkit-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
-										+"deg);-webkit-transform-origin:0% 0%;"+
-									"-moz-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
-										+"deg);-moz-transform-origin:0% 0%;"+
-									"-o-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
-										+"deg);-o-transform-origin:0% 0%;";
-		this.elem.style.cssText += ";"+/*this.CSSstyle +";"+*/ this.rotation2D/* + this.perspectiveValue + this.rotation3D*/;
-		this.lastLeft = 0;
-		 this.lastTop = 0;
-		 this.lastRight = 0;
-		 this.lastBottom = 0;
-		 this.lastWinWidth = 0;
-		 this.lastWinHeight = 0;
-		this.runtime.tickMe(this);
-		}
-		else if(boxtype == 8)
-		{pluginInstancesIndex++;inst_visible++;
-		 this.elem = document.createElement("div");
-		 this.elem.innerHTML = '<fb:recommendations-bar href="'+social_url+'" read_time="'+social_readtime+'" action="'+social_action+'" max_age="'+social_activity_maxage+'" num_recommendations="'+social_posts+'" ref="'+social_ref+'" site="'+social_domain+'" trigger="'+social_trigger+'"></fb:recommendations-bar>';
-                 jQuery(this.elem).appendTo("body");
-		 var left = this.layer.layerToCanvas(this.x, this.y, true);
-		var top = this.layer.layerToCanvas(this.x, this.y, false);
-		var right = this.layer.layerToCanvas(this.x + this.width, this.y + this.height, true);
-		var bottom = this.layer.layerToCanvas(this.x + this.width, this.y + this.height, false);
-		var offx = Math.round(left) + jQuery(this.runtime.canvas).offset().left;
-		var offy = Math.round(top) + jQuery(this.runtime.canvas).offset().top;
-		var widthfactor = this.width > 0 ? 1 : -1;
-		var heightfactor = this.height > 0 ? 1 : -1;
-		jQuery(this.elem).css("position", "absolute");
-		jQuery(this.elem).offset({left: offx, top: offy});
-		jQuery(this.elem).width(Math.round(right - left));
-		jQuery(this.elem).height(Math.round(bottom - top));
-		this.rotation2D = "-webkit-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
-										+"deg);-webkit-transform-origin:0% 0%;"+
-									"-moz-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
-										+"deg);-moz-transform-origin:0% 0%;"+
-									"-o-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
-										+"deg);-o-transform-origin:0% 0%;";
-		this.elem.style.cssText += ";"+/*this.CSSstyle +";"+*/ this.rotation2D/* + this.perspectiveValue + this.rotation3D*/;
-		this.lastLeft = 0;
-		 this.lastTop = 0;
-		 this.lastRight = 0;
-		 this.lastBottom = 0;
-		 this.lastWinWidth = 0;
-		 this.lastWinHeight = 0;
-		this.runtime.tickMe(this);
-		}
-		else if(boxtype == 9)
-		{pluginInstancesIndex++;inst_visible++;
-		 this.elem = document.createElement("div");
-		 this.elem.style.overflowY = "scroll";
-		 this.elem.innerHTML = '<fb:like-box href="'+social_url+'" colorscheme="'+social_scheme+'" show_faces="'+social_showfaces+'" header="'+social_activity_header+'" show_border="'+social_border+'" force_wall="'+social_wall+'" stream="'+social_stream+'"></fb:like-box>';
-                 jQuery(this.elem).appendTo("body");
-		 var left = this.layer.layerToCanvas(this.x, this.y, true);
-		var top = this.layer.layerToCanvas(this.x, this.y, false);
-		var right = this.layer.layerToCanvas(this.x + this.width, this.y + this.height, true);
-		var bottom = this.layer.layerToCanvas(this.x + this.width, this.y + this.height, false);
-		var offx = Math.round(left) + jQuery(this.runtime.canvas).offset().left;
-		var offy = Math.round(top) + jQuery(this.runtime.canvas).offset().top;
-		var widthfactor = this.width > 0 ? 1 : -1;
-		var heightfactor = this.height > 0 ? 1 : -1;
-		jQuery(this.elem).css("position", "absolute");
-		jQuery(this.elem).offset({left: offx, top: offy});
-		jQuery(this.elem).width(Math.round(right - left));
-		jQuery(this.elem).height(Math.round(bottom - top));
-		this.rotation2D = "-webkit-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
-										+"deg);-webkit-transform-origin:0% 0%;"+
-									"-moz-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
-										+"deg);-moz-transform-origin:0% 0%;"+
-									"-o-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
-										+"deg);-o-transform-origin:0% 0%;";
-		this.elem.style.cssText += ";"+/*this.CSSstyle +";"+*/ this.rotation2D/* + this.perspectiveValue + this.rotation3D*/;
-		this.lastLeft = 0;
-		 this.lastTop = 0;
-		 this.lastRight = 0;
-		 this.lastBottom = 0;
-		 this.lastWinWidth = 0;
-		 this.lastWinHeight = 0;
-		this.runtime.tickMe(this);
-		}
-		else if(boxtype == 10)
-		{pluginInstancesIndex++;inst_visible++;
-		 this.elem = document.createElement("div");
-		 this.elem.innerHTML = '<fb:facepile href="'+social_url+'" app_id="'+list1+'" max_rows="'+social_posts+'" colorscheme="'+social_scheme+'" size="'+social_size+'" action="'+social_activity_action+'"></fb:facepile>';
-                 jQuery(this.elem).appendTo("body");
-		 var left = this.layer.layerToCanvas(this.x, this.y, true);
-		var top = this.layer.layerToCanvas(this.x, this.y, false);
-		var right = this.layer.layerToCanvas(this.x + this.width, this.y + this.height, true);
-		var bottom = this.layer.layerToCanvas(this.x + this.width, this.y + this.height, false);
-		var offx = Math.round(left) + jQuery(this.runtime.canvas).offset().left;
-		var offy = Math.round(top) + jQuery(this.runtime.canvas).offset().top;
-		var widthfactor = this.width > 0 ? 1 : -1;
-		var heightfactor = this.height > 0 ? 1 : -1;
-		jQuery(this.elem).css("position", "absolute");
-		jQuery(this.elem).offset({left: offx, top: offy});
-		jQuery(this.elem).width(Math.round(right - left));
-		jQuery(this.elem).height(Math.round(bottom - top));
-		this.rotation2D = "-webkit-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
-										+"deg);-webkit-transform-origin:0% 0%;"+
-									"-moz-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
-										+"deg);-moz-transform-origin:0% 0%;"+
-									"-o-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
-										+"deg);-o-transform-origin:0% 0%;";
-		this.elem.style.cssText += ";"+/*this.CSSstyle +";"+*/ this.rotation2D/* + this.perspectiveValue + this.rotation3D*/;
-		this.lastLeft = 0;
-		 this.lastTop = 0;
-		 this.lastRight = 0;
-		 this.lastBottom = 0;
-		 this.lastWinWidth = 0;
-		 this.lastWinHeight = 0;
-		this.runtime.tickMe(this);
-		 }
-		else{pluginInstancesIndex++;}
-		}//end no phonegap
-		else
-		{
-		 working_inst = this.uid;
-                 runonce = true;
-		 fbRuntime = this.runtime;
-		 fbInst = this;
-		 fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.APILoaded, fbInst);
-		}
+	 if(FB_API["initialize run"] != "Yes")
+	 {
+	  FB_API["initialize run"] = "Yes";
+	  if(this.properties[47] == 1)
+	  {
+	  if(this.properties[0] == 0){FB_Properties["API Type"] = "Web";console.log("Web API Chosen.");}
+	   else if(this.properties[0] == 1){FB_Properties["API Type"] = "PhoneGap";console.log("PhoneGap API Chosen.");}
+	   else if(this.properties[0] == 2){FB_Properties["API Type"] = "CocoonJS";console.log("CocoonJS API Chosen.");}
+	  }
+	  else if(this.properties[47] == 0)
+	  {
+	  if (document.location.protocol == 'file:') {FB_Properties["API Type"] = "PhoneGap";console.log("PhoneGap API Chosen.");}
+	  else{FB_Properties["API Type"] = "Web";console.log("Web API Chosen.");}
+	  }
+	  if (FB_Properties["API Type"] == "Web")
+	  {
+	   FB_API["Runtime"] = this.runtime;
+	   FB_API["Instance"] = this;
+	   FB_API["API Layer"] = this.layer;
+	   if (this.properties[1] != "" && this.properties[2] != "")
+	   {
+	    console.log("API -- (App Token) Finished loading App Access Token. Reminder, this better be a secure app(mobile or you know and trust all of the users.");
+	    jQuery.ajax( {url: 'https://graph.facebook.com/oauth/access_token?client_id='+this.properties[1]+'&client_secret='+this.properties[2]+'&grant_type=client_credentials', dataType: 'text', crossDomain: true
+            , success: function( datapic )
+            {datapic = datapic.split("=");
+	     FB_API["APP TOKEN"] = datapic[1];
+		console.log("API -- (App Token) "+datapic[1]);}
+            , error: function( datapic ) {
+	     FB_API["API Error Code"] = "API";
+             FB_API["API Error Message"] = datapic;
+             FB_API["API Error Type"] = "App Token";
+	     console.log("API -- (App Token) Error "+datapic);
+	     }
+            });
+	    }
+	   Web_Language_Set(this.properties[3]);//Load the language to use from the Edit Time settings.
+	   Web_Permission_Set(this.properties);//Load the permissions to request from the Edit Time settings.
+	   Web_API_Set(this.properties);//Load the SDK properties from the Edit Time settings.
+	   Web_Load_API();//Load the SDK asynchronously
+	   this.elem = document.createElement("div");
+	   this.elem.innerHTML = '';
+           this.elem.id = this.uid;
+	   jQuery(this.elem).appendTo("body");
+	  }
+	  else if (FB_Properties["API Type"] == "PhoneGap")
+	  {
+	   FB_API["Runtime"] = this.runtime;
+	   FB_API["Instance"] = this;
+	   FB_API["API Layer"] = this.layer;
+	   FB_Properties["App ID"] =   this.properties[1];
+	   FB_Properties["App Secret"] =  this.properties[2];
+	   Web_Permission_Set(this.properties);//Load the permissions to request from the Edit Time settings.
+	   Web_API_Set(this.properties);//Load the SDK properties from the Edit Time settings.
+	   if (this.properties[1] != "" && this.properties[2] != "")
+	   {
+	    console.log("API -- (App Token) Finished loading App Access Token. Reminder, this better be a secure app(mobile or you know and trust all of the users.");
+	    jQuery.ajax( {url: 'https://graph.facebook.com/oauth/access_token?client_id='+this.properties[1]+'&client_secret='+this.properties[2]+'&grant_type=client_credentials', dataType: 'text', crossDomain: true
+            , success: function( datapic )
+            {datapic = datapic.split("=");
+	     FB_API["APP TOKEN"] = datapic[1];
+		console.log("API -- (App Token) "+datapic[1]);}
+            , error: function( datapic ) {
+	     FB_API["API Error Code"] = "API";
+             FB_API["API Error Message"] = datapic;
+             FB_API["API Error Type"] = "App Token";
+	     console.log("API -- (App Token) Error "+datapic);
+	     }
+            });
+	    }
+	   FB_API["Runtime"].trigger(cr.plugins_.Facebook2_1.prototype.cnds.CON_API_ON_LOAD, FB_API["Instance"]);
+	  }
+	  else if (FB_Properties["API Type"] == "CocoonJS")
+	  {
+	  }
+	 }
 	};
 	instanceProto.onDestroy = function ()
 	{
-		jQuery(this.elem).remove();
-		this.elem = null;
 	};
 	instanceProto.saveToJSON = function ()
 	{
@@ -13856,7 +13197,7 @@ cr.plugins_.Facebook3 = function(runtime)
 	};
 	instanceProto.tick = function ()
 	{
-		this.updatePosition();
+	 this.updatePosition();
 	};
 	var last_canvas_offset = null;
 	var last_checked_tick = -1;
@@ -13911,823 +13252,327 @@ cr.plugins_.Facebook3 = function(runtime)
 	instanceProto.drawGL = function (glw)
 	{
 	};
-	instanceProto.getDebuggerValues = function (propsections)
-	{
-		propsections.push({
-			"title": "My debugger section",
-			"properties": [
-			]
-		});
-	};
-	instanceProto.onDebugValueEdited = function (header, name, value)
-	{
-		if (name === "My property")
-			this.myProperty = value;
-	};
 	function Cnds() {};
-	Cnds.prototype.api_logged = function (myparam){if(working_inst != this.uid){return false;}else {return true;}};
-	Cnds.prototype.fail_api_logged = function (myparam){if(working_inst != this.uid){return false;}else {return true;}};
-	Cnds.prototype.APILoaded = function (myparam){if(working_inst != this.uid){return false;}else {return true;}};
-	Cnds.prototype.Phonegap_true = function (myparam){if(working_inst != this.uid){return false;}else {return phonegap_flag;}};
-	Cnds.prototype.OnLogin = function (myparam){if(working_inst != this.uid){return false;}else {return true;}};
-	Cnds.prototype.OnLogout = function (myparam){if(working_inst != this.uid){return false;}else {return true;}};
-	Cnds.prototype.Onupdate = function (myparam){if(working_inst != this.uid){return false;}else {return true;}};
-	Cnds.prototype.Oninvitabledone = function (myparam){if(working_inst != this.uid){return false;}else {return true;}};
-	Cnds.prototype.Oninvitablefail = function (myparam){if(working_inst != this.uid){return false;}else {return true;}};
-	Cnds.prototype.Onrequestdone = function (myparam){if(working_inst != this.uid){return false;}else {return true;}};
-	Cnds.prototype.Onrequestdeleted = function (myparam){if(working_inst != this.uid){return false;}else {return true;}};
-	Cnds.prototype.Onpermissionfound = function (myparam){if(working_inst != this.uid){return false;}else {return true;}};
-	Cnds.prototype.Onpermissionmissing = function (myparam){if(working_inst != this.uid){return false;}else {return true;}};
-	Cnds.prototype.Request_true = function (myparam){if(working_inst != this.uid){}if (request_string == ""){return false;}else{return true;}};
-	Cnds.prototype.Login_Status = function (myparam){if(working_inst != this.uid){}if (Logged_Status == "connected"){return true;}else{return false;}};
-	Cnds.prototype.OnLoginfail = function (myparam){if(working_inst != this.uid){return false;}else {return true;}};
-	Cnds.prototype.OnLogoutfail = function (myparam){if(working_inst != this.uid){return false;}else {return true;}};
-	Cnds.prototype.Upload_Photo_Status = function (myparam){if(working_inst != this.uid){return false;}else {return true;}};
-	Cnds.prototype.FB_Error = function (myparam){if(working_inst != this.uid){return false;}else {return true;}};
-	Cnds.prototype.FB_game_friends = function (myparam){if(working_inst != this.uid){return false;}else {return true;}};
-	Cnds.prototype.FB_set_score = function (myparam){if(working_inst != this.uid){return false;}else {return true;}};
-	Cnds.prototype.FB_score_received = function (myparam){if(working_inst != this.uid){return false;}else {return true;}};
-	Cnds.prototype.Request_check = function (myparam){if(working_inst != this.uid){return false;}else {return true;}};
-	Cnds.prototype.FB_score_fail = function (myparam){if(working_inst != this.uid){return false;}else {return true;}};
-	Cnds.prototype.Upload_Photo_fail = function (myparam){if(working_inst != this.uid){return false;}else {return true;}};
-	Cnds.prototype.Onrequestdeletedfail = function (myparam){if(working_inst != this.uid){return false;}else {return true;}};
-	Cnds.prototype.Onpermissionchfail = function (myparam){if(working_inst != this.uid){return false;}else {return true;}};
-	Cnds.prototype.ios_logged = function (myparam)
-	{//ios_url.removeEventListener('loadstart', iabLoadStop);
-	 return true;};
-	Cnds.prototype.fail_ios_logged = function (myparam)
-	{//ios_url.removeEventListener('loadstart', iabLoadStop);
-	  return true;
-	 };
-	Cnds.prototype.Onrequestsendfail = function (myparam)
-	{if(working_inst != this.uid){return false;}
-		else {return true;}
-	};
-	Cnds.prototype.FB_game_friends_get_fail = function (myparam)
-	{if(working_inst != this.uid){return false;}
-		else {return true;}
-	};
-	Cnds.prototype.FB_score_received_fail = function (myparam)
-	{if(working_inst != this.uid){return false;}
-		else {return true;}
-	};
-	Cnds.prototype.on_liked = function (myparam)
-	{if(working_inst != this.uid){return false;}
-		else {return true;}
-	};
-	Cnds.prototype.on_disliked = function (myparam)
-	{if(working_inst != this.uid){return false;}
-		else {return true;}
-	};
-	Cnds.prototype.on_liked = function (myparam)
-	{if(working_inst != this.uid){return false;}
-		else {return true;}
-	};
-	Cnds.prototype.on_comment = function (myparam)
-	{if(working_inst != this.uid){return false;}
-		else {return true;}
-	};
-	Cnds.prototype.on_sendbutton = function (myparam)
-	{if(working_inst != this.uid){return false;}
-		else {return true;}
-	};
-	Cnds.prototype.Onsharestorysendsuccess = function (myparam)
-	{if(working_inst != this.uid){return false;}
-		else {return true;}
-	};
-	Cnds.prototype.on_parse = function (myparam)
-	{if(working_inst != this.uid){return false;}
-		else {return true;}
-	};
-	Cnds.prototype.Onachsuccess = function (myparam)
-	{if(working_inst != this.uid){return false;}
-		else {return true;}
-	};
-	Cnds.prototype.Onachfail = function (myparam)
-	{if(working_inst != this.uid){return false;}
-		else {return true;}
-	};
-	Cnds.prototype.Onsharestorysendfail = function (myparam)
-	{if(working_inst != this.uid){}
-	 if (Logged_Status == "connected")
-	 {
-	  return true;
-	 }
-	 else
-	 {
-	  return false;
-	 }
-	};
+	Cnds.prototype.CON_API_ON_LOAD = function (){if(FB_API["Instance"].uid != this.uid){return false;}else {return true;}};
+	Cnds.prototype.CON_USER_SUCCESS = function (){if(FB_API["Instance"].uid != this.uid){return false;}else {return true;}};
+	Cnds.prototype.CON_USER_FAIL = function (){if(FB_API["Instance"].uid != this.uid){return false;}else {return true;}};
+	Cnds.prototype.CON_USER_LOGIN = function (){if(FB_API["Instance"].uid != this.uid){return false;}else {return true;}};
+	Cnds.prototype.CON_USER_LOGOUT = function (){if(FB_API["Instance"].uid != this.uid){return false;}else {return true;}};
+	Cnds.prototype.Con_Phonegap_Login = function (){if(FB_API["Instance"].uid != this.uid){return false;}else {return true;}};
+	Cnds.prototype.Con_Phonegap_Login_Fail = function (){if(FB_API["Instance"].uid != this.uid){return false;}else {return true;}};
+	Cnds.prototype.Con_Social_Box_Fail = function (){if(FB_API["Instance"].uid != this.uid){return false;}else {return true;}};
+	Cnds.prototype.Con_Login_Error = function (){if(FB_API["Instance"].uid != this.uid){return false;}else {return true;}};
+	Cnds.prototype.Con_Story_Success = function (){if(FB_API["Instance"].uid != this.uid){return false;}else {return true;}};
+	Cnds.prototype.Con_Story_Error = function (){if(FB_API["Instance"].uid != this.uid){return false;}else {return true;}};
+	Cnds.prototype.Con_Dialog_App_Share = function (){if(FB_API["Instance"].uid != this.uid){return false;}else {return true;}};
+	Cnds.prototype.Con_Dialog_App_Share_Error = function (){if(FB_API["Instance"].uid != this.uid){return false;}else {return true;}};
+	Cnds.prototype.Con_Dialog_Mess_Share = function (){if(FB_API["Instance"].uid != this.uid){return false;}else {return true;}};
+	Cnds.prototype.Con_Dialog_Mess_Share_Error = function (){if(FB_API["Instance"].uid != this.uid){return false;}else {return true;}};
+	Cnds.prototype.Onpurchsuccess = function (){if(FB_API["Instance"].uid != this.uid){return false;}else {return true;}};
+	Cnds.prototype.Onpurchfail = function (){if(FB_API["Instance"].uid != this.uid){return false;}else {return true;}};
+	Cnds.prototype.fail_api_generic = function (){if(FB_API["Instance"].uid != this.uid){return false;}else {return true;}};
 	pluginProto.cnds = new Cnds();
 	function Acts() {};
-	Acts.prototype.Sendsharerequest = function (ss_url)
-	{ if(working_inst != this.uid){return;}
-	FB.ui({method: 'share',
-	        href: ss_url,
+	Acts.prototype.Paydialog = function (quan,qmin,qmax,rid,pid,tc,purl)
+	{
+	 if (check_app_Type("Paydialog","Web") == false) {return;}
+	 FB.ui(
+         {
+          method: 'pay',
+	  action: 'purchaseitem',
+            product: purl,
+	    quantity: quan,
+	    quantity_min: qmin,
+	    quantity_max: qmax,
+	    request_id: rid,
+	    pricepoint_id: pid,
+	    test_currency: tc
+         },
+         function(response) {
+         if (response && !response.error_code)
+	 {
+	  pay_id = response.payment_id;
+	  pay_amt = response.amount;
+	  pay_curr = response.currency;
+	  pay_quant = response.quantity;
+	  pay_rid = response.request_id;
+	  pay_stat = response.status;
+          FB_API["Runtime"].trigger(cr.plugins_.Facebook2_1.prototype.cnds.Onpurchsuccess, FB_API["Instance"]);
+         } else
+	 {
+          FB_API["API Error Code"] = "Actions";
+          FB_API["API Error Message"] = "Paydialog has failed or been cancelled.";
+          FB_API["API Error Type"] = "Paydialog";
+	  FB_API["Runtime"].trigger(cr.plugins_.Facebook2_1.prototype.cnds.Onpurchfail, FB_API["Instance"]);
+	  console.log("ACTS -- (Paydialog) Error using Pay Dialog");
+         }
+         });
+	};
+	Acts.prototype.Sendmessageurl = function (url)
+	{
+	if (check_app_Type("Sendmessageurl","Web") == false) {return;}
+	FB.ui({method: 'send',
+	         display: 'popup',
+                 link: url,
               }, function(response)
 	      {
 		if (response && !response.error)
 	          {
-	           fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.Onsharestorysendsuccess, fbInst);
+	           FB_API["Runtime"].trigger(cr.plugins_.Facebook2_1.prototype.cnds.Con_Dialog_Mess_Share_Error, FB_API["Instance"]);
+	           console.log("ACTS -- (Sendmessageurl) Link shared successfully");
 	          }
 	       else
 	          {
-	           error_mes = 'share_story,' + response.error.message;
-	           fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.FB_Error, fbInst);
-		   fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.Onsharestorysendfail, fbInst);
+	           FB_API["API Error Code"] = "Actions";
+                   FB_API["API Error Message"] = "User cancelled share request or an error occured.";
+                   FB_API["API Error Type"] = "Sendshareurl";
+		   FB_API["Runtime"].trigger(cr.plugins_.Facebook2_1.prototype.cnds.Con_Dialog_Mess_Share_Error, FB_API["Instance"]);
+	           console.log("ACTS -- (Sendmessageurl) Error sharing Link");
 	          }
 	      });
 	};
-	Acts.prototype.RecommendationsVisible = function (href1)
-	{ if(working_inst != this.uid){return;}
-	FB.XFBML.RecommendationsBar.markRead(href1);
-	};
-	Acts.prototype.Claimachievement = function (href1)
-	{ if(working_inst != this.uid){return;}
-	 FB.api("/me/achievements","POST",
-         {
-                 "object": {
-            "achievement": "{url-of-achievement-type}"
-              }
-         },
-    function (response)
-    {
-     if (response && !response.error)
-	          {
-	           fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.Onachsuccess, fbInst);
-	          }
-	       else
-	          {
-	           error_mes = 'share_story,' + response.error.message;
-	           fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.FB_Error, fbInst);
-		   fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.Onachfail, fbInst);
-	          }
-    }
-);
-	};
-	Acts.prototype.SetVisible = function (vis)
+	Acts.prototype.Page_Share_App = function ()
 	{
-		if(vis == 1)
-	 {console.log("visible"+ vis);
-		jQuery(this.elem).show();
-		this.visible = true;
-		FB.XFBML.parse();
-	 }
-	 else if(vis == 0)
-	 {console.log("not visible"+ vis);
-	  jQuery(this.elem).hide();
-          		this.visible = false;
-	 }console.log(this.runtime.plugins);
-	};
-	Acts.prototype.LogInOut = function (login_auth_type, login_scope,login_enables_profiles,login_profile_ids)
-	{if(working_inst != this.uid){return;}
-	 var login_temp1 = false;
-	 if (login_enables_profiles == "Yes") {login_temp1 = true;}
-	 if(login_auth_type == "Yes")
-	 {
-	  FB.login(function(response)
-	  {
-           if (response.authResponse)
-	   {
-            Check_Login(function(user_info_Array)
-	    {
-	     accessToken = user_info_Array[0];
-	     Logged_Status = user_info_Array[1];
-	     if (Logged_Status == 'connected')
-		   {fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.OnLogin, fbInst);
-		    request_exists = does_param_exist("request_ids");
-		    if(request_exists == true)
-		    {
-		     request_string =getUrlVars()["request_ids"];
-		     fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.Request_check, fbInst);
-		    }
-		   }
-	     else
-	     {fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.OnLogout, fbInst);}
-	     user_pic = user_info_Array[12];
-	     fbID = user_info_Array[2];
-	     firstname = user_info_Array[3];
-	     lastname = user_info_Array[4];
-	     profileLink = user_info_Array[5];
-	     fullname = user_info_Array[6];
-	     user_timezone = user_info_Array[7];
-	     userlastupdate = user_info_Array[8];
-	     verifieduser = user_info_Array[9];
-	     ugender = user_info_Array[10];
-	     ulocale = user_info_Array[11];
-	     error_mes = user_info_Array[13];
-	     if (error_mes != "") {fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.FB_Error, fbInst);}
-	     fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.Onupdate, fbInst);
-	    });
-          }
-	  else
-	  {
-	   error_mes = 'User cancelled login or did not fully authorize.';
-	   fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.FB_Error, fbInst);
-	   fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.OnLoginfail, fbInst);
-	  }
-         },
-	 {
-	 auth_type: 'rerequest',
-          scope: login_scope,
-          return_scopes: true,
-	  enable_profile_selector: login_temp1,
-	  profile_selector_ids: login_profile_ids
-         });
-	}
-	 else
-	 {
-	  FB.login(function(response)
-	   {
-            if (response.authResponse)
-	    {
-             Check_Login(function(user_info_Array)
-	     {
-	      accessToken = user_info_Array[0];
-	      Logged_Status = user_info_Array[1];
-	      if (Logged_Status == 'connected')
-		   {fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.OnLogin, fbInst);
-		    request_exists = does_param_exist("request_ids");
-		    if(request_exists == true)
-		    {
-		     request_string =getUrlVars()["request_ids"];
-		     fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.Request_check, fbInst);
-		    }
-		   }
-	      else
-	      {fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.OnLogout, fbInst);}
-	      user_pic = user_info_Array[12];
-	      fbID = user_info_Array[2];
-	      firstname = user_info_Array[3];
-	      lastname = user_info_Array[4];
-	      profileLink = user_info_Array[5];
-	      fullname = user_info_Array[6];
-	      user_timezone = user_info_Array[7];
-	      userlastupdate = user_info_Array[8];
-	      verifieduser = user_info_Array[9];
-	      ugender = user_info_Array[10];
-	      ulocale = user_info_Array[11];
-	      error_mes = user_info_Array[13];
-	      if (error_mes != "") {fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.FB_Error, fbInst);}
-	      fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.Onupdate, fbInst);
-	     });
-            }
-	    else
-	  {
-	   error_mes = 'User cancelled login or did not fully authorize.';
-	   fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.FB_Error, fbInst);
-	   fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.OnLoginfail, fbInst);
-	  }
-           },
-	  {
-	   scope: login_scope,
-           return_scopes: true,
-	   enable_profile_selector: login_temp1,
-	   profile_selector_ids: login_profile_ids
-          });
-	 }
-	};
-	Acts.prototype.Logout = function ()
-	{if(working_inst != this.uid){return;}
-	 FB.logout(function(response)
-	 {
-	  if (response && !response.error)
-	  {
-          Logged_Status = "unknown";
-	  accessToken = "";
-	  fbID = '';
-	  firstname = '';
-	  lastname = '';
-	  profileLink = '';
-	  fullname = '';
-	  user_timezone = '';
-	  userlastupdate = '';
-	  verifieduser = '';
-	  ugender = '';
-	  ulocale = '';
-	  fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.Onupdate, fbInst);
-	  fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.OnLogout, fbInst);
-	  }
-	  else
-	  {
-	   error_mes = 'User logout failed.';
-	   fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.FB_Error, fbInst);
-	   fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.OnLogoutfail, fbInst);
-	  }
-	 });
-	};
-	Acts.prototype.Get_Invitable = function ()
-	{if(working_inst != this.uid){return;}
-	 invitable_size = 0;
-	 invitable_array_name = [];
-	 invitable_array_id = [];
-	 invitable_array_pic = [];
-	 invitable_place = 0;
-	 FB.api("/me/invitable_friends",
-         function (response)
-	 {
-          if (response && !response.error)
-	  {
-	   invitable_size = response.data.length;
-	   for(var i = 0; i < invitable_size; i++)
-	   {
-	    if (i == 0)
-	    {
-	     invitable_array_name_current = response.data[i].name;
-	     invitable_array_id_current = response.data[i].id;
-	     invitable_array_pic_current = response.data[i].picture.data.url;
-	    }
-             invitable_array_name.push(response.data[i].name);
-	     invitable_array_id.push(response.data[i].id);
-	     invitable_array_pic.push(response.data[i].picture.data.url);
-	    if (i == (invitable_size-1))
-	    {
-	     fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.Oninvitabledone, fbInst);
-	    }
-	   }
-	  }
-	  else
-	  {
-	   error_mes = 'get_invitable,' + response.error.message;
-	   fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.FB_Error, fbInst);
-	   fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.Oninvitablefail, fbInst);
-	  }
-         });
-	};
-	Acts.prototype.Set_Invitable = function (g_i_num)
-	{if(working_inst != this.uid){return;}
-	 invitable_array_name_current = invitable_array_name[g_i_num];
-	 invitable_array_id_current = invitable_array_id[g_i_num];
-	 invitable_array_pic_current = invitable_array_pic[g_i_num];
-	};
-	Acts.prototype.Send_basic_Request = function (sbr_message,sbr_users)
-	{if(working_inst != this.uid){return;}
-	 if (sbr_users == "")
-	 {
-	  FB.ui({method: 'apprequests',
-          message: sbr_message
-         }, function(response)
-	 {
-          if (response && !response.error)
-	  {
-	   request_id = response.request;
-	   fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.Onrequestdone, fbInst);
-	  }
-	  else
-	  {
-	   error_mes = 'app_request,' + response.error.message;
-	   fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.FB_Error, fbInst);
-	  }
-         });
-	 }
-	 else
-	 {
-	  FB.ui({method: 'apprequests',
-          message: sbr_message,
-	  to: sbr_users,
-          }, function(response)
-	  {
-           if (response && !response.error)
-	  {
-	   request_id = response.request;
-	   fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.Onrequestdone, fbInst);
-	  }
-	  else
-	  {
-	   error_mes = 'app_request,' + response.error.message;
-	   fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.FB_Error, fbInst);
-	  }
-          });
-	 }
-	};
-	Acts.prototype.delete_Request = function (requestId)
-	{if(working_inst != this.uid){return;}
-	 FB.api(requestId, 'DELETE', function(response)
-	 {
-	  if (response && !response.error)
-	  {
-	   fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.Onrequestdeleted, fbInst);
-	  }
-	  else
-	  {
-	   error_mes = 'delete_request,' + response.error.message;
-	   fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.FB_Error, fbInst);
-	   fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.Onrequestdeletedfail, fbInst);
-	  }
-         });
-	};
-	Acts.prototype.check_permission = function (cp_permission)
-	{if(working_inst != this.uid){return;}
-	 FB.api("/v2.0/me/permissions?access_token="+accessToken,
-         function (response)
-	 {
-          if (response && !response.error)
-          {
-	   for(var i = 0; i < response.data.length; i++)
-	   {
-	    if (response.data[i].permission == cp_permission)
-	    {
-	     fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.Onpermissionfound, fbInst);
-	     break;
-	    }
-	    else if (response.data[i].permission != cp_permission && i == response.data.length-1 )
-	    {
-	     fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.Onpermissionmissing, fbInst);
-	    }
-           }
-          }
-	  else
-	  {
-	   error_mes = 'check_permission,' + response.error.message;
-	   fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.FB_Error, fbInst);
-	   fbRuntime.trigger(cr.plugins_.Facebook3.prototype.cnds.Onpermissionchfail, fbInst);
-	  }
-         });
-	};
-	pluginProto.acts = new Acts();
-	function Exps() {};
-	Exps.prototype.graphapicalldata = function (ret)
-	{ret.set_string(graph_api_data);};
-	Exps.prototype.LoginStatus = function (ret)
-	{ret.set_string(Logged_Status);};
-	Exps.prototype.UAccessToken = function (ret)
-	{ret.set_string(accessToken);};
-	Exps.prototype.USERID = function (ret)
-	{ret.set_string(fbID);};
-	Exps.prototype.UserFirstname = function (ret)
-	{ret.set_string(firstname);};
-	Exps.prototype.UserLastname = function (ret)
-	{ret.set_string(lastname);};
-	Exps.prototype.UserGender = function (ret)
-	{ret.set_string(ugender);};
-	Exps.prototype.UserFBLink = function (ret)
-	{ret.set_string(profileLink);};
-	Exps.prototype.UserFullname = function (ret)
-	{ret.set_string(fullname);};
-	Exps.prototype.UserTimezone = function (ret)
-	{ret.set_string(user_timezone);};
-	Exps.prototype.UserLastUpdated = function (ret)
-	{ret.set_string(userlastupdate);};
-	Exps.prototype.UserVerified = function (ret)
-	{ret.set_string(verifieduser);};
-	Exps.prototype.UserLocale = function (ret)
-	{ret.set_string(ulocale);};
-	Exps.prototype.InvitableSize = function (ret)
-	{ret.set_int(invitable_size);};
-	Exps.prototype.CurrentInvitableID = function (ret)
-	{ret.set_string(invitable_array_id_current);};
-	Exps.prototype.CurrentInvitableName = function (ret)
-	{ret.set_string(invitable_array_name_current);};
-	Exps.prototype.RequestID = function (ret)
-	{ret.set_string(request_id);};
-	Exps.prototype.CurrentInvitablePicture = function (ret)
-	{ret.set_string(invitable_array_pic_current);};
-	Exps.prototype.UserPRofilePic = function (ret)
-	{ret.set_string(user_pic);};
-	Exps.prototype.fb_error_info = function (ret)
-	{ret.set_string(error_mes);};
-	Exps.prototype.CapturedRequestID = function (ret)
-	{ret.set_string(decodeURIComponent(request_string));};
-	pluginProto.exps = new Exps();
-}());
-function Check_Login(callback)
-{
- var C_L_I = [];
- FB.getLoginStatus(function(response)
-	 {
-	  if (response && !response.error)
-	  {
-           if (response.status === 'connected')
-	   {
-           C_L_I[0] = response.authResponse.accessToken;
-	   C_L_I[1] = "connected";//logged status
-	    FB.api("/me",
-            function (response) {
-            if (response && !response.error) {
-             C_L_I[2] = response["id"];
-	     C_L_I[3] = response["first_name"];
-	     C_L_I[4] = response["last_name"];
-	     C_L_I[5] = response["link"];
-	     C_L_I[6] = response["name"];
-	     C_L_I[7] = response["timezone"];
-	     C_L_I[8] = response["updated_time"];
-	     C_L_I[9] = response["verified"];
-	     C_L_I[10] = response["gender"];
-	     C_L_I[11] = response["locale"];
-	      FB.api("/me/picture?redirect=0&type=large",
-              function (response)
+	if (check_app_Type("Page_Share_App","Web") == false) {return;}
+	FB.ui({method: 'pagetab',
+	         display: 'popup',
+              }, function(response)
 	      {
-               if (response && !response.error)
-	       {
-               C_L_I[12] = response.data.url;
-	       C_L_I[13] = "";
-	       callback(C_L_I);
-               }
+		if (response && !response.error)
+	          {
+	           FB_API["Runtime"].trigger(cr.plugins_.Facebook2_1.prototype.cnds.Con_Dialog_App_Share, FB_API["Instance"]);
+	           console.log("ACTS -- (Page_Share_App) App shared successfully");
+	          }
 	       else
-	       {
-	        C_L_I[0] = "";
-	        C_L_I[1] = "unknown";
-	        C_L_I[2] = "";
-	        C_L_I[3] = "";
-	        C_L_I[4] = "";
-	        C_L_I[5] = "";
-	        C_L_I[6] = "";
-	        C_L_I[7] = "";
-	        C_L_I[8] = "";
-	        C_L_I[9] = "";
-	        C_L_I[10] = "";
-	        C_L_I[11] = "";
-	        C_L_I[12] = "";
-	        C_L_I[13] = 'get_status,' + response;
-	   callback(C_L_I);
-	  }
-              }
-              );
-             }
-             }
-           );
-           }
-	   else if (response.status === 'not_authorized')
-	   {
-	    C_L_I[0] = "";
-	    C_L_I[1] = "not_authorized";
-	    C_L_I[2] = "";
-	    C_L_I[3] = "";
-	    C_L_I[4] = "";
-	    C_L_I[5] = "";
-	    C_L_I[6] = "";
-	    C_L_I[7] = "";
-	    C_L_I[8] = "";
-	    C_L_I[9] = "";
-	    C_L_I[10] = "";
-	    C_L_I[11] = "";
-	    C_L_I[12] = "";
-	    C_L_I[13] = "";
-	    callback(C_L_I);
-           }
-	   else
-	   {
-	    C_L_I[0] = "";
-	    C_L_I[1] = "unknown";
-	    C_L_I[2] = "";
-	    C_L_I[3] = "";
-	    C_L_I[4] = "";
-	    C_L_I[5] = "";
-	    C_L_I[6] = "";
-	    C_L_I[7] = "";
-	    C_L_I[8] = "";
-	    C_L_I[9] = "";
-	    C_L_I[10] = "";
-	    C_L_I[11] = "";
-	    C_L_I[12] = "";
-	    C_L_I[13] = "";
-	      callback(C_L_I);
-            }
-	  }
-	  else
-	  {
-	   C_L_I[0] = "";
-	    C_L_I[1] = "unknown";
-	    C_L_I[2] = "";
-	    C_L_I[3] = "";
-	    C_L_I[4] = "";
-	    C_L_I[5] = "";
-	    C_L_I[6] = "";
-	    C_L_I[7] = "";
-	    C_L_I[8] = "";
-	    C_L_I[9] = "";
-	    C_L_I[10] = "";
-	    C_L_I[11] = "";
-	    C_L_I[12] = "";
-	   C_L_I[13] = 'get_status,' + response.error.message;
-	   callback(C_L_I);
-	  }
-         });
-}
-function getUrlVars()
-{
-    var vars = [], hash;
-    var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
-    for(var i = 0; i < hashes.length; i++)
-    {
-        hash = hashes[i].split('=');
-        vars.push(hash[0]);
-        vars[hash[0]] = hash[1];
-    }
-    return vars;
-}
-function does_param_exist(field)
-{
-var url = window.location.href;
-if(url.indexOf('?' + field + '=') != -1)
-    return true;
-else if(url.indexOf('&' + field + '=') != -1)
-    return true;
-return false
-}
-function iabLoadStop(event)
-{
-}
-;
-;
-/*
-cr.plugins_.Phonegap = function(runtime)
-{
-	this.runtime = runtime;
-	Type
-		onCreate
-	Instance
-		onCreate
-		draw
-		drawGL
-	cnds
-	acts
-	exps
-};
-*/
-cr.plugins_.Phonegap = function(runtime)
-{
-	this.runtime = runtime;
-};
-(function ()
-{
-	var pluginProto = cr.plugins_.Phonegap.prototype;
-	pluginProto.Type = function(plugin)
-	{
-		this.plugin = plugin;
-		this.runtime = plugin.runtime;
+	          {
+	           FB_API["API Error Code"] = "Actions";
+                   FB_API["API Error Message"] = "User cancelled share request or an error occured.";
+                   FB_API["API Error Type"] = "Sendshareurl";
+		   FB_API["Runtime"].trigger(cr.plugins_.Facebook2_1.prototype.cnds.Con_Dialog_App_Share_Error, FB_API["Instance"]);
+	           console.log("ACTS -- (Page_Share_App) Error sharing App");
+	          }
+	      });
 	};
-	var typeProto = pluginProto.Type.prototype;
-	typeProto.onCreate = function()
+	Acts.prototype.Sendshareurl = function (ss_url)
 	{
-/*
-		var newScriptTag=document.createElement('script');
-		newScriptTag.setAttribute("type","text/javascript");
-		newScriptTag.setAttribute("src", "mylib.js");
-		document.getElementsByTagName("head")[0].appendChild(newScriptTag);
-		var scripts=document.getElementsByTagName("script");
-		var exist=false;
-		for(var i=0;i<scripts.length;i++){
-			if(scripts[i].src.indexOf("cordova.js")!=-1||scripts[i].src.indexOf("phonegap.js")!=-1){
-				exist=true;
-				break;
-			}
-		}
-		if(!exist){
-			var newScriptTag=document.createElement("script");
-			newScriptTag.setAttribute("type","text/javascript");
-			newScriptTag.setAttribute("src", "cordova.js");
-			document.getElementsByTagName("head")[0].appendChild(newScriptTag);
-		}
-*/
-		if(this.runtime.isBlackberry10 || this.runtime.isWindows8App || this.runtime.isWindowsPhone8 || this.runtime.isWindowsPhone81){
-			var scripts=document.getElementsByTagName("script");
-			var exist=false;
-			for(var i=0;i<scripts.length;i++){
-				if(scripts[i].src.indexOf("cordova.js")!=-1||scripts[i].src.indexOf("phonegap.js")!=-1){
-					exist=true;
-					break;
-				}
-			}
-			if(!exist){
-				var newScriptTag=document.createElement("script");
-				newScriptTag.setAttribute("type","text/javascript");
-				newScriptTag.setAttribute("src", "cordova.js");
-				document.getElementsByTagName("head")[0].appendChild(newScriptTag);
-			}
-		}
+	if (check_app_Type("Sendshareurl","Web") == false) {return;}
+	FB.ui({method: 'share',
+	         display: 'popup',
+                 href: ss_url,
+              }, function(response)
+	      {
+		if (response && !response.error)
+	          {
+	           FB_API["Runtime"].trigger(cr.plugins_.Facebook2_1.prototype.cnds.Con_Story_Success, FB_API["Instance"]);
+	           console.log("ACTS -- (Sendshareurl) URL shared successfully");
+	          }
+	       else
+	          {
+	           FB_API["API Error Code"] = "Actions";
+                   FB_API["API Error Message"] = "User cancelled share request or an error occured.";
+                   FB_API["API Error Type"] = "Sendshareurl";
+		   FB_API["Runtime"].trigger(cr.plugins_.Facebook2_1.prototype.cnds.Con_Story_Error, FB_API["Instance"]);
+	           console.log("ACTS -- (Sendshareurl) Error sharing URL");
+	          }
+	      });
 	};
-	pluginProto.Instance = function(type)
+	Acts.prototype.Sendogstory = function (ss_title,ss_url)
 	{
-		this.type = type;
-		this.runtime = type.runtime;
+	 if (check_app_Type("Sendogstory","Web") == false) {return;}
+	FB.ui({
+		   display: 'popup',
+                   method: 'share_open_graph',
+              action_type: ss_title,
+        action_properties: JSON.stringify({
+            object:ss_url,
+              })
+              }, function(response)
+	      {
+		if (response && !response.error)
+	          {
+	           FB_API["Runtime"].trigger(cr.plugins_.Facebook2_1.prototype.cnds.Con_Story_Success, FB_API["Instance"]);
+	           console.log("ACTS -- (Sendogstory) Open Graph shared successfully");
+	          }
+	       else
+	          {
+	           FB_API["API Error Code"] = "Actions";
+                   FB_API["API Error Message"] = "User cancelled share request or an error occured.";
+                   FB_API["API Error Type"] = "Sendogstory";
+		   FB_API["Runtime"].trigger(cr.plugins_.Facebook2_1.prototype.cnds.Con_Story_Error, FB_API["Instance"]);
+	           console.log("ACTS -- (Sendogstory) Error sharing Open Graph Story");
+	          }
+	      });
 	};
-	var instanceProto = pluginProto.Instance.prototype;
-	instanceProto.onCreate = function()
+	Acts.prototype.UI_Login = function ()
 	{
-/*
-		var self=this;
-		window.addEventListener("resize", function () {//cranberrygame
-			self.runtime.trigger(cr.plugins_.Phonegap.prototype.cnds.TriggerCondition, self);
-		});
-*/
-		this.menu="";
-		var self=this;
-		document.addEventListener("backbutton",
-		function() {
-			self.runtime.trigger(pluginProto.cnds.OnBack, self);
-		}, false);
-		document.addEventListener("menubutton",
-		function() {
-			self.runtime.trigger(pluginProto.cnds.OnMenu, self);
-		}, false);
-		document.addEventListener("onMenuSelected",
-		function(info) {
-			self.menu=info["menu"];
-			self.runtime.trigger(pluginProto.cnds.OnMenuSelected, self);
-		}, false);
+	 if (check_app_Type("UI_Login","Web") == false) {return;}
+	 FB.ui({
+         method: 'oauth',
+         scope: FB_API["scope"],
+        },
+        function(response) {
+         if (response && !response.code) {
+         console.log("ACTS -- (UI_Login) User has logged in");
+        } else {
+         console.log("ACTS -- (UI_Login) User login failed");
+	 FB_API["API Error Code"] = "Actions";
+         FB_API["API Error Message"] = "UI_Login been cancelled or an error occured.";
+         FB_API["API Error Type"] = "UI_Login";
+	 FB_API["Runtime"].trigger(cr.plugins_.Facebook2_1.prototype.cnds.Con_Login_Error, FB_API["Instance"]);
+        }
+        }
+        );
 	};
-	instanceProto.draw = function(ctx)
+	Acts.prototype.Create_Login_Button = function (cr_logout,pic_rows,def_audience,pic_s)
 	{
+	if (check_app_Type("Create_Login_Button","Web") == false) {return;}
+	if(cr_logout == 0){cr_logout = 'true';}else{cr_logout = 'false';}
+	if(def_audience == 0){def_audience = 'everyone';}else if(def_audience == 1){def_audience = 'friends';}else{def_audience = 'only_me';}
+	if(pic_s == 0){pic_s = 'small';}else if(pic_s == 1){pic_s = 'medium';}else if(pic_s == 2){pic_s = 'large';}else{pic_s = 'xlarge';}
+	var faces_yes = false;
+	if (pic_rows >=1) {faces_yes = true;}
+	jQuery(this.elem).remove();
+		this.elem = null;
+	this.elem = document.createElement("div");
+		 this.elem.style.overflowY = "auto";
+		 jQuery(this.elem).css("position", "absolute");
+		 this.elem.innerHTML = '<fb:login-button scope="'+FB_API["scope"]+'" default_audience="'+def_audience+'" max_rows="'+pic_rows+'" size="'+pic_s+'" show_faces="'+faces_yes+'" auto_logout_link="'+cr_logout+'"></fb:login-button>';
+                 this.elem.id = this.uid;
+		 jQuery(this.elem).appendTo("body");
+		 var left = this.layer.layerToCanvas(this.x, this.y, true);
+		var top = this.layer.layerToCanvas(this.x, this.y, false);
+		var right = this.layer.layerToCanvas(this.x + this.width, this.y + this.height, true);
+		var bottom = this.layer.layerToCanvas(this.x + this.width, this.y + this.height, false);
+		var offx = Math.round(left) + jQuery(this.runtime.canvas).offset().left;
+		var offy = Math.round(top) + jQuery(this.runtime.canvas).offset().top;
+		var widthfactor = this.width > 0 ? 1 : -1;
+		var heightfactor = this.height > 0 ? 1 : -1;
+		jQuery(this.elem).css("position", "absolute");
+		jQuery(this.elem).offset({left: offx, top: offy});
+		jQuery(this.elem).width(Math.round(right - left));
+		jQuery(this.elem).height(Math.round(bottom - top));
+		this.rotation2D = "-webkit-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
+										+"deg);-webkit-transform-origin:0% 0%;"+
+									"-moz-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
+										+"deg);-moz-transform-origin:0% 0%;"+
+									"-o-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
+										+"deg);-o-transform-origin:0% 0%;";
+		this.elem.style.cssText += ";"+/*this.CSSstyle +";"+*/ this.rotation2D/* + this.perspectiveValue + this.rotation3D*/;
+		this.lastLeft = 0;
+		 this.lastTop = 0;
+		 this.lastRight = 0;
+		 this.lastBottom = 0;
+		 this.lastWinWidth = 0;
+		 this.lastWinHeight = 0;
+			this.runtime.tickMe(this);
 	};
-	instanceProto.drawGL = function (glw)
-	{
+	Acts.prototype.Phonegap_Login = function (url_S,state)
+	{if (check_app_Type("Phonegap_Login","PhoneGap") == false) {FB_API["Runtime"].trigger(cr.plugins_.Facebook2_1.prototype.cnds.Con_Phonegap_Login_Fail, FB_API["Instance"]);return;}
+	 	ios_url = window.open("https://www.facebook.com/dialog/oauth?client_id="+FB_Properties["App ID"]+"&auth_type=rerequest&scope="+FB_API["scope"]+"&state="+state+"&response_type=token&redirect_uri="+url_S, '_blank', 'location=no,toolbar=no');
+		ios_url.addEventListener('loadstart', function(e)
+                { var url = e.url;
+		var fburl = url.indexOf("facebook.com/login");
+                var err = url.indexOf("error");
+	        if (err >= 0 && fburl < 0)
+                {console.log(url);ios_url.close();
+                }
+                var n = url.indexOf("#access_token=");
+	        if (n >= 1){
+                var tokensplit = url.split("#");
+                var token_two = tokensplit[1].split("&");
+                var accessToken1 = token_two[0].split("=");
+                User["User AccessToken"] = accessToken1[1];
+                console.log('InAppBrowser: loadstart event has fired with url: ' + User["User AccessToken"]);
+		Fetch_User("me",User["User AccessToken"],function(FU_Status)
+		     {if (FU_Status == "success") {FB_API["Runtime"].trigger(cr.plugins_.Facebook2_1.prototype.cnds.CON_USER_SUCCESS, FB_API["Instance"]);}
+		      else{FB_API["Runtime"].trigger(cr.plugins_.Facebook2_1.prototype.cnds.CON_USER_FAIL, FB_API["Instance"]);}
+		  });FB_API["Runtime"].trigger(cr.plugins_.Facebook2_1.prototype.cnds.CON_USER_LOGIN, FB_API["Instance"]);
+                ios_url.close();
+		}});
 	};
-/*
-	instanceProto.at = function (x)
-	{
-		return this.arr[x];
+	Acts.prototype.create_comment = function (color1,url1,num1,sort1)
+	{if (check_app_Type("create_comment","Web") == false) {return;}
+	 FB_API["Instance Layer"] = this.layer;
+	 FB_API["Instance"] = this;
+	 FB_API["Instance Runtime"] = this.runtime;
+	 boxes_create_comment_box(color1,url1,num1,sort1);
 	};
-	instanceProto.set = function (x, val)
-	{
-		this.arr[x] = val;
+	Acts.prototype.Like_Button = function (action1,color1,url1,under1,layout1,tracking1,share1,show1)
+	{if (check_app_Type("create_comment","Web") == false) {return;}
+	 FB_API["Instance Layer"] = this.layer;
+	 FB_API["Instance"] = this;
+	 FB_API["Instance Runtime"] = this.runtime;
+	 if (action1 == 0) {action1="like";}else{action1="recommend";}
+	 if (color1 == 0) {color1="light";}else{color1="dark";}
+	 if (under1 == 0) {under1=true;}else{under1=false;}
+	 if (layout1 == 0) {layout1="standard";}
+	 else if(layout1 == 1) {layout1="button_count";}
+	 else if(layout1 == 2) {layout1="button";}
+	 else if(layout1 == 3) {layout1="box__count";}
+	 if (share1 == 0) {share1=true;}else{share1=false;}
+	 if (show1 == 0) {show1=true;}else{show1=false;}
+	 boxes_create_like_box(action1,color1,url1,under1,layout1,tracking1,share1,show1);
 	};
-*/
-	function Cnds() {};
-/*
-	Cnds.prototype.MyCondition = function (myparam)
-	{
-		return myparam >= 0;
-	};
-	Cnds.prototype.TriggerCondition = function ()
-	{
-		return true;
-	};
-*/
-	Cnds.prototype.OnBack = function ()
-	{
-		return true;
-	};
-	Cnds.prototype.OnMenu = function ()
-	{
-		return true;
-	};
-	Cnds.prototype.OnMenuSelected = function ()
-	{
-		return true;
-	};
-	Cnds.prototype.SelectedMenuIs = function (_menu)
-	{
-		return this.menu == _menu;
-	};
-	pluginProto.cnds = new Cnds();
-	function Acts() {};
-/*
-	Acts.prototype.MyAction = function (myparam)
-	{
-		alert(myparam);
-	};
-	Acts.prototype.TriggerAction = function ()
-	{
-		var self=this;
-		self.runtime.trigger(cr.plugins_.Phonegap.prototype.cnds.TriggerCondition, self);
-	};
-*/
-	Acts.prototype.Close = function (myparam)
-	{
-		navigator["app"]["exitApp"]();
-	};
-	Acts.prototype.CloseIfTwice = function (myparam)
-	{
-		if(this.runtime.isAndroid || this.runtime.isWindowsPhone8 || this.runtime.isWindowsPhone81){
-			window["exitappiftwice"]["exitAppIfTwice"]();
-		}
-		else{
-			navigator["app"]["exitApp"]();
-		}
-	};
-	Acts.prototype.SetMenus = function (menus)
-	{
-		window["optionsmenu"]["setMenus"](
-		function(info) {
-		},
-		function(error) {
-		}, menus);
-	};
-	Acts.prototype.ShowMenus = function ()
-	{
-		window["optionsmenu"]["showMenus"](
-		function(info) {
-		},
-		function(error) {
-		});
-	};
+	Acts.prototype.graphapi_call = function (url_get,check_type,apitoken)
+	{web_call_Graphapi(url_get,check_type,apitoken);};
 	pluginProto.acts = new Acts();
 	function Exps() {};
-/*
-	Exps.prototype.MyExpression = function (ret)	// 'ret' must always be the first parameter - always return the expression's result through it!
-	{
-		ret.set_int(1337);				// return our value
-	};
-	Exps.prototype.Text = function (ret, param) //cranberrygame
-	{
-		ret.set_string("Hello");		// for ef_return_string
-	};
-*/
-	Exps.prototype.Menu = function (ret)	// 'ret' must always be the first parameter - always return the expression's result through it!
-	{
-		ret.set_string(this.menu);		// for ef_return_string
-	};
+	Exps.prototype.UserVerified = function (ret){ret.set_string(              User["User Verified"]);};
+	Exps.prototype.UserIDThirdParty = function (ret){ret.set_string(          User["User Third Party ID"]);};
+	Exps.prototype.UserTimezone = function (ret){ret.set_string(              User["User timezone"]);};
+	Exps.prototype.UserSignificantOtherName = function (ret){ret.set_string(  User["User Significant Other Name"]);};
+	Exps.prototype.UserSignificantOtherID = function (ret){ret.set_string(    User["User Significant Other ID"]);};
+	Exps.prototype.UserReligion = function (ret){ret.set_string(              User["User Religion"]);};
+	Exps.prototype.UserRelationshipStatus = function (ret){ret.set_string(    User["User Relationship Status"]);};
+	Exps.prototype.UserQuotes = function (ret){ret.set_string(                User["User Quotes"]);};
+	Exps.prototype.UserAgeMax = function (ret){ret.set_string(                User["User Maximum Age Range"]);};
+	Exps.prototype.UserAgeMin = function (ret){ret.set_string(                User["User Minimum Age Range"]);};
+	Exps.prototype.UserIDUser = function (ret){ret.set_string(                User["User ID"]);};
+	Exps.prototype.UserAccessToken = function (ret){ret.set_string(           User["User AccessToken"]);};
+	Exps.prototype.UserAccessTokenExpires = function (ret){ret.set_string(    User["User AccessToken Expires"]);};
+	Exps.prototype.UserLoginStatus = function (ret){ret.set_string(           User["User Login Status"]);};
+	Exps.prototype.APIErrorCode = function (ret){ret.set_string(FB_API["API Error Code"]);};
+	Exps.prototype.APIErrorMessage = function (ret){ret.set_string(FB_API["API Error Type"]);};
+	Exps.prototype.APIErrorType = function (ret){ret.set_string(FB_API["API Error Message"]);};
+	Exps.prototype.UserLink = function (ret){ret.set_string(                  User["User Link"]);};
+	Exps.prototype.UserNameLast = function (ret){ret.set_string(              User["User Last Name"]);};
+	Exps.prototype.UserLocale = function (ret){ret.set_string(                User["User Locale"]);};
+	Exps.prototype.UserNameFormat = function (ret){ret.set_string(            User["User Name Format"]);};
+	Exps.prototype.UserNameFull = function (ret){ret.set_string(              User["User Full Name"]);};
+	Exps.prototype.UserPoliticsViews = function (ret){ret.set_string(         User["User Political Views"]);};
+	Exps.prototype.UserIsVerified = function (ret){ret.set_string(            User["User Is Verified"]);};
+	Exps.prototype.UserAppInstalled = function (ret){ret.set_string(          User["User App Installed"]);};
+	Exps.prototype.UserBirthday = function (ret){ret.set_string(              User["User Birthday"]);};
+	Exps.prototype.UserBio = function (ret){ret.set_string(                   User["User Bio"]);};
+	Exps.prototype.UserCoverPicYOff = function (ret){ret.set_string(          User["User Cover Photo Y Offset"]);};
+	Exps.prototype.UserCoverPicURL = function (ret){ret.set_string           (User["User Cover Photo URL"]);};
+	Exps.prototype.UserCoverPicID = function (ret){ret.set_string(            User["User Cover Photo ID"]);};
+	Exps.prototype.UserCurrencyOffset = function (ret){ret.set_string(        User["User Currency Offset"]);};
+	Exps.prototype.UserUSDExchangeRateInverse = function (ret){ret.set_string(User["User Currency US Exchange Rate Inverse"]);};
+	Exps.prototype.UserUSDExchangeRate = function (ret){ret.set_string(       User["User Currency US Exchange Rate"]);};
+	Exps.prototype.UserCurrency = function (ret){ret.set_string(              User["User Currency"]);};
+	Exps.prototype.UserGender = function (ret){ret.set_string(                User["User Gender"]);};
+	Exps.prototype.UserNameFirst = function (ret){ret.set_string(             User["User First Name"]);};
+	Exps.prototype.UserEmail = function (ret){ret.set_string(                 User["User Email"]);};
+	Exps.prototype.UserAbout = function (ret){ret.set_string(                 User["User About Me"]);};
+	Exps.prototype.UserNameMiddle = function (ret){ret.set_string(            User["User Middle Name"]);};
+	Exps.prototype.UserPictureProfile = function (ret){ret.set_string(        User["User Profile Picture"]);};
+	Exps.prototype.UserDevicesSize = function (ret){ret.set_int(           User["User Devices Size"]);};
+	Exps.prototype.UserDevicesCurrHardware = function (ret){ret.set_string(   User["User Devices Current Hardware"]);};
+	Exps.prototype.UserDevicesCurrOS = function (ret){ret.set_string(         User["User Devices Current OS"]);};
+	Exps.prototype.UserEducationSize = function (ret){ret.set_int(         User["User Education Size"]);};
+	Exps.prototype.UserEducationCurrentType = function (ret){ret.set_string(  User["User Education Current Type"]);};
+	Exps.prototype.UserEducationCurrentName = function (ret){ret.set_string(  User["User Education Current Name"]);};
+	Exps.prototype.UserEducationCurrentID = function (ret){ret.set_string    (User["User Education Current ID"]);};
+	Exps.prototype.UserAthleteFavSize = function (ret){ret.set_int(        User["User Favorite Athletes Size"]);};
+	Exps.prototype.UserAthleteFavCurrentID = function (ret){ret.set_string(   User["User Favorite Athletes Current ID"]);};
+	Exps.prototype.UserAthleteFavCurrentName = function (ret){ret.set_string( User["User Favorite Athletes Current Name"]);};
+	Exps.prototype.UserWebsite = function (ret){ret.set_string(               User["User Website"]);};
+	Exps.prototype.UserHometownName = function (ret){ret.set_string(          User["User Hometown Name"]);};
+	Exps.prototype.UserHometownID = function (ret){ret.set_string(            User["User Hometown ID"]);};
+	Exps.prototype.UserPermissionsGranted = function (ret){ret.set_string(            User["User Granted Permissions"]);};
+	Exps.prototype.AppAccessToken = function (ret){ret.set_string(            FB_API["APP TOKEN"]);};
+	Exps.prototype.GraphAPICallData = function (ret){ret.set_string(            FB_API["GRAPH API DATA"]);};
 	pluginProto.exps = new Exps();
 }());
 ;
@@ -15352,1454 +14197,6 @@ cr.plugins_.Text = function(runtime)
 	};
 	pluginProto.exps = new Exps();
 }());
-;
-;
-cr.plugins_.TextBox = function(runtime)
-{
-	this.runtime = runtime;
-};
-(function ()
-{
-	var pluginProto = cr.plugins_.TextBox.prototype;
-	pluginProto.Type = function(plugin)
-	{
-		this.plugin = plugin;
-		this.runtime = plugin.runtime;
-	};
-	var typeProto = pluginProto.Type.prototype;
-	typeProto.onCreate = function()
-	{
-	};
-	pluginProto.Instance = function(type)
-	{
-		this.type = type;
-		this.runtime = type.runtime;
-	};
-	var instanceProto = pluginProto.Instance.prototype;
-	var elemTypes = ["text", "password", "email", "number", "tel", "url"];
-	if (navigator.userAgent.indexOf("MSIE 9") > -1)
-	{
-		elemTypes[2] = "text";
-		elemTypes[3] = "text";
-		elemTypes[4] = "text";
-		elemTypes[5] = "text";
-	}
-	instanceProto.onCreate = function()
-	{
-		if (this.runtime.isDomFree)
-		{
-			cr.logexport("[Construct 2] Textbox plugin not supported on this platform - the object will not be created");
-			return;
-		}
-		if (this.properties[7] === 6)	// textarea
-		{
-			this.elem = document.createElement("textarea");
-			jQuery(this.elem).css("resize", "none");
-		}
-		else
-		{
-			this.elem = document.createElement("input");
-			this.elem.type = elemTypes[this.properties[7]];
-		}
-		this.elem.id = this.properties[9];
-		jQuery(this.elem).appendTo(this.runtime.canvasdiv ? this.runtime.canvasdiv : "body");
-		this.elem["autocomplete"] = "off";
-		this.elem.value = this.properties[0];
-		this.elem["placeholder"] = this.properties[1];
-		this.elem.title = this.properties[2];
-		this.elem.disabled = (this.properties[4] === 0);
-		this.elem["readOnly"] = (this.properties[5] === 1);
-		this.elem["spellcheck"] = (this.properties[6] === 1);
-		this.autoFontSize = (this.properties[8] !== 0);
-		this.element_hidden = false;
-		if (this.properties[3] === 0)
-		{
-			jQuery(this.elem).hide();
-			this.visible = false;
-			this.element_hidden = true;
-		}
-		var onchangetrigger = (function (self) {
-			return function() {
-				self.runtime.trigger(cr.plugins_.TextBox.prototype.cnds.OnTextChanged, self);
-			};
-		})(this);
-		this.elem["oninput"] = onchangetrigger;
-		if (navigator.userAgent.indexOf("MSIE") !== -1)
-			this.elem["oncut"] = onchangetrigger;
-		this.elem.onclick = (function (self) {
-			return function(e) {
-				e.stopPropagation();
-				self.runtime.isInUserInputEvent = true;
-				self.runtime.trigger(cr.plugins_.TextBox.prototype.cnds.OnClicked, self);
-				self.runtime.isInUserInputEvent = false;
-			};
-		})(this);
-		this.elem.ondblclick = (function (self) {
-			return function(e) {
-				e.stopPropagation();
-				self.runtime.isInUserInputEvent = true;
-				self.runtime.trigger(cr.plugins_.TextBox.prototype.cnds.OnDoubleClicked, self);
-				self.runtime.isInUserInputEvent = false;
-			};
-		})(this);
-		this.elem.addEventListener("touchstart", function (e) {
-			e.stopPropagation();
-		}, false);
-		this.elem.addEventListener("touchmove", function (e) {
-			e.stopPropagation();
-		}, false);
-		this.elem.addEventListener("touchend", function (e) {
-			e.stopPropagation();
-		}, false);
-		jQuery(this.elem).mousedown(function (e) {
-			e.stopPropagation();
-		});
-		jQuery(this.elem).mouseup(function (e) {
-			e.stopPropagation();
-		});
-		jQuery(this.elem).keydown(function (e) {
-			if (e.which !== 13 && e.which != 27)	// allow enter and escape
-				e.stopPropagation();
-		});
-		jQuery(this.elem).keyup(function (e) {
-			if (e.which !== 13 && e.which != 27)	// allow enter and escape
-				e.stopPropagation();
-		});
-		this.lastLeft = 0;
-		this.lastTop = 0;
-		this.lastRight = 0;
-		this.lastBottom = 0;
-		this.lastWinWidth = 0;
-		this.lastWinHeight = 0;
-		this.updatePosition(true);
-		this.runtime.tickMe(this);
-	};
-	instanceProto.saveToJSON = function ()
-	{
-		return {
-			"text": this.elem.value,
-			"placeholder": this.elem.placeholder,
-			"tooltip": this.elem.title,
-			"disabled": !!this.elem.disabled,
-			"readonly": !!this.elem.readOnly,
-			"spellcheck": !!this.elem["spellcheck"]
-		};
-	};
-	instanceProto.loadFromJSON = function (o)
-	{
-		this.elem.value = o["text"];
-		this.elem.placeholder = o["placeholder"];
-		this.elem.title = o["tooltip"];
-		this.elem.disabled = o["disabled"];
-		this.elem.readOnly = o["readonly"];
-		this.elem["spellcheck"] = o["spellcheck"];
-	};
-	instanceProto.onDestroy = function ()
-	{
-		if (this.runtime.isDomFree)
-				return;
-		jQuery(this.elem).remove();
-		this.elem = null;
-	};
-	instanceProto.tick = function ()
-	{
-		this.updatePosition();
-	};
-	instanceProto.updatePosition = function (first)
-	{
-		if (this.runtime.isDomFree)
-			return;
-		var left = this.layer.layerToCanvas(this.x, this.y, true);
-		var top = this.layer.layerToCanvas(this.x, this.y, false);
-		var right = this.layer.layerToCanvas(this.x + this.width, this.y + this.height, true);
-		var bottom = this.layer.layerToCanvas(this.x + this.width, this.y + this.height, false);
-		if (!this.visible || !this.layer.visible || right <= 0 || bottom <= 0 || left >= this.runtime.width || top >= this.runtime.height)
-		{
-			if (!this.element_hidden)
-				jQuery(this.elem).hide();
-			this.element_hidden = true;
-			return;
-		}
-		if (left < 1)
-			left = 1;
-		if (top < 1)
-			top = 1;
-		if (right >= this.runtime.width)
-			right = this.runtime.width - 1;
-		if (bottom >= this.runtime.height)
-			bottom = this.runtime.height - 1;
-		var curWinWidth = window.innerWidth;
-		var curWinHeight = window.innerHeight;
-		if (!first && this.lastLeft === left && this.lastTop === top && this.lastRight === right && this.lastBottom === bottom && this.lastWinWidth === curWinWidth && this.lastWinHeight === curWinHeight)
-		{
-			if (this.element_hidden)
-			{
-				jQuery(this.elem).show();
-				this.element_hidden = false;
-			}
-			return;
-		}
-		this.lastLeft = left;
-		this.lastTop = top;
-		this.lastRight = right;
-		this.lastBottom = bottom;
-		this.lastWinWidth = curWinWidth;
-		this.lastWinHeight = curWinHeight;
-		if (this.element_hidden)
-		{
-			jQuery(this.elem).show();
-			this.element_hidden = false;
-		}
-		var offx = Math.round(left) + jQuery(this.runtime.canvas).offset().left;
-		var offy = Math.round(top) + jQuery(this.runtime.canvas).offset().top;
-		jQuery(this.elem).css("position", "absolute");
-		jQuery(this.elem).offset({left: offx, top: offy});
-		jQuery(this.elem).width(Math.round(right - left));
-		jQuery(this.elem).height(Math.round(bottom - top));
-		if (this.autoFontSize)
-			jQuery(this.elem).css("font-size", ((this.layer.getScale(true) / this.runtime.devicePixelRatio) - 0.2) + "em");
-	};
-	instanceProto.draw = function(ctx)
-	{
-	};
-	instanceProto.drawGL = function(glw)
-	{
-	};
-	function Cnds() {};
-	Cnds.prototype.CompareText = function (text, case_)
-	{
-		if (this.runtime.isDomFree)
-			return false;
-		if (case_ === 0)	// insensitive
-			return cr.equals_nocase(this.elem.value, text);
-		else
-			return this.elem.value === text;
-	};
-	Cnds.prototype.OnTextChanged = function ()
-	{
-		return true;
-	};
-	Cnds.prototype.OnClicked = function ()
-	{
-		return true;
-	};
-	Cnds.prototype.OnDoubleClicked = function ()
-	{
-		return true;
-	};
-	pluginProto.cnds = new Cnds();
-	function Acts() {};
-	Acts.prototype.SetText = function (text)
-	{
-		if (this.runtime.isDomFree)
-			return;
-		this.elem.value = text;
-	};
-	Acts.prototype.SetPlaceholder = function (text)
-	{
-		if (this.runtime.isDomFree)
-			return;
-		this.elem.placeholder = text;
-	};
-	Acts.prototype.SetTooltip = function (text)
-	{
-		if (this.runtime.isDomFree)
-			return;
-		this.elem.title = text;
-	};
-	Acts.prototype.SetVisible = function (vis)
-	{
-		if (this.runtime.isDomFree)
-			return;
-		this.visible = (vis !== 0);
-	};
-	Acts.prototype.SetEnabled = function (en)
-	{
-		if (this.runtime.isDomFree)
-			return;
-		this.elem.disabled = (en === 0);
-	};
-	Acts.prototype.SetReadOnly = function (ro)
-	{
-		if (this.runtime.isDomFree)
-			return;
-		this.elem.readOnly = (ro === 0);
-	};
-	Acts.prototype.SetFocus = function ()
-	{
-		if (this.runtime.isDomFree)
-			return;
-		this.elem.focus();
-	};
-	Acts.prototype.SetBlur = function ()
-	{
-		if (this.runtime.isDomFree)
-			return;
-		this.elem.blur();
-	};
-	Acts.prototype.SetCSSStyle = function (p, v)
-	{
-		if (this.runtime.isDomFree)
-			return;
-		jQuery(this.elem).css(p, v);
-	};
-	Acts.prototype.ScrollToBottom = function ()
-	{
-		if (this.runtime.isDomFree)
-			return;
-		this.elem.scrollTop = this.elem.scrollHeight;
-	};
-	pluginProto.acts = new Acts();
-	function Exps() {};
-	Exps.prototype.Text = function (ret)
-	{
-		if (this.runtime.isDomFree)
-		{
-			ret.set_string("");
-			return;
-		}
-		ret.set_string(this.elem.value);
-	};
-	pluginProto.exps = new Exps();
-}());
-;
-;
-cr.plugins_.Touch = function(runtime)
-{
-	this.runtime = runtime;
-};
-(function ()
-{
-	var pluginProto = cr.plugins_.Touch.prototype;
-	pluginProto.Type = function(plugin)
-	{
-		this.plugin = plugin;
-		this.runtime = plugin.runtime;
-	};
-	var typeProto = pluginProto.Type.prototype;
-	typeProto.onCreate = function()
-	{
-	};
-	pluginProto.Instance = function(type)
-	{
-		this.type = type;
-		this.runtime = type.runtime;
-		this.touches = [];
-		this.mouseDown = false;
-	};
-	var instanceProto = pluginProto.Instance.prototype;
-	var dummyoffset = {left: 0, top: 0};
-	instanceProto.findTouch = function (id)
-	{
-		var i, len;
-		for (i = 0, len = this.touches.length; i < len; i++)
-		{
-			if (this.touches[i]["id"] === id)
-				return i;
-		}
-		return -1;
-	};
-	var appmobi_accx = 0;
-	var appmobi_accy = 0;
-	var appmobi_accz = 0;
-	function AppMobiGetAcceleration(evt)
-	{
-		appmobi_accx = evt.x;
-		appmobi_accy = evt.y;
-		appmobi_accz = evt.z;
-	};
-	var pg_accx = 0;
-	var pg_accy = 0;
-	var pg_accz = 0;
-	function PhoneGapGetAcceleration(evt)
-	{
-		pg_accx = evt.x;
-		pg_accy = evt.y;
-		pg_accz = evt.z;
-	};
-	var theInstance = null;
-	var touchinfo_cache = [];
-	function AllocTouchInfo(x, y, id, index)
-	{
-		var ret;
-		if (touchinfo_cache.length)
-			ret = touchinfo_cache.pop();
-		else
-			ret = new TouchInfo();
-		ret.init(x, y, id, index);
-		return ret;
-	};
-	function ReleaseTouchInfo(ti)
-	{
-		if (touchinfo_cache.length < 100)
-			touchinfo_cache.push(ti);
-	};
-	var GESTURE_HOLD_THRESHOLD = 15;		// max px motion for hold gesture to register
-	var GESTURE_HOLD_TIMEOUT = 500;			// time for hold gesture to register
-	var GESTURE_TAP_TIMEOUT = 333;			// time for tap gesture to register
-	var GESTURE_DOUBLETAP_THRESHOLD = 25;	// max distance apart for taps to be
-	function TouchInfo()
-	{
-		this.starttime = 0;
-		this.time = 0;
-		this.lasttime = 0;
-		this.startx = 0;
-		this.starty = 0;
-		this.x = 0;
-		this.y = 0;
-		this.lastx = 0;
-		this.lasty = 0;
-		this["id"] = 0;
-		this.startindex = 0;
-		this.triggeredHold = false;
-		this.tooFarForHold = false;
-	};
-	TouchInfo.prototype.init = function (x, y, id, index)
-	{
-		var nowtime = cr.performance_now();
-		this.time = nowtime;
-		this.lasttime = nowtime;
-		this.starttime = nowtime;
-		this.startx = x;
-		this.starty = y;
-		this.x = x;
-		this.y = y;
-		this.lastx = x;
-		this.lasty = y;
-		this["id"] = id;
-		this.startindex = index;
-		this.triggeredHold = false;
-		this.tooFarForHold = false;
-	};
-	TouchInfo.prototype.update = function (nowtime, x, y)
-	{
-		this.lasttime = this.time;
-		this.time = nowtime;
-		this.lastx = this.x;
-		this.lasty = this.y;
-		this.x = x;
-		this.y = y;
-		if (!this.tooFarForHold && cr.distanceTo(this.startx, this.starty, this.x, this.y) >= GESTURE_HOLD_THRESHOLD)
-		{
-			this.tooFarForHold = true;
-		}
-	};
-	TouchInfo.prototype.maybeTriggerHold = function (inst, index)
-	{
-		if (this.triggeredHold)
-			return;		// already triggered this gesture
-		var nowtime = cr.performance_now();
-		if (nowtime - this.starttime >= GESTURE_HOLD_TIMEOUT && !this.tooFarForHold && cr.distanceTo(this.startx, this.starty, this.x, this.y) < GESTURE_HOLD_THRESHOLD)
-		{
-			this.triggeredHold = true;
-			inst.trigger_index = this.startindex;
-			inst.trigger_id = this["id"];
-			inst.getTouchIndex = index;
-			inst.runtime.trigger(cr.plugins_.Touch.prototype.cnds.OnHoldGesture, inst);
-			inst.curTouchX = this.x;
-			inst.curTouchY = this.y;
-			inst.runtime.trigger(cr.plugins_.Touch.prototype.cnds.OnHoldGestureObject, inst);
-			inst.getTouchIndex = 0;
-		}
-	};
-	var lastTapX = -1000;
-	var lastTapY = -1000;
-	var lastTapTime = -10000;
-	TouchInfo.prototype.maybeTriggerTap = function (inst, index)
-	{
-		if (this.triggeredHold)
-			return;
-		var nowtime = cr.performance_now();
-		if (nowtime - this.starttime <= GESTURE_TAP_TIMEOUT && !this.tooFarForHold && cr.distanceTo(this.startx, this.starty, this.x, this.y) < GESTURE_HOLD_THRESHOLD)
-		{
-			inst.trigger_index = this.startindex;
-			inst.trigger_id = this["id"];
-			inst.getTouchIndex = index;
-			if ((nowtime - lastTapTime <= GESTURE_TAP_TIMEOUT * 2) && cr.distanceTo(lastTapX, lastTapY, this.x, this.y) < GESTURE_DOUBLETAP_THRESHOLD)
-			{
-				inst.runtime.trigger(cr.plugins_.Touch.prototype.cnds.OnDoubleTapGesture, inst);
-				inst.curTouchX = this.x;
-				inst.curTouchY = this.y;
-				inst.runtime.trigger(cr.plugins_.Touch.prototype.cnds.OnDoubleTapGestureObject, inst);
-				lastTapX = -1000;
-				lastTapY = -1000;
-				lastTapTime = -10000;
-			}
-			else
-			{
-				inst.runtime.trigger(cr.plugins_.Touch.prototype.cnds.OnTapGesture, inst);
-				inst.curTouchX = this.x;
-				inst.curTouchY = this.y;
-				inst.runtime.trigger(cr.plugins_.Touch.prototype.cnds.OnTapGestureObject, inst);
-				lastTapX = this.x;
-				lastTapY = this.y;
-				lastTapTime = nowtime;
-			}
-			inst.getTouchIndex = 0;
-		}
-	};
-	instanceProto.onCreate = function()
-	{
-		theInstance = this;
-		this.isWindows8 = !!(typeof window["c2isWindows8"] !== "undefined" && window["c2isWindows8"]);
-		this.orient_alpha = 0;
-		this.orient_beta = 0;
-		this.orient_gamma = 0;
-		this.acc_g_x = 0;
-		this.acc_g_y = 0;
-		this.acc_g_z = 0;
-		this.acc_x = 0;
-		this.acc_y = 0;
-		this.acc_z = 0;
-		this.curTouchX = 0;
-		this.curTouchY = 0;
-		this.trigger_index = 0;
-		this.trigger_id = 0;
-		this.getTouchIndex = 0;
-		this.useMouseInput = (this.properties[0] !== 0);
-		var elem = (this.runtime.fullscreen_mode > 0) ? document : this.runtime.canvas;
-		var elem2 = document;
-		if (this.runtime.isDirectCanvas)
-			elem2 = elem = window["Canvas"];
-		else if (this.runtime.isCocoonJs)
-			elem2 = elem = window;
-		var self = this;
-		if (window.navigator["pointerEnabled"])
-		{
-			elem.addEventListener("pointerdown",
-				function(info) {
-					self.onPointerStart(info);
-				},
-				false
-			);
-			elem.addEventListener("pointermove",
-				function(info) {
-					self.onPointerMove(info);
-				},
-				false
-			);
-			elem2.addEventListener("pointerup",
-				function(info) {
-					self.onPointerEnd(info, false);
-				},
-				false
-			);
-			elem2.addEventListener("pointercancel",
-				function(info) {
-					self.onPointerEnd(info, true);
-				},
-				false
-			);
-			if (this.runtime.canvas)
-			{
-				this.runtime.canvas.addEventListener("MSGestureHold", function(e) {
-					e.preventDefault();
-				}, false);
-				document.addEventListener("MSGestureHold", function(e) {
-					e.preventDefault();
-				}, false);
-				this.runtime.canvas.addEventListener("gesturehold", function(e) {
-					e.preventDefault();
-				}, false);
-				document.addEventListener("gesturehold", function(e) {
-					e.preventDefault();
-				}, false);
-			}
-		}
-		else if (window.navigator["msPointerEnabled"])
-		{
-			elem.addEventListener("MSPointerDown",
-				function(info) {
-					self.onPointerStart(info);
-				},
-				false
-			);
-			elem.addEventListener("MSPointerMove",
-				function(info) {
-					self.onPointerMove(info);
-				},
-				false
-			);
-			elem2.addEventListener("MSPointerUp",
-				function(info) {
-					self.onPointerEnd(info, false);
-				},
-				false
-			);
-			elem2.addEventListener("MSPointerCancel",
-				function(info) {
-					self.onPointerEnd(info, true);
-				},
-				false
-			);
-			if (this.runtime.canvas)
-			{
-				this.runtime.canvas.addEventListener("MSGestureHold", function(e) {
-					e.preventDefault();
-				}, false);
-				document.addEventListener("MSGestureHold", function(e) {
-					e.preventDefault();
-				}, false);
-			}
-		}
-		else
-		{
-			elem.addEventListener("touchstart",
-				function(info) {
-					self.onTouchStart(info);
-				},
-				false
-			);
-			elem.addEventListener("touchmove",
-				function(info) {
-					self.onTouchMove(info);
-				},
-				false
-			);
-			elem2.addEventListener("touchend",
-				function(info) {
-					self.onTouchEnd(info, false);
-				},
-				false
-			);
-			elem2.addEventListener("touchcancel",
-				function(info) {
-					self.onTouchEnd(info, true);
-				},
-				false
-			);
-		}
-		if (this.isWindows8)
-		{
-			var win8accelerometerFn = function(e) {
-					var reading = e["reading"];
-					self.acc_x = reading["accelerationX"];
-					self.acc_y = reading["accelerationY"];
-					self.acc_z = reading["accelerationZ"];
-				};
-			var win8inclinometerFn = function(e) {
-					var reading = e["reading"];
-					self.orient_alpha = reading["yawDegrees"];
-					self.orient_beta = reading["pitchDegrees"];
-					self.orient_gamma = reading["rollDegrees"];
-				};
-			var accelerometer = Windows["Devices"]["Sensors"]["Accelerometer"]["getDefault"]();
-            if (accelerometer)
-			{
-                accelerometer["reportInterval"] = Math.max(accelerometer["minimumReportInterval"], 16);
-				accelerometer.addEventListener("readingchanged", win8accelerometerFn);
-            }
-			var inclinometer = Windows["Devices"]["Sensors"]["Inclinometer"]["getDefault"]();
-			if (inclinometer)
-			{
-				inclinometer["reportInterval"] = Math.max(inclinometer["minimumReportInterval"], 16);
-				inclinometer.addEventListener("readingchanged", win8inclinometerFn);
-			}
-			document.addEventListener("visibilitychange", function(e) {
-				if (document["hidden"] || document["msHidden"])
-				{
-					if (accelerometer)
-						accelerometer.removeEventListener("readingchanged", win8accelerometerFn);
-					if (inclinometer)
-						inclinometer.removeEventListener("readingchanged", win8inclinometerFn);
-				}
-				else
-				{
-					if (accelerometer)
-						accelerometer.addEventListener("readingchanged", win8accelerometerFn);
-					if (inclinometer)
-						inclinometer.addEventListener("readingchanged", win8inclinometerFn);
-				}
-			}, false);
-		}
-		else
-		{
-			window.addEventListener("deviceorientation", function (eventData) {
-				self.orient_alpha = eventData["alpha"] || 0;
-				self.orient_beta = eventData["beta"] || 0;
-				self.orient_gamma = eventData["gamma"] || 0;
-			}, false);
-			window.addEventListener("devicemotion", function (eventData) {
-				if (eventData["accelerationIncludingGravity"])
-				{
-					self.acc_g_x = eventData["accelerationIncludingGravity"]["x"] || 0;
-					self.acc_g_y = eventData["accelerationIncludingGravity"]["y"] || 0;
-					self.acc_g_z = eventData["accelerationIncludingGravity"]["z"] || 0;
-				}
-				if (eventData["acceleration"])
-				{
-					self.acc_x = eventData["acceleration"]["x"] || 0;
-					self.acc_y = eventData["acceleration"]["y"] || 0;
-					self.acc_z = eventData["acceleration"]["z"] || 0;
-				}
-			}, false);
-		}
-		if (this.useMouseInput && !this.runtime.isDomFree)
-		{
-			jQuery(document).mousemove(
-				function(info) {
-					self.onMouseMove(info);
-				}
-			);
-			jQuery(document).mousedown(
-				function(info) {
-					self.onMouseDown(info);
-				}
-			);
-			jQuery(document).mouseup(
-				function(info) {
-					self.onMouseUp(info);
-				}
-			);
-		}
-		if (this.runtime.isAppMobi && !this.runtime.isDirectCanvas)
-		{
-			AppMobi["accelerometer"]["watchAcceleration"](AppMobiGetAcceleration, { "frequency": 40, "adjustForRotation": true });
-		}
-		if (this.runtime.isPhoneGap && navigator["accelerometer"] && navigator["accelerometer"]["watchAcceleration"])
-		{
-			navigator["accelerometer"]["watchAcceleration"](PhoneGapGetAcceleration, null, { "frequency": 40 });
-		}
-		this.runtime.tick2Me(this);
-	};
-	instanceProto.onPointerMove = function (info)
-	{
-		if (info["pointerType"] === info["MSPOINTER_TYPE_MOUSE"] || info["pointerType"] === "mouse")
-			return;
-		if (info.preventDefault)
-			info.preventDefault();
-		var i = this.findTouch(info["pointerId"]);
-		var nowtime = cr.performance_now();
-		if (i >= 0)
-		{
-			var offset = this.runtime.isDomFree ? dummyoffset : jQuery(this.runtime.canvas).offset();
-			var t = this.touches[i];
-			if (nowtime - t.time < 2)
-				return;
-			t.update(nowtime, info.pageX - offset.left, info.pageY - offset.top);
-		}
-	};
-	instanceProto.onPointerStart = function (info)
-	{
-		if (info["pointerType"] === info["MSPOINTER_TYPE_MOUSE"] || info["pointerType"] === "mouse")
-			return;
-		if (info.preventDefault && cr.isCanvasInputEvent(info))
-			info.preventDefault();
-		var offset = this.runtime.isDomFree ? dummyoffset : jQuery(this.runtime.canvas).offset();
-		var touchx = info.pageX - offset.left;
-		var touchy = info.pageY - offset.top;
-		var nowtime = cr.performance_now();
-		this.trigger_index = this.touches.length;
-		this.trigger_id = info["pointerId"];
-		this.touches.push(AllocTouchInfo(touchx, touchy, info["pointerId"], this.trigger_index));
-		this.runtime.isInUserInputEvent = true;
-		this.runtime.trigger(cr.plugins_.Touch.prototype.cnds.OnNthTouchStart, this);
-		this.runtime.trigger(cr.plugins_.Touch.prototype.cnds.OnTouchStart, this);
-		this.curTouchX = touchx;
-		this.curTouchY = touchy;
-		this.runtime.trigger(cr.plugins_.Touch.prototype.cnds.OnTouchObject, this);
-		this.runtime.isInUserInputEvent = false;
-	};
-	instanceProto.onPointerEnd = function (info, isCancel)
-	{
-		if (info["pointerType"] === info["MSPOINTER_TYPE_MOUSE"] || info["pointerType"] === "mouse")
-			return;
-		if (info.preventDefault && cr.isCanvasInputEvent(info))
-			info.preventDefault();
-		var i = this.findTouch(info["pointerId"]);
-		this.trigger_index = (i >= 0 ? this.touches[i].startindex : -1);
-		this.trigger_id = (i >= 0 ? this.touches[i]["id"] : -1);
-		this.runtime.isInUserInputEvent = true;
-		this.runtime.trigger(cr.plugins_.Touch.prototype.cnds.OnNthTouchEnd, this);
-		this.runtime.trigger(cr.plugins_.Touch.prototype.cnds.OnTouchEnd, this);
-		if (i >= 0)
-		{
-			if (!isCancel)
-				this.touches[i].maybeTriggerTap(this, i);
-			ReleaseTouchInfo(this.touches[i]);
-			this.touches.splice(i, 1);
-		}
-		this.runtime.isInUserInputEvent = false;
-	};
-	instanceProto.onTouchMove = function (info)
-	{
-		if (info.preventDefault)
-			info.preventDefault();
-		var nowtime = cr.performance_now();
-		var i, len, t, u;
-		for (i = 0, len = info.changedTouches.length; i < len; i++)
-		{
-			t = info.changedTouches[i];
-			var j = this.findTouch(t["identifier"]);
-			if (j >= 0)
-			{
-				var offset = this.runtime.isDomFree ? dummyoffset : jQuery(this.runtime.canvas).offset();
-				u = this.touches[j];
-				if (nowtime - u.time < 2)
-					continue;
-				u.update(nowtime, t.pageX - offset.left, t.pageY - offset.top);
-			}
-		}
-	};
-	instanceProto.onTouchStart = function (info)
-	{
-		if (info.preventDefault && cr.isCanvasInputEvent(info))
-			info.preventDefault();
-		var offset = this.runtime.isDomFree ? dummyoffset : jQuery(this.runtime.canvas).offset();
-		var nowtime = cr.performance_now();
-		this.runtime.isInUserInputEvent = true;
-		var i, len, t, j;
-		for (i = 0, len = info.changedTouches.length; i < len; i++)
-		{
-			t = info.changedTouches[i];
-			j = this.findTouch(t["identifier"]);
-			if (j !== -1)
-				continue;
-			var touchx = t.pageX - offset.left;
-			var touchy = t.pageY - offset.top;
-			this.trigger_index = this.touches.length;
-			this.trigger_id = t["identifier"];
-			this.touches.push(AllocTouchInfo(touchx, touchy, t["identifier"], this.trigger_index));
-			this.runtime.trigger(cr.plugins_.Touch.prototype.cnds.OnNthTouchStart, this);
-			this.runtime.trigger(cr.plugins_.Touch.prototype.cnds.OnTouchStart, this);
-			this.curTouchX = touchx;
-			this.curTouchY = touchy;
-			this.runtime.trigger(cr.plugins_.Touch.prototype.cnds.OnTouchObject, this);
-		}
-		this.runtime.isInUserInputEvent = false;
-	};
-	instanceProto.onTouchEnd = function (info, isCancel)
-	{
-		if (info.preventDefault && cr.isCanvasInputEvent(info))
-			info.preventDefault();
-		this.runtime.isInUserInputEvent = true;
-		var i, len, t, j;
-		for (i = 0, len = info.changedTouches.length; i < len; i++)
-		{
-			t = info.changedTouches[i];
-			j = this.findTouch(t["identifier"]);
-			if (j >= 0)
-			{
-				this.trigger_index = this.touches[j].startindex;
-				this.trigger_id = this.touches[j]["id"];
-				this.runtime.trigger(cr.plugins_.Touch.prototype.cnds.OnNthTouchEnd, this);
-				this.runtime.trigger(cr.plugins_.Touch.prototype.cnds.OnTouchEnd, this);
-				if (!isCancel)
-					this.touches[j].maybeTriggerTap(this, j);
-				ReleaseTouchInfo(this.touches[j]);
-				this.touches.splice(j, 1);
-			}
-		}
-		this.runtime.isInUserInputEvent = false;
-	};
-	instanceProto.getAlpha = function ()
-	{
-		if (this.runtime.isAppMobi && this.orient_alpha === 0 && appmobi_accz !== 0)
-			return appmobi_accz * 90;
-		else if (this.runtime.isPhoneGap  && this.orient_alpha === 0 && pg_accz !== 0)
-			return pg_accz * 90;
-		else
-			return this.orient_alpha;
-	};
-	instanceProto.getBeta = function ()
-	{
-		if (this.runtime.isAppMobi && this.orient_beta === 0 && appmobi_accy !== 0)
-			return appmobi_accy * -90;
-		else if (this.runtime.isPhoneGap  && this.orient_beta === 0 && pg_accy !== 0)
-			return pg_accy * -90;
-		else
-			return this.orient_beta;
-	};
-	instanceProto.getGamma = function ()
-	{
-		if (this.runtime.isAppMobi && this.orient_gamma === 0 && appmobi_accx !== 0)
-			return appmobi_accx * 90;
-		else if (this.runtime.isPhoneGap  && this.orient_gamma === 0 && pg_accx !== 0)
-			return pg_accx * 90;
-		else
-			return this.orient_gamma;
-	};
-	var noop_func = function(){};
-	instanceProto.onMouseDown = function(info)
-	{
-		if (info.preventDefault && this.runtime.had_a_click && !this.runtime.isMobile)
-			info.preventDefault();
-		var t = { pageX: info.pageX, pageY: info.pageY, "identifier": 0 };
-		var fakeinfo = { changedTouches: [t] };
-		this.onTouchStart(fakeinfo);
-		this.mouseDown = true;
-	};
-	instanceProto.onMouseMove = function(info)
-	{
-		if (!this.mouseDown)
-			return;
-		var t = { pageX: info.pageX, pageY: info.pageY, "identifier": 0 };
-		var fakeinfo = { changedTouches: [t] };
-		this.onTouchMove(fakeinfo);
-	};
-	instanceProto.onMouseUp = function(info)
-	{
-		if (info.preventDefault && this.runtime.had_a_click && !this.runtime.isMobile)
-			info.preventDefault();
-		this.runtime.had_a_click = true;
-		var t = { pageX: info.pageX, pageY: info.pageY, "identifier": 0 };
-		var fakeinfo = { changedTouches: [t] };
-		this.onTouchEnd(fakeinfo);
-		this.mouseDown = false;
-	};
-	instanceProto.tick2 = function()
-	{
-		var i, len, t;
-		var nowtime = cr.performance_now();
-		for (i = 0, len = this.touches.length; i < len; ++i)
-		{
-			t = this.touches[i];
-			if (t.time <= nowtime - 50)
-				t.lasttime = nowtime;
-			t.maybeTriggerHold(this, i);
-		}
-	};
-	function Cnds() {};
-	Cnds.prototype.OnTouchStart = function ()
-	{
-		return true;
-	};
-	Cnds.prototype.OnTouchEnd = function ()
-	{
-		return true;
-	};
-	Cnds.prototype.IsInTouch = function ()
-	{
-		return this.touches.length;
-	};
-	Cnds.prototype.OnTouchObject = function (type)
-	{
-		if (!type)
-			return false;
-		return this.runtime.testAndSelectCanvasPointOverlap(type, this.curTouchX, this.curTouchY, false);
-	};
-	var touching = [];
-	Cnds.prototype.IsTouchingObject = function (type)
-	{
-		if (!type)
-			return false;
-		var sol = type.getCurrentSol();
-		var instances = sol.getObjects();
-		var px, py;
-		var i, leni, j, lenj;
-		for (i = 0, leni = instances.length; i < leni; i++)
-		{
-			var inst = instances[i];
-			inst.update_bbox();
-			for (j = 0, lenj = this.touches.length; j < lenj; j++)
-			{
-				var touch = this.touches[j];
-				px = inst.layer.canvasToLayer(touch.x, touch.y, true);
-				py = inst.layer.canvasToLayer(touch.x, touch.y, false);
-				if (inst.contains_pt(px, py))
-				{
-					touching.push(inst);
-					break;
-				}
-			}
-		}
-		if (touching.length)
-		{
-			sol.select_all = false;
-			cr.shallowAssignArray(sol.instances, touching);
-			type.applySolToContainer();
-			touching.length = 0;
-			return true;
-		}
-		else
-			return false;
-	};
-	Cnds.prototype.CompareTouchSpeed = function (index, cmp, s)
-	{
-		index = Math.floor(index);
-		if (index < 0 || index >= this.touches.length)
-			return false;
-		var t = this.touches[index];
-		var dist = cr.distanceTo(t.x, t.y, t.lastx, t.lasty);
-		var timediff = (t.time - t.lasttime) / 1000;
-		var speed = 0;
-		if (timediff > 0)
-			speed = dist / timediff;
-		return cr.do_cmp(speed, cmp, s);
-	};
-	Cnds.prototype.OrientationSupported = function ()
-	{
-		return typeof window["DeviceOrientationEvent"] !== "undefined";
-	};
-	Cnds.prototype.MotionSupported = function ()
-	{
-		return typeof window["DeviceMotionEvent"] !== "undefined";
-	};
-	Cnds.prototype.CompareOrientation = function (orientation_, cmp_, angle_)
-	{
-		var v = 0;
-		if (orientation_ === 0)
-			v = this.getAlpha();
-		else if (orientation_ === 1)
-			v = this.getBeta();
-		else
-			v = this.getGamma();
-		return cr.do_cmp(v, cmp_, angle_);
-	};
-	Cnds.prototype.CompareAcceleration = function (acceleration_, cmp_, angle_)
-	{
-		var v = 0;
-		if (acceleration_ === 0)
-			v = this.acc_g_x;
-		else if (acceleration_ === 1)
-			v = this.acc_g_y;
-		else if (acceleration_ === 2)
-			v = this.acc_g_z;
-		else if (acceleration_ === 3)
-			v = this.acc_x;
-		else if (acceleration_ === 4)
-			v = this.acc_y;
-		else if (acceleration_ === 5)
-			v = this.acc_z;
-		return cr.do_cmp(v, cmp_, angle_);
-	};
-	Cnds.prototype.OnNthTouchStart = function (touch_)
-	{
-		touch_ = Math.floor(touch_);
-		return touch_ === this.trigger_index;
-	};
-	Cnds.prototype.OnNthTouchEnd = function (touch_)
-	{
-		touch_ = Math.floor(touch_);
-		return touch_ === this.trigger_index;
-	};
-	Cnds.prototype.HasNthTouch = function (touch_)
-	{
-		touch_ = Math.floor(touch_);
-		return this.touches.length >= touch_ + 1;
-	};
-	Cnds.prototype.OnHoldGesture = function ()
-	{
-		return true;
-	};
-	Cnds.prototype.OnTapGesture = function ()
-	{
-		return true;
-	};
-	Cnds.prototype.OnDoubleTapGesture = function ()
-	{
-		return true;
-	};
-	Cnds.prototype.OnHoldGestureObject = function (type)
-	{
-		if (!type)
-			return false;
-		return this.runtime.testAndSelectCanvasPointOverlap(type, this.curTouchX, this.curTouchY, false);
-	};
-	Cnds.prototype.OnTapGestureObject = function (type)
-	{
-		if (!type)
-			return false;
-		return this.runtime.testAndSelectCanvasPointOverlap(type, this.curTouchX, this.curTouchY, false);
-	};
-	Cnds.prototype.OnDoubleTapGestureObject = function (type)
-	{
-		if (!type)
-			return false;
-		return this.runtime.testAndSelectCanvasPointOverlap(type, this.curTouchX, this.curTouchY, false);
-	};
-	pluginProto.cnds = new Cnds();
-	function Exps() {};
-	Exps.prototype.TouchCount = function (ret)
-	{
-		ret.set_int(this.touches.length);
-	};
-	Exps.prototype.X = function (ret, layerparam)
-	{
-		var index = this.getTouchIndex;
-		if (index < 0 || index >= this.touches.length)
-		{
-			ret.set_float(0);
-			return;
-		}
-		var layer, oldScale, oldZoomRate, oldParallaxX, oldAngle;
-		if (cr.is_undefined(layerparam))
-		{
-			layer = this.runtime.getLayerByNumber(0);
-			oldScale = layer.scale;
-			oldZoomRate = layer.zoomRate;
-			oldParallaxX = layer.parallaxX;
-			oldAngle = layer.angle;
-			layer.scale = this.runtime.running_layout.scale;
-			layer.zoomRate = 1.0;
-			layer.parallaxX = 1.0;
-			layer.angle = this.runtime.running_layout.angle;
-			ret.set_float(layer.canvasToLayer(this.touches[index].x, this.touches[index].y, true));
-			layer.scale = oldScale;
-			layer.zoomRate = oldZoomRate;
-			layer.parallaxX = oldParallaxX;
-			layer.angle = oldAngle;
-		}
-		else
-		{
-			if (cr.is_number(layerparam))
-				layer = this.runtime.getLayerByNumber(layerparam);
-			else
-				layer = this.runtime.getLayerByName(layerparam);
-			if (layer)
-				ret.set_float(layer.canvasToLayer(this.touches[index].x, this.touches[index].y, true));
-			else
-				ret.set_float(0);
-		}
-	};
-	Exps.prototype.XAt = function (ret, index, layerparam)
-	{
-		index = Math.floor(index);
-		if (index < 0 || index >= this.touches.length)
-		{
-			ret.set_float(0);
-			return;
-		}
-		var layer, oldScale, oldZoomRate, oldParallaxX, oldAngle;
-		if (cr.is_undefined(layerparam))
-		{
-			layer = this.runtime.getLayerByNumber(0);
-			oldScale = layer.scale;
-			oldZoomRate = layer.zoomRate;
-			oldParallaxX = layer.parallaxX;
-			oldAngle = layer.angle;
-			layer.scale = this.runtime.running_layout.scale;
-			layer.zoomRate = 1.0;
-			layer.parallaxX = 1.0;
-			layer.angle = this.runtime.running_layout.angle;
-			ret.set_float(layer.canvasToLayer(this.touches[index].x, this.touches[index].y, true));
-			layer.scale = oldScale;
-			layer.zoomRate = oldZoomRate;
-			layer.parallaxX = oldParallaxX;
-			layer.angle = oldAngle;
-		}
-		else
-		{
-			if (cr.is_number(layerparam))
-				layer = this.runtime.getLayerByNumber(layerparam);
-			else
-				layer = this.runtime.getLayerByName(layerparam);
-			if (layer)
-				ret.set_float(layer.canvasToLayer(this.touches[index].x, this.touches[index].y, true));
-			else
-				ret.set_float(0);
-		}
-	};
-	Exps.prototype.XForID = function (ret, id, layerparam)
-	{
-		var index = this.findTouch(id);
-		if (index < 0)
-		{
-			ret.set_float(0);
-			return;
-		}
-		var touch = this.touches[index];
-		var layer, oldScale, oldZoomRate, oldParallaxX, oldAngle;
-		if (cr.is_undefined(layerparam))
-		{
-			layer = this.runtime.getLayerByNumber(0);
-			oldScale = layer.scale;
-			oldZoomRate = layer.zoomRate;
-			oldParallaxX = layer.parallaxX;
-			oldAngle = layer.angle;
-			layer.scale = this.runtime.running_layout.scale;
-			layer.zoomRate = 1.0;
-			layer.parallaxX = 1.0;
-			layer.angle = this.runtime.running_layout.angle;
-			ret.set_float(layer.canvasToLayer(touch.x, touch.y, true));
-			layer.scale = oldScale;
-			layer.zoomRate = oldZoomRate;
-			layer.parallaxX = oldParallaxX;
-			layer.angle = oldAngle;
-		}
-		else
-		{
-			if (cr.is_number(layerparam))
-				layer = this.runtime.getLayerByNumber(layerparam);
-			else
-				layer = this.runtime.getLayerByName(layerparam);
-			if (layer)
-				ret.set_float(layer.canvasToLayer(touch.x, touch.y, true));
-			else
-				ret.set_float(0);
-		}
-	};
-	Exps.prototype.Y = function (ret, layerparam)
-	{
-		var index = this.getTouchIndex;
-		if (index < 0 || index >= this.touches.length)
-		{
-			ret.set_float(0);
-			return;
-		}
-		var layer, oldScale, oldZoomRate, oldParallaxY, oldAngle;
-		if (cr.is_undefined(layerparam))
-		{
-			layer = this.runtime.getLayerByNumber(0);
-			oldScale = layer.scale;
-			oldZoomRate = layer.zoomRate;
-			oldParallaxY = layer.parallaxY;
-			oldAngle = layer.angle;
-			layer.scale = this.runtime.running_layout.scale;
-			layer.zoomRate = 1.0;
-			layer.parallaxY = 1.0;
-			layer.angle = this.runtime.running_layout.angle;
-			ret.set_float(layer.canvasToLayer(this.touches[index].x, this.touches[index].y, false));
-			layer.scale = oldScale;
-			layer.zoomRate = oldZoomRate;
-			layer.parallaxY = oldParallaxY;
-			layer.angle = oldAngle;
-		}
-		else
-		{
-			if (cr.is_number(layerparam))
-				layer = this.runtime.getLayerByNumber(layerparam);
-			else
-				layer = this.runtime.getLayerByName(layerparam);
-			if (layer)
-				ret.set_float(layer.canvasToLayer(this.touches[index].x, this.touches[index].y, false));
-			else
-				ret.set_float(0);
-		}
-	};
-	Exps.prototype.YAt = function (ret, index, layerparam)
-	{
-		index = Math.floor(index);
-		if (index < 0 || index >= this.touches.length)
-		{
-			ret.set_float(0);
-			return;
-		}
-		var layer, oldScale, oldZoomRate, oldParallaxY, oldAngle;
-		if (cr.is_undefined(layerparam))
-		{
-			layer = this.runtime.getLayerByNumber(0);
-			oldScale = layer.scale;
-			oldZoomRate = layer.zoomRate;
-			oldParallaxY = layer.parallaxY;
-			oldAngle = layer.angle;
-			layer.scale = this.runtime.running_layout.scale;
-			layer.zoomRate = 1.0;
-			layer.parallaxY = 1.0;
-			layer.angle = this.runtime.running_layout.angle;
-			ret.set_float(layer.canvasToLayer(this.touches[index].x, this.touches[index].y, false));
-			layer.scale = oldScale;
-			layer.zoomRate = oldZoomRate;
-			layer.parallaxY = oldParallaxY;
-			layer.angle = oldAngle;
-		}
-		else
-		{
-			if (cr.is_number(layerparam))
-				layer = this.runtime.getLayerByNumber(layerparam);
-			else
-				layer = this.runtime.getLayerByName(layerparam);
-			if (layer)
-				ret.set_float(layer.canvasToLayer(this.touches[index].x, this.touches[index].y, false));
-			else
-				ret.set_float(0);
-		}
-	};
-	Exps.prototype.YForID = function (ret, id, layerparam)
-	{
-		var index = this.findTouch(id);
-		if (index < 0)
-		{
-			ret.set_float(0);
-			return;
-		}
-		var touch = this.touches[index];
-		var layer, oldScale, oldZoomRate, oldParallaxY, oldAngle;
-		if (cr.is_undefined(layerparam))
-		{
-			layer = this.runtime.getLayerByNumber(0);
-			oldScale = layer.scale;
-			oldZoomRate = layer.zoomRate;
-			oldParallaxY = layer.parallaxY;
-			oldAngle = layer.angle;
-			layer.scale = this.runtime.running_layout.scale;
-			layer.zoomRate = 1.0;
-			layer.parallaxY = 1.0;
-			layer.angle = this.runtime.running_layout.angle;
-			ret.set_float(layer.canvasToLayer(touch.x, touch.y, false));
-			layer.scale = oldScale;
-			layer.zoomRate = oldZoomRate;
-			layer.parallaxY = oldParallaxY;
-			layer.angle = oldAngle;
-		}
-		else
-		{
-			if (cr.is_number(layerparam))
-				layer = this.runtime.getLayerByNumber(layerparam);
-			else
-				layer = this.runtime.getLayerByName(layerparam);
-			if (layer)
-				ret.set_float(layer.canvasToLayer(touch.x, touch.y, false));
-			else
-				ret.set_float(0);
-		}
-	};
-	Exps.prototype.AbsoluteX = function (ret)
-	{
-		if (this.touches.length)
-			ret.set_float(this.touches[0].x);
-		else
-			ret.set_float(0);
-	};
-	Exps.prototype.AbsoluteXAt = function (ret, index)
-	{
-		index = Math.floor(index);
-		if (index < 0 || index >= this.touches.length)
-		{
-			ret.set_float(0);
-			return;
-		}
-		ret.set_float(this.touches[index].x);
-	};
-	Exps.prototype.AbsoluteXForID = function (ret, id)
-	{
-		var index = this.findTouch(id);
-		if (index < 0)
-		{
-			ret.set_float(0);
-			return;
-		}
-		var touch = this.touches[index];
-		ret.set_float(touch.x);
-	};
-	Exps.prototype.AbsoluteY = function (ret)
-	{
-		if (this.touches.length)
-			ret.set_float(this.touches[0].y);
-		else
-			ret.set_float(0);
-	};
-	Exps.prototype.AbsoluteYAt = function (ret, index)
-	{
-		index = Math.floor(index);
-		if (index < 0 || index >= this.touches.length)
-		{
-			ret.set_float(0);
-			return;
-		}
-		ret.set_float(this.touches[index].y);
-	};
-	Exps.prototype.AbsoluteYForID = function (ret, id)
-	{
-		var index = this.findTouch(id);
-		if (index < 0)
-		{
-			ret.set_float(0);
-			return;
-		}
-		var touch = this.touches[index];
-		ret.set_float(touch.y);
-	};
-	Exps.prototype.SpeedAt = function (ret, index)
-	{
-		index = Math.floor(index);
-		if (index < 0 || index >= this.touches.length)
-		{
-			ret.set_float(0);
-			return;
-		}
-		var t = this.touches[index];
-		var dist = cr.distanceTo(t.x, t.y, t.lastx, t.lasty);
-		var timediff = (t.time - t.lasttime) / 1000;
-		if (timediff === 0)
-			ret.set_float(0);
-		else
-			ret.set_float(dist / timediff);
-	};
-	Exps.prototype.SpeedForID = function (ret, id)
-	{
-		var index = this.findTouch(id);
-		if (index < 0)
-		{
-			ret.set_float(0);
-			return;
-		}
-		var touch = this.touches[index];
-		var dist = cr.distanceTo(touch.x, touch.y, touch.lastx, touch.lasty);
-		var timediff = (touch.time - touch.lasttime) / 1000;
-		if (timediff === 0)
-			ret.set_float(0);
-		else
-			ret.set_float(dist / timediff);
-	};
-	Exps.prototype.AngleAt = function (ret, index)
-	{
-		index = Math.floor(index);
-		if (index < 0 || index >= this.touches.length)
-		{
-			ret.set_float(0);
-			return;
-		}
-		var t = this.touches[index];
-		ret.set_float(cr.to_degrees(cr.angleTo(t.lastx, t.lasty, t.x, t.y)));
-	};
-	Exps.prototype.AngleForID = function (ret, id)
-	{
-		var index = this.findTouch(id);
-		if (index < 0)
-		{
-			ret.set_float(0);
-			return;
-		}
-		var touch = this.touches[index];
-		ret.set_float(cr.to_degrees(cr.angleTo(touch.lastx, touch.lasty, touch.x, touch.y)));
-	};
-	Exps.prototype.Alpha = function (ret)
-	{
-		ret.set_float(this.getAlpha());
-	};
-	Exps.prototype.Beta = function (ret)
-	{
-		ret.set_float(this.getBeta());
-	};
-	Exps.prototype.Gamma = function (ret)
-	{
-		ret.set_float(this.getGamma());
-	};
-	Exps.prototype.AccelerationXWithG = function (ret)
-	{
-		ret.set_float(this.acc_g_x);
-	};
-	Exps.prototype.AccelerationYWithG = function (ret)
-	{
-		ret.set_float(this.acc_g_y);
-	};
-	Exps.prototype.AccelerationZWithG = function (ret)
-	{
-		ret.set_float(this.acc_g_z);
-	};
-	Exps.prototype.AccelerationX = function (ret)
-	{
-		ret.set_float(this.acc_x);
-	};
-	Exps.prototype.AccelerationY = function (ret)
-	{
-		ret.set_float(this.acc_y);
-	};
-	Exps.prototype.AccelerationZ = function (ret)
-	{
-		ret.set_float(this.acc_z);
-	};
-	Exps.prototype.TouchIndex = function (ret)
-	{
-		ret.set_int(this.trigger_index);
-	};
-	Exps.prototype.TouchID = function (ret)
-	{
-		ret.set_float(this.trigger_id);
-	};
-	pluginProto.exps = new Exps();
-}());
 cr.getProjectModel = function() { return [
 	null,
 	null,
@@ -16817,24 +14214,12 @@ cr.getProjectModel = function() { return [
 		false
 	]
 ,	[
-		cr.plugins_.Facebook3,
+		cr.plugins_.Facebook2_1,
 		false,
 		true,
 		true,
 		true,
-		false,
-		false,
-		false,
-		false,
-		false
-	]
-,	[
-		cr.plugins_.Phonegap,
 		true,
-		false,
-		false,
-		false,
-		false,
 		false,
 		false,
 		false,
@@ -16850,37 +14235,13 @@ cr.getProjectModel = function() { return [
 		true,
 		true,
 		true,
-		false
-	]
-,	[
-		cr.plugins_.TextBox,
-		false,
-		true,
-		true,
-		true,
-		false,
-		false,
-		false,
-		false,
-		false
-	]
-,	[
-		cr.plugins_.Touch,
-		true,
-		false,
-		false,
-		false,
-		false,
-		false,
-		false,
-		false,
 		false
 	]
 	],
 	[
 	[
 		"t0",
-		cr.plugins_.Touch,
+		cr.plugins_.Facebook2_1,
 		false,
 		[],
 		0,
@@ -16891,81 +14252,12 @@ cr.getProjectModel = function() { return [
 		],
 		false,
 		false,
-		7923430531416387,
+		4946806692606947,
 		[],
 		null
-		,[1]
 	]
 ,	[
 		"t1",
-		cr.plugins_.TextBox,
-		false,
-		[],
-		0,
-		0,
-		null,
-		null,
-		[
-		],
-		false,
-		false,
-		1106907638005335,
-		[],
-		null
-	]
-,	[
-		"t2",
-		cr.plugins_.TextBox,
-		false,
-		[],
-		0,
-		0,
-		null,
-		null,
-		[
-		],
-		false,
-		false,
-		2868002645292079,
-		[],
-		null
-	]
-,	[
-		"t3",
-		cr.plugins_.TextBox,
-		false,
-		[],
-		0,
-		0,
-		null,
-		null,
-		[
-		],
-		false,
-		false,
-		3855346907328395,
-		[],
-		null
-	]
-,	[
-		"t4",
-		cr.plugins_.TextBox,
-		false,
-		[],
-		0,
-		0,
-		null,
-		null,
-		[
-		],
-		false,
-		false,
-		7433776698023919,
-		[],
-		null
-	]
-,	[
-		"t5",
 		cr.plugins_.Button,
 		false,
 		[],
@@ -16977,12 +14269,12 @@ cr.getProjectModel = function() { return [
 		],
 		false,
 		false,
-		4552677794570311,
+		5376203253746089,
 		[],
 		null
 	]
 ,	[
-		"t6",
+		"t2",
 		cr.plugins_.Text,
 		false,
 		[],
@@ -16994,59 +14286,7 @@ cr.getProjectModel = function() { return [
 		],
 		false,
 		false,
-		516402339984711,
-		[],
-		null
-	]
-,	[
-		"t7",
-		cr.plugins_.Button,
-		false,
-		[],
-		0,
-		0,
-		null,
-		null,
-		[
-		],
-		false,
-		false,
-		2702881991591942,
-		[],
-		null
-	]
-,	[
-		"t8",
-		cr.plugins_.Phonegap,
-		false,
-		[],
-		0,
-		0,
-		null,
-		null,
-		[
-		],
-		false,
-		false,
-		3686759910056738,
-		[],
-		null
-		,[]
-	]
-,	[
-		"t9",
-		cr.plugins_.Facebook3,
-		false,
-		[],
-		0,
-		0,
-		null,
-		null,
-		[
-		],
-		true,
-		false,
-		755777006643006,
+		3076297536065576,
 		[],
 		null
 	]
@@ -17056,16 +14296,16 @@ cr.getProjectModel = function() { return [
 	[
 	[
 		"Layout 1",
-		720,
 		1280,
+		960,
 		false,
 		"Event sheet 1",
-		7960947566790873,
+		8873350371196689,
 		[
 		[
 			"Layer 0",
 			0,
-			2133928762897765,
+			8722530541249526,
 			true,
 			[255, 255, 255],
 			false,
@@ -17078,132 +14318,68 @@ cr.getProjectModel = function() { return [
 			0,
 			[
 			[
-				[88, 34, 0, 542, 73, 0, 0, 1, 0, 0, 0, 0, []],
+				[196, 179, 0, 200, 25, 0, 0, 1, 0, 0, 0, 0, []],
+				0,
+				0,
+				[
+				],
+				[
+				],
+				[
+					1,
+					"576508812455924",
+					"01742008196573526abc4ae1bbeb7104",
+					67,
+					0,
+					0,
+					0,
+					"v2.0",
+					"Available",
+					0,
+					0,
+					0,
+					1,
+					1,
+					1,
+					1,
+					1,
+					1,
+					1,
+					1,
+					1,
+					1,
+					1,
+					1,
+					1,
+					1,
+					1,
+					1,
+					1,
+					1,
+					1,
+					1,
+					1,
+					1,
+					1,
+					1,
+					1,
+					1,
+					1,
+					1,
+					1,
+					1,
+					1,
+					1,
+					1,
+					1,
+					"",
+					0
+				]
+			]
+,			[
+				[193, 98, 0, 230, 41, 0, 0, 1, 0, 0, 0, 0, []],
 				1,
-				2,
-				[
-				],
-				[
-				],
-				[
-					"",
-					"name",
-					"",
-					1,
-					1,
-					0,
-					0,
-					0,
-					0,
-					""
-				]
-			]
-,			[
-				[87, 150, 0, 545, 89, 0, 0, 1, 0, 0, 0, 0, []],
-				2,
-				3,
-				[
-				],
-				[
-				],
-				[
-					"",
-					"mobile",
-					"",
-					1,
-					1,
-					0,
-					0,
-					0,
-					0,
-					""
-				]
-			]
-,			[
-				[90, 277, 0, 540, 102, 0, 0, 1, 0, 0, 0, 0, []],
-				3,
-				4,
-				[
-				],
-				[
-				],
-				[
-					"",
-					"email",
-					"",
-					1,
-					1,
-					0,
-					0,
-					0,
-					0,
-					""
-				]
-			]
-,			[
-				[86, 428, 0, 543, 108, 0, 0, 1, 0, 0, 0, 0, []],
-				4,
-				5,
-				[
-				],
-				[
-				],
-				[
-					"",
-					"weburl",
-					"",
-					1,
-					1,
-					0,
-					0,
-					0,
-					0,
-					""
-				]
-			]
-,			[
-				[167, 560, 0, 382, 69, 0, 0, 1, 0, 0, 0, 0, []],
-				5,
-				6,
-				[
-				],
-				[
-				],
-				[
-					0,
-					"save",
-					"",
-					1,
-					1,
-					0,
-					"",
-					0
-				]
-			]
-,			[
-				[14, 651, 0, 698, 428, 0, 0, 1, 0, 0, 0, 0, []],
-				6,
-				7,
-				[
-				],
-				[
-				],
-				[
-					"",
-					0,
-					"10pt Arial",
-					"rgb(0,0,0)",
-					0,
-					0,
-					0,
-					0,
-					0
-				]
-			]
-,			[
-				[161, 1128, 0, 418, 83, 0, 0, 1, 0, 0, 0, 0, []],
-				7,
-				8,
+				1,
 				[
 				],
 				[
@@ -17220,48 +14396,22 @@ cr.getProjectModel = function() { return [
 				]
 			]
 ,			[
-				[264, 893, 0, 200, 25, 0, 0, 1, 0, 0, 0, 0, []],
-				9,
-				0,
+				[111, 245, 0, 409, 133, 0, 0, 1, 0, 0, 0, 0, []],
+				2,
+				2,
 				[
 				],
 				[
 				],
 				[
-					"576508812455924",
-					67,
-					"v2.0",
+					"Text",
+					0,
+					"12pt Arial",
+					"rgb(0,0,0)",
 					0,
 					0,
 					0,
 					0,
-					11,
-					2,
-					2,
-					"Unavailable",
-					2,
-					4,
-					"Unavailable",
-					2,
-					2,
-					"Unavailable",
-					3,
-					"true",
-					4,
-					3,
-					"Unavailable",
-					"Unavailable",
-					2,
-					4,
-					"Unavailable",
-					"Unavailable",
-					3,
-					"Unavailable",
-					3,
-					2,
-					2,
-					2,
-					3,
 					0
 				]
 			]
@@ -17283,49 +14433,44 @@ cr.getProjectModel = function() { return [
 			null,
 			false,
 			null,
-			1507350079011494,
+			8828983831541413,
 			[
 			[
-				5,
+				1,
 				cr.plugins_.Button.prototype.cnds.OnClicked,
 				null,
 				1,
 				false,
 				false,
 				false,
-				2040975215040419,
+				1701496307431198,
 				false
 			]
 			],
-			[
-			]
-		]
-,		[
-			0,
-			null,
-			false,
-			null,
-			9298062476077908,
 			[
 			[
 				0,
-				cr.plugins_.Touch.prototype.cnds.OnTapGestureObject,
+				cr.plugins_.Facebook2_1.prototype.acts.Phonegap_Login,
 				null,
-				1,
-				false,
-				false,
-				false,
-				7212768079652384,
+				4981845424785562,
 				false
 				,[
 				[
-					4,
-					6
+					1,
+					[
+						2,
+						"http://localhost/"
+					]
+				]
+,				[
+					1,
+					[
+						2,
+						""
+					]
 				]
 				]
 			]
-			],
-			[
 			]
 		]
 ,		[
@@ -17333,64 +14478,36 @@ cr.getProjectModel = function() { return [
 			null,
 			false,
 			null,
-			6980162944192166,
+			3245142425280703,
 			[
 			[
-				7,
-				cr.plugins_.Button.prototype.cnds.OnClicked,
+				0,
+				cr.plugins_.Facebook2_1.prototype.cnds.CON_USER_LOGIN,
 				null,
 				1,
 				false,
 				false,
 				false,
-				1120880993530267,
+				7889614065302993,
 				false
 			]
 			],
 			[
 			[
-				6,
+				2,
 				cr.plugins_.Text.prototype.acts.SetText,
 				null,
-				2019169094845318,
+				3012058199294977,
 				false
 				,[
 				[
 					7,
 					[
-						2,
-						"yoyo"
-					]
-				]
-				]
-			]
-,			[
-				9,
-				cr.plugins_.Facebook3.prototype.acts.LogInOut,
-				null,
-				6525559588353268,
-				false
-				,[
-				[
-					3,
-					0
-				]
-,				[
-					1,
-					[
-						2,
-						"public_profile, email, user_friends "
-					]
-				]
-,				[
-					3,
-					1
-				]
-,				[
-					1,
-					[
-						2,
-						"1434636340147353,722983741076297"
+						20,
+						0,
+						cr.plugins_.Facebook2_1.prototype.exps.UserLoginStatus,
+						true,
+						null
 					]
 				]
 				]
@@ -17404,8 +14521,8 @@ cr.getProjectModel = function() { return [
 	],
 	"media/",
 	false,
-	720,
-	1280,
+	640,
+	480,
 	4,
 	true,
 	true,
@@ -17414,8 +14531,8 @@ cr.getProjectModel = function() { return [
 	true,
 	false,
 	0,
-	0,
-	10,
+	2,
+	3,
 	false,
 	true,
 	1,

@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <widget xmlns="http://www.w3.org/ns/widgets" xmlns:gap="http://phonegap.com/ns/1.0" id="com.mycompany.test" version="1.0.0.0">
 
-	<name>New project</name>
+	<name>test</name>
 	<description>test</description>
-	<author href="http://test.com" email="lkdsjkl">test</author>
+	<author email="test">test</author>
 
 	<icon src="icon-128.png" width="128" height="128" />
 	<icon src="icon-256.png" width="256" height="256" gap:role="default" />
@@ -12,15 +12,23 @@
 	<preference name="android-targetSdkVersion" value="19" />
 
 	<feature name="http://api.phonegap.com/1.0/network"/>
-	<preference name="orientation" value="default" />
+	<preference name="orientation" value="landscape" />
 	<preference name="fullscreen" value="false" />
 	<preference name="target-device" value="universal" />
 
 	<!-- Optional splash screen image, e.g.: -->
 	<!-- <gap:splash src="splash.png" width="1024" height="768" /> -->
-<gap:plugin name="org.apache.cordova.contacts" version="0.2.11" />
-<gap:plugin name="com.phonegap.plugins.facebookconnect" version="0.4.0">
-    <param name="APP_ID" value="576508812455924" />
-    <param name="APP_NAME" value="Hellocard test" />
-</gap:plugin>
+	<access origin="*" />
+	<feature name="NetworkStatus">
+    		<param name="android-package" value="org.apache.cordova.NetworkManager" />
+	</feature>
+	<gap:plugin name="org.apache.cordova.inappbrowser" />
+
+	<plugins>
+		<plugin name="InAppBrowser" value="CDVInAppBrowser" />
+	</plugins>
+
+	<feature name="InAppBrowser">
+		<param name="ios-package" value="CDVInAppBrowser" />
+	</feature>
 </widget>
