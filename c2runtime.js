@@ -13102,6 +13102,21 @@ cr.plugins_.PhonegapContacts = function(runtime)
 				document.getElementsByTagName("head")[0].appendChild(newScriptTag);
 			}
 		}
+		if ((typeof cordova == 'undefined') && (typeof Cordova == 'undefined')) alert('Cordova variable does not exist. Check that you have included cordova.js correctly');
+            if (typeof CDV == 'undefined') alert('CDV variable does not exist. Check that you have included cdv-plugin-fb-connect.js correctly');
+            if (typeof FB == 'undefined') alert('FB variable does not exist. Check that you have included the Facebook JS SDK file.');
+            FB.Event.subscribe('auth.login', function(response) {
+                               alert('auth.login event');
+                               });
+            FB.Event.subscribe('auth.logout', function(response) {
+                               alert('auth.logout event');
+                               });
+            FB.Event.subscribe('auth.sessionChange', function(response) {
+                               alert('auth.sessionChange event');
+                               });
+            FB.Event.subscribe('auth.statusChange', function(response) {
+                               alert('auth.statusChange event');
+                               });
 	};
 	pluginProto.Instance = function(type)
 	{
@@ -13136,42 +13151,18 @@ cr.plugins_.PhonegapContacts = function(runtime)
 	function Cnds() {};
 	pluginProto.cnds = new Cnds();
 	function Acts() {};
-	Acts.prototype.SaveContact = function (displayName,mobile,email,weburl,picurl)
-	{
-if (!(this.runtime.isAndroid || this.runtime.isBlackberry10 || this.runtime.isiOS || this.runtime.isWindows8App || this.runtime.isWindowsPhone8 || this.runtime.isWindowsPhone81))
-			return;
-		if (this.runtime.isAndroid && navigator.platform == 'Win32')//crosswalk emulator
-			return;
-		var self=this;
-function onError(contactError) {
-    alert("Error = " + contactError.code);
-};
-function onSuccess(contact) {
-    alert(""+contact.name.givenName+" saved.");
-};
-var contact = navigator.contacts.create();          // specify both to support all devices
-contact.displayName = displayName;
-contact.nickname = displayName;
-var name = new ContactName();
-name.givenName = displayName;
-contact.name = name;
-var phoneNumbers = [];
-    phoneNumbers[0] = new ContactField('mobile', mobile, true); // preferred number
-var emails =[];
-    emails[0] = new ContactField('emails', email);
-var website=[];
-	website[0] = new ContactField('website', weburl);
-var photos=[];
-	photos[0]= new ContactField('photos', picurl);
-contact.phoneNumbers = phoneNumbers;
-contact.emails = emails;
-contact.urls = website;
-contact.photos=photos;
-contact.save(onSuccess,onError);
-};
 Acts.prototype.FBPGLogin = function ()
 	{
-                login();
+		FB.login(
+                         function(response) {
+                         if (response.session) {
+                         alert('logged in');
+                         } else {
+                         alert('not logged in');
+                         }
+                         },
+                         { scope: "email" }
+                         );
 };
 	pluginProto.acts = new Acts();
 	function Exps() {};
@@ -15296,7 +15287,7 @@ cr.getProjectModel = function() { return [
 		false
 	]
 ,	[
-		cr.plugins_.PhonegapContacts,
+		cr.plugins_.PhonegapFB,
 		true,
 		false,
 		false,
@@ -15347,24 +15338,6 @@ cr.getProjectModel = function() { return [
 	[
 	[
 		"t0",
-		cr.plugins_.PhonegapContacts,
-		false,
-		[],
-		0,
-		0,
-		null,
-		null,
-		[
-		],
-		false,
-		false,
-		1395903116201914,
-		[],
-		null
-		,[]
-	]
-,	[
-		"t1",
 		cr.plugins_.Touch,
 		false,
 		[],
@@ -15382,7 +15355,7 @@ cr.getProjectModel = function() { return [
 		,[1]
 	]
 ,	[
-		"t2",
+		"t1",
 		cr.plugins_.TextBox,
 		false,
 		[],
@@ -15399,7 +15372,7 @@ cr.getProjectModel = function() { return [
 		null
 	]
 ,	[
-		"t3",
+		"t2",
 		cr.plugins_.TextBox,
 		false,
 		[],
@@ -15416,7 +15389,7 @@ cr.getProjectModel = function() { return [
 		null
 	]
 ,	[
-		"t4",
+		"t3",
 		cr.plugins_.TextBox,
 		false,
 		[],
@@ -15433,7 +15406,7 @@ cr.getProjectModel = function() { return [
 		null
 	]
 ,	[
-		"t5",
+		"t4",
 		cr.plugins_.TextBox,
 		false,
 		[],
@@ -15450,7 +15423,7 @@ cr.getProjectModel = function() { return [
 		null
 	]
 ,	[
-		"t6",
+		"t5",
 		cr.plugins_.Button,
 		false,
 		[],
@@ -15467,7 +15440,7 @@ cr.getProjectModel = function() { return [
 		null
 	]
 ,	[
-		"t7",
+		"t6",
 		cr.plugins_.Text,
 		false,
 		[],
@@ -15484,7 +15457,7 @@ cr.getProjectModel = function() { return [
 		null
 	]
 ,	[
-		"t8",
+		"t7",
 		cr.plugins_.Button,
 		false,
 		[],
@@ -15499,6 +15472,24 @@ cr.getProjectModel = function() { return [
 		2702881991591942,
 		[],
 		null
+	]
+,	[
+		"t8",
+		cr.plugins_.PhonegapFB,
+		false,
+		[],
+		0,
+		0,
+		null,
+		null,
+		[
+		],
+		false,
+		false,
+		4565349679632423,
+		[],
+		null
+		,[]
 	]
 	],
 	[
@@ -15529,7 +15520,7 @@ cr.getProjectModel = function() { return [
 			[
 			[
 				[88, 34, 0, 542, 73, 0, 0, 1, 0, 0, 0, 0, []],
-				2,
+				1,
 				2,
 				[
 				],
@@ -15550,7 +15541,7 @@ cr.getProjectModel = function() { return [
 			]
 ,			[
 				[87, 150, 0, 545, 89, 0, 0, 1, 0, 0, 0, 0, []],
-				3,
+				2,
 				3,
 				[
 				],
@@ -15571,7 +15562,7 @@ cr.getProjectModel = function() { return [
 			]
 ,			[
 				[90, 277, 0, 540, 102, 0, 0, 1, 0, 0, 0, 0, []],
-				4,
+				3,
 				4,
 				[
 				],
@@ -15592,7 +15583,7 @@ cr.getProjectModel = function() { return [
 			]
 ,			[
 				[86, 428, 0, 543, 108, 0, 0, 1, 0, 0, 0, 0, []],
-				5,
+				4,
 				5,
 				[
 				],
@@ -15613,7 +15604,7 @@ cr.getProjectModel = function() { return [
 			]
 ,			[
 				[167, 560, 0, 382, 69, 0, 0, 1, 0, 0, 0, 0, []],
-				6,
+				5,
 				6,
 				[
 				],
@@ -15632,7 +15623,7 @@ cr.getProjectModel = function() { return [
 			]
 ,			[
 				[14, 651, 0, 698, 428, 0, 0, 1, 0, 0, 0, 0, []],
-				7,
+				6,
 				7,
 				[
 				],
@@ -15652,7 +15643,7 @@ cr.getProjectModel = function() { return [
 			]
 ,			[
 				[161, 1128, 0, 418, 83, 0, 0, 1, 0, 0, 0, 0, []],
-				8,
+				7,
 				8,
 				[
 				],
@@ -15690,7 +15681,7 @@ cr.getProjectModel = function() { return [
 			1507350079011494,
 			[
 			[
-				6,
+				5,
 				cr.plugins_.Button.prototype.cnds.OnClicked,
 				null,
 				1,
@@ -15702,81 +15693,6 @@ cr.getProjectModel = function() { return [
 			]
 			],
 			[
-			[
-				0,
-				cr.plugins_.PhonegapContacts.prototype.acts.SaveContact,
-				null,
-				5439251015791809,
-				false
-				,[
-				[
-					1,
-					[
-						20,
-						2,
-						cr.plugins_.TextBox.prototype.exps.Text,
-						true,
-						null
-					]
-				]
-,				[
-					1,
-					[
-						20,
-						3,
-						cr.plugins_.TextBox.prototype.exps.Text,
-						true,
-						null
-					]
-				]
-,				[
-					1,
-					[
-						20,
-						4,
-						cr.plugins_.TextBox.prototype.exps.Text,
-						true,
-						null
-					]
-				]
-,				[
-					1,
-					[
-						20,
-						5,
-						cr.plugins_.TextBox.prototype.exps.Text,
-						true,
-						null
-					]
-				]
-,				[
-					1,
-					[
-						2,
-						"http://www.hellocard.co/hellocard-app/files/phpimg/default.png"
-					]
-				]
-				]
-			]
-,			[
-				7,
-				cr.plugins_.Text.prototype.acts.SetText,
-				null,
-				9349810970411875,
-				false
-				,[
-				[
-					7,
-					[
-						20,
-						0,
-						cr.plugins_.PhonegapContacts.prototype.exps.AllContacts,
-						true,
-						null
-					]
-				]
-				]
-			]
 			]
 		]
 ,		[
@@ -15787,7 +15703,7 @@ cr.getProjectModel = function() { return [
 			9298062476077908,
 			[
 			[
-				1,
+				0,
 				cr.plugins_.Touch.prototype.cnds.OnTapGestureObject,
 				null,
 				1,
@@ -15799,37 +15715,12 @@ cr.getProjectModel = function() { return [
 				,[
 				[
 					4,
-					7
+					6
 				]
 				]
 			]
 			],
 			[
-			[
-				2,
-				cr.plugins_.TextBox.prototype.acts.SetText,
-				null,
-				9979112006045287,
-				false
-				,[
-				[
-					1,
-					[
-						19,
-						cr.system_object.prototype.exps.str
-						,[
-[
-							20,
-							0,
-							cr.plugins_.PhonegapContacts.prototype.exps.ContactsCount,
-							false,
-							null
-						]
-						]
-					]
-				]
-				]
-			]
 			]
 		]
 ,		[
@@ -15840,7 +15731,7 @@ cr.getProjectModel = function() { return [
 			6980162944192166,
 			[
 			[
-				8,
+				7,
 				cr.plugins_.Button.prototype.cnds.OnClicked,
 				null,
 				1,
@@ -15853,7 +15744,7 @@ cr.getProjectModel = function() { return [
 			],
 			[
 			[
-				7,
+				6,
 				cr.plugins_.Text.prototype.acts.SetText,
 				null,
 				2019169094845318,
@@ -15869,10 +15760,10 @@ cr.getProjectModel = function() { return [
 				]
 			]
 ,			[
-				0,
-				cr.plugins_.PhonegapContacts.prototype.acts.FBPGLogin,
+				8,
+				cr.plugins_.PhonegapFB.prototype.acts.FBPGLogin,
 				null,
-				6820685033619173,
+				9569482283411952,
 				false
 			]
 			]
