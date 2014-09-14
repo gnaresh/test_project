@@ -2596,14 +2596,7 @@ quat4.str=function(a){return"["+a[0]+", "+a[1]+", "+a[2]+", "+a[3]+"]"};
 			_16bit = false;
 		gl.bindTexture(gl.TEXTURE_2D, texture_);
 		gl.pixelStorei(gl["UNPACK_PREMULTIPLY_ALPHA_WEBGL"], true);
-		try {
-			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, _16bit ? gl.UNSIGNED_SHORT_4_4_4_4 : gl.UNSIGNED_BYTE, video_);
-		}
-		catch (e)
-		{
-			if (console && console.error)
-				console.error("Error updating WebGL texture: ", e);
-		}
+		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, _16bit ? gl.UNSIGNED_SHORT_4_4_4_4 : gl.UNSIGNED_BYTE, video_);
 		gl.bindTexture(gl.TEXTURE_2D, null);
 		this.lastTexture0 = null;
 	};
@@ -2710,7 +2703,7 @@ quat4.str=function(a){return"["+a[0]+", "+a[1]+", "+a[2]+", "+a[3]+"]"};
 		this.isiPad = /ipad/i.test(navigator.userAgent);
 		this.isiOS = this.isiPhone || this.isiPad || this.isEjecta;
 		this.isiPhoneiOS6 = (this.isiPhone && /os\s6/i.test(navigator.userAgent));
-		this.isChrome = /chrome/i.test(navigator.userAgent) || /chromium/i.test(navigator.userAgent);	// note true on Chromium-based webview on Android 4.4+
+		this.isChrome = /chrome/i.test(navigator.userAgent) || /chromium/i.test(navigator.userAgent);
 		this.isAmazonWebApp = /amazonwebappplatform/i.test(navigator.userAgent);
 		this.isFirefox = /firefox/i.test(navigator.userAgent);
 		this.isSafari = /safari/i.test(navigator.userAgent) && !this.isChrome && !this.isIE;		// Chrome and IE Mobile masquerade as Safari
@@ -2723,7 +2716,7 @@ quat4.str=function(a){return"["+a[0]+", "+a[1]+", "+a[2]+", "+a[3]+"]"};
 		this.isWindowsPhone81 = !!(typeof window["c2isWindowsPhone81"] !== "undefined" && window["c2isWindowsPhone81"]);
 		this.isWinJS = (this.isWindows8App || this.isWindows8Capable || this.isWindowsPhone81);	// note not WP8.0
 		this.isBlackberry10 = !!(typeof window["c2isBlackberry10"] !== "undefined" && window["c2isBlackberry10"]);
-		this.isAndroidStockBrowser = (this.isAndroid && !this.isChrome && !this.isCrosswalk && !this.isFirefox && !this.isAmazonWebApp && !this.isDomFree);
+		this.isAndroidStockBrowser = (this.isAndroid && !this.isChrome && !this.isFirefox && !this.isAmazonWebApp && !this.isDomFree);
 		this.devicePixelRatio = 1;
 		this.isMobile = (this.isPhoneGap || this.isCrosswalk || this.isAppMobi || this.isCocoonJs || this.isAndroid || this.isiOS || this.isWindowsPhone8 || this.isWindowsPhone81 || this.isBlackberry10 || this.isTizen || this.isEjecta);
 		if (!this.isMobile)
@@ -6423,11 +6416,6 @@ window["cr_setSuspended"] = function(s)
 		return null;
 	};
 	var created_instances = [];
-	function sort_by_zindex(a, b)
-	{
-		return a.zindex - b.zindex;
-	};
-	var first_layout = true;
 	Layout.prototype.startRunning = function ()
 	{
 		if (this.sheetname)
@@ -6461,13 +6449,6 @@ window["cr_setSuspended"] = function(s)
 				}
 			}
 		}
-		if (!first_layout)
-		{
-			for (i = 0, len = this.layers.length; i < len; ++i)
-			{
-				this.layers[i].instances.sort(sort_by_zindex);
-			}
-		}
 		var layer;
 		created_instances.length = 0;
 		this.boundScrolling();
@@ -6481,8 +6462,8 @@ window["cr_setSuspended"] = function(s)
 			layer.disableAngle = false;
 			if (this.runtime.pixel_rounding)
 			{
-				px = Math.round(px);
-				py = Math.round(py);
+				px = (px + 0.5) | 0;
+				py = (py + 0.5) | 0;
 			}
 			layer.rotateViewport(px, py, null);
 		}
@@ -6516,7 +6497,7 @@ window["cr_setSuspended"] = function(s)
 			}
 			for (i = 0, len = this.layers.length; i < len; i++)
 			{
-				this.layers[i].instances.sort(sort_by_zindex);
+				this.layers[i].instances.sort(sortInstanceByZIndex);
 				this.layers[i].zindices_stale = true;		// in case of duplicates/holes
 			}
 		}
@@ -6618,7 +6599,6 @@ window["cr_setSuspended"] = function(s)
 		var layer_instances, inst, type;
 		for (i = 0, leni = this.layers.length; i < leni; i++)
 		{
-			this.layers[i].updateZIndices();
 			layer_instances = this.layers[i].instances;
 			for (j = 0, lenj = layer_instances.length; j < lenj; j++)
 			{
@@ -6627,17 +6607,6 @@ window["cr_setSuspended"] = function(s)
 				{
 					if (this.runtime.typeHasPersistBehavior(inst.type))
 						this.saveObjectToPersist(inst);
-				}
-			}
-		}
-		for (i = 0, leni = this.layers.length; i < leni; i++)
-		{
-			layer_instances = this.layers[i].instances;
-			for (j = 0, lenj = layer_instances.length; j < lenj; j++)
-			{
-				inst = layer_instances[j];
-				if (!inst.type.global)
-				{
 					this.runtime.DestroyInstance(inst);
 				}
 			}
@@ -6654,7 +6623,6 @@ window["cr_setSuspended"] = function(s)
 				this.runtime.DestroyInstance(type.instances[j]);
 			this.runtime.ClearDeathRow();
 		}
-		first_layout = false;
 	};
 	Layout.prototype.draw = function (ctx)
 	{
@@ -7406,8 +7374,8 @@ window["cr_setSuspended"] = function(s)
 		this.disableAngle = false;
 		if (this.runtime.pixel_rounding)
 		{
-			px = Math.round(px);
-			py = Math.round(py);
+			px = (px + 0.5) | 0;
+			py = (py + 0.5) | 0;
 		}
 		this.rotateViewport(px, py, layer_ctx);
 		var myscale = this.getScale();
@@ -7493,8 +7461,8 @@ window["cr_setSuspended"] = function(s)
 		this.disableAngle = false;
 		if (this.runtime.pixel_rounding)
 		{
-			px = Math.round(px);
-			py = Math.round(py);
+			px = (px + 0.5) | 0;
+			py = (py + 0.5) | 0;
 		}
 		this.rotateViewport(px, py, null);
 		var myscale = this.getScale();
@@ -7726,6 +7694,10 @@ window["cr_setSuspended"] = function(s)
 		}
 		return o;
 	};
+	function sortInstanceByZIndex(a, b)
+	{
+		return a.zindex - b.zindex;
+	};
 	Layer.prototype.loadFromJSON = function (o)
 	{
 		var i, len, p, inst, fx;
@@ -7752,7 +7724,7 @@ window["cr_setSuspended"] = function(s)
 			this.effect_params[fx.index] = ofx[i]["params"];
 		}
 		this.updateActiveEffects();
-		this.instances.sort(sort_by_zindex);
+		this.instances.sort(sortInstanceByZIndex);
 		this.zindices_stale = true;
 	};
 	cr.layer = Layer;
@@ -9862,8 +9834,6 @@ cr.system_object.prototype.saveToJSON = function ()
 		w = this.waits[i];
 		waitobj = {
 			"t": w.time,
-			"st": w.signaltag,
-			"s": w.signalled,
 			"ev": w.ev.sid,
 			"sm": [],
 			"sols": {}
@@ -9918,8 +9888,6 @@ cr.system_object.prototype.loadFromJSON = function (o)
 		addWait.solModifiers = [];
 		addWait.deleteme = false;
 		addWait.time = w["t"];
-		addWait.signaltag = w["st"] || "";
-		addWait.signalled = !!w["s"];
 		addWait.ev = e;
 		addWait.actindex = aindex;
 		for (j = 0, lenj = w["sm"].length; j < lenj; j++)
@@ -11742,14 +11710,6 @@ cr.system_object.prototype.loadFromJSON = function (o)
 		b = b | 0;
 		ret.set_int((n & (1 << b)) ? 1 : 0);
 	};
-	SysExps.prototype.originalwindowwidth = function (ret)
-	{
-		ret.set_int(this.runtime.original_width);
-	};
-	SysExps.prototype.originalwindowheight = function (ret)
-	{
-		ret.set_int(this.runtime.original_height);
-	};
 	sysProto.exps = new SysExps();
 	sysProto.runWaits = function ()
 	{
@@ -12834,649 +12794,6 @@ cr.system_object.prototype.loadFromJSON = function (o)
 cr.shaders = {};
 ;
 ;
-cr.plugins_.Browser = function(runtime)
-{
-	this.runtime = runtime;
-};
-(function ()
-{
-	var pluginProto = cr.plugins_.Browser.prototype;
-	pluginProto.Type = function(plugin)
-	{
-		this.plugin = plugin;
-		this.runtime = plugin.runtime;
-	};
-	var typeProto = pluginProto.Type.prototype;
-	typeProto.onCreate = function()
-	{
-	};
-	pluginProto.Instance = function(type)
-	{
-		this.type = type;
-		this.runtime = type.runtime;
-	};
-	var instanceProto = pluginProto.Instance.prototype;
-	instanceProto.onCreate = function()
-	{
-		var self = this;
-		window.addEventListener("resize", function () {
-			self.runtime.trigger(cr.plugins_.Browser.prototype.cnds.OnResize, self);
-		});
-		if (typeof navigator.onLine !== "undefined")
-		{
-			window.addEventListener("online", function() {
-				self.runtime.trigger(cr.plugins_.Browser.prototype.cnds.OnOnline, self);
-			});
-			window.addEventListener("offline", function() {
-				self.runtime.trigger(cr.plugins_.Browser.prototype.cnds.OnOffline, self);
-			});
-		}
-		if (typeof window.applicationCache !== "undefined")
-		{
-			window.applicationCache.addEventListener('updateready', function() {
-				self.runtime.loadingprogress = 1;
-				self.runtime.trigger(cr.plugins_.Browser.prototype.cnds.OnUpdateReady, self);
-			});
-			window.applicationCache.addEventListener('progress', function(e) {
-				self.runtime.loadingprogress = e["loaded"] / e["total"];
-			});
-		}
-		if (!this.runtime.isDirectCanvas)
-		{
-			document.addEventListener("appMobi.device.update.available", function() {
-				self.runtime.trigger(cr.plugins_.Browser.prototype.cnds.OnUpdateReady, self);
-			});
-			document.addEventListener("backbutton", function() {
-				self.runtime.trigger(cr.plugins_.Browser.prototype.cnds.OnBackButton, self);
-			});
-			document.addEventListener("menubutton", function() {
-				self.runtime.trigger(cr.plugins_.Browser.prototype.cnds.OnMenuButton, self);
-			});
-			document.addEventListener("searchbutton", function() {
-				self.runtime.trigger(cr.plugins_.Browser.prototype.cnds.OnSearchButton, self);
-			});
-			document.addEventListener("tizenhwkey", function (e) {
-				var ret;
-				switch (e["keyName"]) {
-				case "back":
-					ret = self.runtime.trigger(cr.plugins_.Browser.prototype.cnds.OnBackButton, self);
-					if (!ret)
-					{
-						if (window["tizen"])
-							window["tizen"]["application"]["getCurrentApplication"]()["exit"]();
-					}
-					break;
-				case "menu":
-					ret = self.runtime.trigger(cr.plugins_.Browser.prototype.cnds.OnMenuButton, self);
-					if (!ret)
-						e.preventDefault();
-					break;
-				}
-			});
-		}
-		if (this.runtime.isWindowsPhone81)
-		{
-			WinJS["Application"]["onbackclick"] = function (e)
-			{
-				return !!self.runtime.trigger(cr.plugins_.Browser.prototype.cnds.OnBackButton, self);
-			};
-		}
-		this.runtime.addSuspendCallback(function(s) {
-			if (s)
-			{
-				self.runtime.trigger(cr.plugins_.Browser.prototype.cnds.OnPageHidden, self);
-			}
-			else
-			{
-				self.runtime.trigger(cr.plugins_.Browser.prototype.cnds.OnPageVisible, self);
-			}
-		});
-		this.is_arcade = (typeof window["is_scirra_arcade"] !== "undefined");
-	};
-	function Cnds() {};
-	Cnds.prototype.CookiesEnabled = function()
-	{
-		return navigator ? navigator.cookieEnabled : false;
-	};
-	Cnds.prototype.IsOnline = function()
-	{
-		return navigator ? navigator.onLine : false;
-	};
-	Cnds.prototype.HasJava = function()
-	{
-		return navigator ? navigator.javaEnabled() : false;
-	};
-	Cnds.prototype.OnOnline = function()
-	{
-		return true;
-	};
-	Cnds.prototype.OnOffline = function()
-	{
-		return true;
-	};
-	Cnds.prototype.IsDownloadingUpdate = function ()
-	{
-		if (typeof window["applicationCache"] === "undefined")
-			return false;
-		else
-			return window["applicationCache"]["status"] === window["applicationCache"]["DOWNLOADING"];
-	};
-	Cnds.prototype.OnUpdateReady = function ()
-	{
-		return true;
-	};
-	Cnds.prototype.PageVisible = function ()
-	{
-		return !this.runtime.isSuspended;
-	};
-	Cnds.prototype.OnPageVisible = function ()
-	{
-		return true;
-	};
-	Cnds.prototype.OnPageHidden = function ()
-	{
-		return true;
-	};
-	Cnds.prototype.OnResize = function ()
-	{
-		return true;
-	};
-	Cnds.prototype.IsFullscreen = function ()
-	{
-		return !!(document["mozFullScreen"] || document["webkitIsFullScreen"] || document["fullScreen"] || this.runtime.isNodeFullscreen);
-	};
-	Cnds.prototype.OnBackButton = function ()
-	{
-		return true;
-	};
-	Cnds.prototype.OnMenuButton = function ()
-	{
-		return true;
-	};
-	Cnds.prototype.OnSearchButton = function ()
-	{
-		return true;
-	};
-	Cnds.prototype.IsMetered = function ()
-	{
-		var connection = navigator["connection"] || navigator["mozConnection"] || navigator["webkitConnection"];
-		if (!connection)
-			return false;
-		return connection["metered"];
-	};
-	Cnds.prototype.IsCharging = function ()
-	{
-		var battery = navigator["battery"] || navigator["mozBattery"] || navigator["webkitBattery"];
-		if (!battery)
-			return true;
-		return battery["charging"];
-	};
-	Cnds.prototype.IsPortraitLandscape = function (p)
-	{
-		var current = (window.innerWidth <= window.innerHeight ? 0 : 1);
-		return current === p;
-	};
-	pluginProto.cnds = new Cnds();
-	function Acts() {};
-	Acts.prototype.Alert = function (msg)
-	{
-		if (!this.runtime.isDomFree)
-			alert(msg.toString());
-	};
-	Acts.prototype.Close = function ()
-	{
-		if (this.runtime.isCocoonJs)
-			CocoonJS["App"]["forceToFinish"]();
-		else if (window["tizen"])
-			window["tizen"]["application"]["getCurrentApplication"]()["exit"]();
-		else if (navigator["app"] && navigator["app"]["exitApp"])
-			navigator["app"]["exitApp"]();
-		else if (navigator["device"] && navigator["device"]["exitApp"])
-			navigator["device"]["exitApp"]();
-		else if (!this.is_arcade && !this.runtime.isDomFree)
-			window.close();
-	};
-	Acts.prototype.Focus = function ()
-	{
-		if (this.runtime.isNodeWebkit)
-		{
-			var win = window["nwgui"]["Window"]["get"]();
-			win["focus"]();
-		}
-		else if (!this.is_arcade && !this.runtime.isDomFree)
-			window.focus();
-	};
-	Acts.prototype.Blur = function ()
-	{
-		if (this.runtime.isNodeWebkit)
-		{
-			var win = window["nwgui"]["Window"]["get"]();
-			win["blur"]();
-		}
-		else if (!this.is_arcade && !this.runtime.isDomFree)
-			window.blur();
-	};
-	Acts.prototype.GoBack = function ()
-	{
-		if (navigator["app"] && navigator["app"]["backHistory"])
-			navigator["app"]["backHistory"]();
-		else if (!this.is_arcade && !this.runtime.isDomFree && window.back)
-			window.back();
-	};
-	Acts.prototype.GoForward = function ()
-	{
-		if (!this.is_arcade && !this.runtime.isDomFree && window.forward)
-			window.forward();
-	};
-	Acts.prototype.GoHome = function ()
-	{
-		if (!this.is_arcade && !this.runtime.isDomFree && window.home)
-			window.home();
-	};
-	Acts.prototype.GoToURL = function (url, target)
-	{
-		if (this.runtime.isCocoonJs)
-			CocoonJS["App"]["openURL"](url);
-		else if (this.runtime.isEjecta)
-			ejecta["openURL"](url);
-		else if (this.runtime.isWinJS)
-			Windows["System"]["Launcher"]["launchUriAsync"](new Windows["Foundation"]["Uri"](url));
-		else if (navigator["app"] && navigator["app"]["loadUrl"])
-			navigator["app"]["loadUrl"](url, { "openExternal": true });
-		else if (!this.is_arcade && !this.runtime.isDomFree)
-		{
-			if (target === 2 && !this.is_arcade)		// top
-				window.top.location = url;
-			else if (target === 1 && !this.is_arcade)	// parent
-				window.parent.location = url;
-			else					// self
-				window.location = url;
-		}
-	};
-	Acts.prototype.GoToURLWindow = function (url, tag)
-	{
-		if (this.runtime.isCocoonJs)
-			CocoonJS["App"]["openURL"](url);
-		else if (this.runtime.isEjecta)
-			ejecta["openURL"](url);
-		else if (this.runtime.isWinJS)
-			Windows["System"]["Launcher"]["launchUriAsync"](new Windows["Foundation"]["Uri"](url));
-		else if (navigator["app"] && navigator["app"]["loadUrl"])
-			navigator["app"]["loadUrl"](url, { "openExternal": true });
-		else if (!this.is_arcade && !this.runtime.isDomFree)
-			window.open(url, tag);
-	};
-	Acts.prototype.Reload = function ()
-	{
-		if (!this.is_arcade && !this.runtime.isDomFree)
-			window.location.reload();
-	};
-	var firstRequestFullscreen = true;
-	var crruntime = null;
-	function onFullscreenError(e)
-	{
-		if (console && console.warn)
-			console.warn("Fullscreen request failed: ", e);
-		crruntime["setSize"](window.innerWidth, window.innerHeight);
-	};
-	Acts.prototype.RequestFullScreen = function (stretchmode)
-	{
-		if (this.runtime.isDomFree)
-		{
-			cr.logexport("[Construct 2] Requesting fullscreen is not supported on this platform - the request has been ignored");
-			return;
-		}
-		if (stretchmode >= 2)
-			stretchmode += 1;
-		if (stretchmode === 6)
-			stretchmode = 2;
-		if (this.runtime.isNodeWebkit)
-		{
-			if (!this.runtime.isNodeFullscreen)
-			{
-				window["nwgui"]["Window"]["get"]()["enterFullscreen"]();
-				this.runtime.isNodeFullscreen = true;
-				this.runtime.fullscreen_scaling = (stretchmode >= 2 ? stretchmode : 0);
-			}
-		}
-		else
-		{
-			if (document["mozFullScreen"] || document["webkitIsFullScreen"] || !!document["msFullscreenElement"] || document["fullScreen"] || document["fullScreenElement"])
-			{
-				return;
-			}
-			this.runtime.fullscreen_scaling = (stretchmode >= 2 ? stretchmode : 0);
-			var elem = this.runtime.canvasdiv || this.runtime.canvas;
-			if (firstRequestFullscreen)
-			{
-				firstRequestFullscreen = false;
-				crruntime = this.runtime;
-				elem.addEventListener("mozfullscreenerror", onFullscreenError);
-				elem.addEventListener("webkitfullscreenerror", onFullscreenError);
-				elem.addEventListener("MSFullscreenError", onFullscreenError);
-				elem.addEventListener("fullscreenerror", onFullscreenError);
-			}
-			if (elem["requestFullscreen"])
-				elem["requestFullscreen"]();
-			else if (elem["mozRequestFullScreen"])
-				elem["mozRequestFullScreen"]();
-			else if (elem["msRequestFullscreen"])
-				elem["msRequestFullscreen"]();
-			else if (elem["webkitRequestFullScreen"])
-			{
-				if (typeof Element !== "undefined" && typeof Element["ALLOW_KEYBOARD_INPUT"] !== "undefined")
-					elem["webkitRequestFullScreen"](Element["ALLOW_KEYBOARD_INPUT"]);
-				else
-					elem["webkitRequestFullScreen"]();
-			}
-		}
-	};
-	Acts.prototype.CancelFullScreen = function ()
-	{
-		if (this.runtime.isDomFree)
-		{
-			cr.logexport("[Construct 2] Exiting fullscreen is not supported on this platform - the request has been ignored");
-			return;
-		}
-		if (this.runtime.isNodeWebkit)
-		{
-			if (this.runtime.isNodeFullscreen)
-			{
-				window["nwgui"]["Window"]["get"]()["leaveFullscreen"]();
-				this.runtime.isNodeFullscreen = false;
-			}
-		}
-		else
-		{
-			if (document["exitFullscreen"])
-				document["exitFullscreen"]();
-			else if (document["mozCancelFullScreen"])
-				document["mozCancelFullScreen"]();
-			else if (document["msExitFullscreen"])
-				document["msExitFullscreen"]();
-			else if (document["webkitCancelFullScreen"])
-				document["webkitCancelFullScreen"]();
-		}
-	};
-	Acts.prototype.Vibrate = function (pattern_)
-	{
-		try {
-			var arr = pattern_.split(",");
-			var i, len;
-			for (i = 0, len = arr.length; i < len; i++)
-			{
-				arr[i] = parseInt(arr[i], 10);
-			}
-			if (navigator["vibrate"])
-				navigator["vibrate"](arr);
-			else if (navigator["mozVibrate"])
-				navigator["mozVibrate"](arr);
-			else if (navigator["webkitVibrate"])
-				navigator["webkitVibrate"](arr);
-			else if (navigator["msVibrate"])
-				navigator["msVibrate"](arr);
-		}
-		catch (e) {}
-	};
-	Acts.prototype.InvokeDownload = function (url_, filename_)
-	{
-		var a = document.createElement("a");
-		if (typeof a["download"] === "undefined")
-		{
-			window.open(url_);
-		}
-		else
-		{
-			var body = document.getElementsByTagName("body")[0];
-			a.textContent = filename_;
-			a.href = url_;
-			a["download"] = filename_;
-			body.appendChild(a);
-			var clickEvent = document.createEvent("MouseEvent");
-			clickEvent.initMouseEvent("click", true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
-			a.dispatchEvent(clickEvent);
-			body.removeChild(a);
-		}
-	};
-	Acts.prototype.InvokeDownloadString = function (str_, mimetype_, filename_)
-	{
-		var datauri = "data:" + mimetype_ + "," + encodeURIComponent(str_);
-		var a = document.createElement("a");
-		if (typeof a["download"] === "undefined")
-		{
-			window.open(datauri);
-		}
-		else
-		{
-			var body = document.getElementsByTagName("body")[0];
-			a.textContent = filename_;
-			a.href = datauri;
-			a["download"] = filename_;
-			body.appendChild(a);
-			var clickEvent = document.createEvent("MouseEvent");
-			clickEvent.initMouseEvent("click", true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
-			a.dispatchEvent(clickEvent);
-			body.removeChild(a);
-		}
-	};
-	Acts.prototype.ConsoleLog = function (type_, msg_)
-	{
-		if (typeof console === "undefined")
-			return;
-		if (type_ === 0 && console.log)
-			console.log(msg_.toString());
-		if (type_ === 1 && console.warn)
-			console.warn(msg_.toString());
-		if (type_ === 2 && console.error)
-			console.error(msg_.toString());
-	};
-	Acts.prototype.ConsoleGroup = function (name_)
-	{
-		if (console && console.group)
-			console.group(name_);
-	};
-	Acts.prototype.ConsoleGroupEnd = function ()
-	{
-		if (console && console.groupEnd)
-			console.groupEnd();
-	};
-	Acts.prototype.ExecJs = function (js_)
-	{
-		try {
-			if (eval)
-				eval(js_);
-		}
-		catch (e)
-		{
-			if (console && console.error)
-				console.error("Error executing Javascript: ", e);
-		}
-	};
-	var orientations = [
-		"portrait",
-		"landscape",
-		"portrait-primary",
-		"portrait-secondary",
-		"landscape-primary",
-		"landscape-secondary"
-	];
-	Acts.prototype.LockOrientation = function (o)
-	{
-		o = Math.floor(o);
-		if (o < 0 || o >= orientations.length)
-			return;
-		this.runtime.autoLockOrientation = false;
-		var orientation = orientations[o];
-		if (screen["lockOrientation"])
-			screen["lockOrientation"](orientation);
-		else if (screen["webkitLockOrientation"])
-			screen["webkitLockOrientation"](orientation);
-		else if (screen["mozLockOrientation"])
-			screen["mozLockOrientation"](orientation);
-		else if (screen["msLockOrientation"])
-			screen["msLockOrientation"](orientation);
-	};
-	Acts.prototype.UnlockOrientation = function ()
-	{
-		this.runtime.autoLockOrientation = false;
-		if (screen["unlockOrientation"])
-			screen["unlockOrientation"]();
-		else if (screen["webkitUnlockOrientation"])
-			screen["webkitUnlockOrientation"]();
-		else if (screen["mozUnlockOrientation"])
-			screen["mozUnlockOrientation"]();
-		else if (screen["msUnlockOrientation"])
-			screen["msUnlockOrientation"]();
-	};
-	pluginProto.acts = new Acts();
-	function Exps() {};
-	Exps.prototype.URL = function (ret)
-	{
-		ret.set_string(this.runtime.isDomFree ? "" : window.location.toString());
-	};
-	Exps.prototype.Protocol = function (ret)
-	{
-		ret.set_string(this.runtime.isDomFree ? "" : window.location.protocol);
-	};
-	Exps.prototype.Domain = function (ret)
-	{
-		ret.set_string(this.runtime.isDomFree ? "" : window.location.hostname);
-	};
-	Exps.prototype.PathName = function (ret)
-	{
-		ret.set_string(this.runtime.isDomFree ? "" : window.location.pathname);
-	};
-	Exps.prototype.Hash = function (ret)
-	{
-		ret.set_string(this.runtime.isDomFree ? "" : window.location.hash);
-	};
-	Exps.prototype.Referrer = function (ret)
-	{
-		ret.set_string(this.runtime.isDomFree ? "" : document.referrer);
-	};
-	Exps.prototype.Title = function (ret)
-	{
-		ret.set_string(this.runtime.isDomFree ? "" : document.title);
-	};
-	Exps.prototype.Name = function (ret)
-	{
-		ret.set_string(this.runtime.isDomFree ? "" : navigator.appName);
-	};
-	Exps.prototype.Version = function (ret)
-	{
-		ret.set_string(this.runtime.isDomFree ? "" : navigator.appVersion);
-	};
-	Exps.prototype.Language = function (ret)
-	{
-		if (navigator && navigator.language)
-			ret.set_string(navigator.language);
-		else
-			ret.set_string("");
-	};
-	Exps.prototype.Platform = function (ret)
-	{
-		ret.set_string(this.runtime.isDomFree ? "" : navigator.platform);
-	};
-	Exps.prototype.Product = function (ret)
-	{
-		if (navigator && navigator.product)
-			ret.set_string(navigator.product);
-		else
-			ret.set_string("");
-	};
-	Exps.prototype.Vendor = function (ret)
-	{
-		if (navigator && navigator.vendor)
-			ret.set_string(navigator.vendor);
-		else
-			ret.set_string("");
-	};
-	Exps.prototype.UserAgent = function (ret)
-	{
-		ret.set_string(this.runtime.isDomFree ? "" : navigator.userAgent);
-	};
-	Exps.prototype.QueryString = function (ret)
-	{
-		ret.set_string(this.runtime.isDomFree ? "" : window.location.search);
-	};
-	Exps.prototype.QueryParam = function (ret, paramname)
-	{
-		if (this.runtime.isDomFree)
-		{
-			ret.set_string("");
-			return;
-		}
-		var match = RegExp('[?&]' + paramname + '=([^&]*)').exec(window.location.search);
-		if (match)
-			ret.set_string(decodeURIComponent(match[1].replace(/\+/g, ' ')));
-		else
-			ret.set_string("");
-	};
-	Exps.prototype.Bandwidth = function (ret)
-	{
-		var connection = navigator["connection"] || navigator["mozConnection"] || navigator["webkitConnection"];
-		if (!connection)
-			ret.set_float(Number.POSITIVE_INFINITY);
-		else
-			ret.set_float(connection["bandwidth"]);
-	};
-	Exps.prototype.BatteryLevel = function (ret)
-	{
-		var battery = navigator["battery"] || navigator["mozBattery"] || navigator["webkitBattery"];
-		if (!battery)
-			ret.set_float(1);
-		else
-			ret.set_float(battery["level"]);
-	};
-	Exps.prototype.BatteryTimeLeft = function (ret)
-	{
-		var battery = navigator["battery"] || navigator["mozBattery"] || navigator["webkitBattery"];
-		if (!battery)
-			ret.set_float(Number.POSITIVE_INFINITY);
-		else
-			ret.set_float(battery["dischargingTime"]);
-	};
-	Exps.prototype.ExecJS = function (ret, js_)
-	{
-		if (!eval)
-		{
-			ret.set_any(0);
-			return;
-		}
-		var result = 0;
-		try {
-			result = eval(js_);
-		}
-		catch (e)
-		{
-			if (console && console.error)
-				console.error("Error executing Javascript: ", e);
-		}
-		if (typeof result === "number")
-			ret.set_any(result);
-		else if (typeof result === "string")
-			ret.set_any(result);
-		else if (typeof result === "boolean")
-			ret.set_any(result ? 1 : 0);
-		else
-			ret.set_any(0);
-	};
-	Exps.prototype.ScreenWidth = function (ret)
-	{
-		ret.set_int(screen.width);
-	};
-	Exps.prototype.ScreenHeight = function (ret)
-	{
-		ret.set_int(screen.height);
-	};
-	Exps.prototype.DevicePixelRatio = function (ret)
-	{
-		ret.set_float(this.runtime.devicePixelRatio);
-	};
-	pluginProto.exps = new Exps();
-}());
-;
-;
 cr.plugins_.Button = function(runtime)
 {
 	this.runtime = runtime;
@@ -13752,137 +13069,36 @@ cr.plugins_.Button = function(runtime)
 	function Exps() {};
 	pluginProto.exps = new Exps();
 }());
+var FB_Properties = {};
+	var User  = {};
+	var FB_API  = {};
+	FB_API["initialize run"] = "No";
+	FB_API["API READY"] = "No";
+	FB_API["URL GRAPHAPI"] = "https://graph.facebook.com/";
+        FB_API["URL GRAPH ME FIELDS"] = "?fields=website,work,third_party_id,verified,religion,significant_other,timezone,relationship_status,quotes,languages,last_name,link,locale,location,middle_name,name,name_format,political,installed,is_verified,id,about,age_range,bio,birthday,context,cover,currency,devices,education,email,favorite_athletes,favorite_teams,first_name,gender,hometown,inspirational_people&access_token=";
+        FB_API["API Error Code"] = "Not Ready";
+                   FB_API["API Error Message"] = "Not Ready";
+                   FB_API["API Error Type"] = "Not Ready";
+	FB_API["APP TOKEN"] = "Unsecure";
+	FB_API["GRAPH API DATA"] = "None";
+User_Reset_Vars();
 ;
 ;
-/*
-cr.plugins_.PhonegapFacebookPB = function(runtime)
-{
-	this.runtime = runtime;
-	Type
-		onCreate
-	Instance
-		onCreate
-		draw
-		drawGL
-	cnds
-	acts
-	exps
-};
-*/
-cr.plugins_.PhonegapFacebookPB = function(runtime)
+cr.plugins_.Facebook2_1 = function(runtime)
 {
 	this.runtime = runtime;
 };
 (function ()
 {
-	var pluginProto = cr.plugins_.PhonegapFacebookPB.prototype;
+	var pluginProto = cr.plugins_.Facebook2_1.prototype;
 	pluginProto.Type = function(plugin)
 	{
 		this.plugin = plugin;
 		this.runtime = plugin.runtime;
 	};
 	var typeProto = pluginProto.Type.prototype;
-/*
-	var fbAppID = "";
-*/
-	var fbAppID = "";
-	var fbReady = false;
-	var fbLoggedIn = false;
-	var fbUserID = "";
-	var fbFullName = "";
-	var fbFirstName = "";
-	var fbLastName = "";
-	var fbRuntime = null;
-	var fbInst = null;
-	var fbScore = 0;
-	var fbHiscoreName = "";
-	var fbHiscoreUserID = 0;
-	var fbRank = 0;
-	var fbCanPublishStream = false;
-	var fbCanPublishAction = false;
-	var fbPerms = "";
-	function onFBLogin()
-	{
-		if (!fbLoggedIn)
-		{
-			fbLoggedIn = true;
-			fbRuntime.trigger(cr.plugins_.PhonegapFacebookPB.prototype.cnds.OnLogIn, fbInst);
-			FB['api']('/me', function(response) {
-							fbFullName = response["name"];
-							fbFirstName = response["first_name"];
-							fbLastName = response["last_name"];
-							fbRuntime.trigger(cr.plugins_.PhonegapFacebookPB.prototype.cnds.OnNameAvailable, fbInst);
-						});
-		}
-	};
 	typeProto.onCreate = function()
 	{
-/*
-		var newScriptTag=document.createElement('script');
-		newScriptTag.setAttribute("type","text/javascript");
-		newScriptTag.setAttribute("src", "mylib.js");
-		document.getElementsByTagName("head")[0].appendChild(newScriptTag);
-		var scripts=document.getElementsByTagName("script");
-		var scriptExist=false;
-		for(var i=0;i<scripts.length;i++){
-			if(scripts[i].src.indexOf("cordova.js")!=-1||scripts[i].src.indexOf("phonegap.js")!=-1){
-				scriptExist=true;
-				break;
-			}
-		}
-		if(!scriptExist){
-			var newScriptTag=document.createElement("script");
-			newScriptTag.setAttribute("type","text/javascript");
-			newScriptTag.setAttribute("src", "cordova.js");
-			document.getElementsByTagName("head")[0].appendChild(newScriptTag);
-		}
-*/
-		if(this.runtime.isBlackberry10 || this.runtime.isWindows8App || this.runtime.isWindowsPhone8 || this.runtime.isWindowsPhone81){
-			var scripts=document.getElementsByTagName("script");
-			var scriptExist=false;
-			for(var i=0;i<scripts.length;i++){
-				if(scripts[i].src.indexOf("cordova.js")!=-1||scripts[i].src.indexOf("phonegap.js")!=-1){
-					scriptExist=true;
-					break;
-				}
-			}
-			if(!scriptExist){
-				var newScriptTag=document.createElement("script");
-				newScriptTag.setAttribute("type","text/javascript");
-				newScriptTag.setAttribute("src", "cordova.js");
-				document.getElementsByTagName("head")[0].appendChild(newScriptTag);
-			}
-		}
-/*
-		var scripts=document.getElementsByTagName("script");
-		var scriptExist=false;
-		for(var i=0;i<scripts.length;i++){
-			if(scripts[i].src.indexOf("cdv-plugin-fb-connect.js")!=-1){
-				scriptExist=true;
-				break;
-			}
-		}
-		if(!scriptExist){
-			var newScriptTag=document.createElement("script");
-			newScriptTag.setAttribute("type","text/javascript");
-			newScriptTag.setAttribute("src", "cdv-plugin-fb-connect.js");
-			document.getElementsByTagName("head")[0].appendChild(newScriptTag);
-		}
-		scripts=document.getElementsByTagName("script");
-		scriptExist=false;
-		for(var i=0;i<scripts.length;i++){
-			if(scripts[i].src.indexOf("facebook-js-sdk.js")!=-1){
-				scriptExist=true;
-				break;
-			}
-		}
-		if(!scriptExist){
-			var newScriptTag=document.createElement("script");
-			newScriptTag.setAttribute("type","text/javascript");
-			newScriptTag.setAttribute("src", "facebook-js-sdk.js");
-			document.getElementsByTagName("head")[0].appendChild(newScriptTag);
-		}
-*/
 	};
 	pluginProto.Instance = function(type)
 	{
@@ -13892,47 +13108,160 @@ cr.plugins_.PhonegapFacebookPB = function(runtime)
 	var instanceProto = pluginProto.Instance.prototype;
 	instanceProto.onCreate = function()
 	{
-/*
-		var self=this;
-		window.addEventListener("resize", function () {//cranberrygame
-			self.runtime.trigger(cr.plugins_.PhonegapFacebookPB.prototype.cnds.TriggerCondition, self);
-		});
-*/
-		if (!(this.runtime.isAndroid || this.runtime.isiOS))
+	 if(FB_API["initialize run"] != "Yes")
+	 {
+	  FB_API["initialize run"] = "Yes";
+	  if(this.properties[47] == 1)
+	  {
+	  if(this.properties[0] == 0){FB_Properties["API Type"] = "Web";console.log("Web API Chosen.");}
+	   else if(this.properties[0] == 1){FB_Properties["API Type"] = "PhoneGap";console.log("PhoneGap API Chosen.");}
+	   else if(this.properties[0] == 2){FB_Properties["API Type"] = "CocoonJS";console.log("CocoonJS API Chosen.");}
+	  }
+	  else if(this.properties[47] == 0)
+	  {
+	  if (document.location.protocol == 'file:') {FB_Properties["API Type"] = "PhoneGap";console.log("PhoneGap API Chosen.");}
+	  else{FB_Properties["API Type"] = "Web";console.log("Web API Chosen.");}
+	  }
+	  if (FB_Properties["API Type"] == "Web")
+	  {
+	   FB_API["Runtime"] = this.runtime;
+	   FB_API["Instance"] = this;
+	   FB_API["API Layer"] = this.layer;
+	   if (this.properties[1] != "" && this.properties[2] != "")
+	   {
+	    console.log("API -- (App Token) Finished loading App Access Token. Reminder, this better be a secure app(mobile or you know and trust all of the users.");
+	    jQuery.ajax( {url: 'https://graph.facebook.com/oauth/access_token?client_id='+this.properties[1]+'&client_secret='+this.properties[2]+'&grant_type=client_credentials', dataType: 'text', crossDomain: true
+            , success: function( datapic )
+            {datapic = datapic.split("=");
+	     FB_API["APP TOKEN"] = datapic[1];
+		console.log("API -- (App Token) "+datapic[1]);}
+            , error: function( datapic ) {
+	     FB_API["API Error Code"] = "API";
+             FB_API["API Error Message"] = datapic;
+             FB_API["API Error Type"] = "App Token";
+	     console.log("API -- (App Token) Error "+datapic);
+	     }
+            });
+	    }
+	   Web_Language_Set(this.properties[3]);//Load the language to use from the Edit Time settings.
+	   Web_Permission_Set(this.properties);//Load the permissions to request from the Edit Time settings.
+	   Web_API_Set(this.properties);//Load the SDK properties from the Edit Time settings.
+	   Web_Load_API();//Load the SDK asynchronously
+	   this.elem = document.createElement("div");
+	   this.elem.innerHTML = '';
+           this.elem.id = this.uid;
+	   jQuery(this.elem).appendTo("body");
+	  }
+	  else if (FB_Properties["API Type"] == "PhoneGap")
+	  {
+	   FB_API["Runtime"] = this.runtime;
+	   FB_API["Instance"] = this;
+	   FB_API["API Layer"] = this.layer;
+	   FB_Properties["App ID"] =   this.properties[1];
+	   FB_Properties["App Secret"] =  this.properties[2];
+	   Web_Language_Set(this.properties[3]);//Load the language to use from the Edit Time settings.
+	   Web_Permission_Set(this.properties);//Load the permissions to request from the Edit Time settings.
+	   Web_API_Set(this.properties);//Load the SDK properties from the Edit Time settings.
+	   console.log("API -- (Start synch load");
+	   $.getScript('https://connect.facebook.net/'+FB_Properties["Language"]+'/sdk.js', function(jd)
+	    {console.log("API -- (Start synch init");
+             /* FB.init({
+                     appId      : FB_Properties["App ID"],
+                     xfbml      : FB_Properties["Xfbml"],
+		     cookie     : FB_Properties["Cookie"],
+		     status     : FB_Properties["Status"],
+	   frictionlessRequests : FB_Properties["Frictionless Requests"],
+                     version    : FB_Properties["Version"]
+                    });*/console.log("API -- (Start call on load");
+	      FB_API["Runtime"].trigger(cr.plugins_.Facebook2_1.prototype.cnds.CON_API_ON_LOAD, FB_API["Instance"]);
+            });
+	   this.elem = document.createElement("div");
+	   this.elem.innerHTML = '';
+           this.elem.id = this.uid;
+	   jQuery(this.elem).appendTo("body");
+	   if (this.properties[1] != "" && this.properties[2] != "")
+	   {
+	    console.log("API -- (App Token) Finished loading App Access Token. Reminder, this better be a secure app(mobile or you know and trust all of the users.");
+	    jQuery.ajax( {url: 'https://graph.facebook.com/oauth/access_token?client_id='+this.properties[1]+'&client_secret='+this.properties[2]+'&grant_type=client_credentials', dataType: 'text', crossDomain: true
+            , success: function( datapic )
+            {datapic = datapic.split("=");
+	     FB_API["APP TOKEN"] = datapic[1];
+		console.log("API -- (App Token) "+datapic[1]);}
+            , error: function( datapic ) {
+	     FB_API["API Error Code"] = "API";
+             FB_API["API Error Message"] = datapic;
+             FB_API["API Error Type"] = "App Token";
+	     console.log("API -- (App Token) Error "+datapic);
+	     }
+            });
+	    }
+	  }
+	  else if (FB_Properties["API Type"] == "CocoonJS")
+	  {
+	  }
+	 }
+	};
+	instanceProto.onDestroy = function ()
+	{
+	};
+	instanceProto.saveToJSON = function ()
+	{
+		return {
+		};
+	};
+	instanceProto.loadFromJSON = function (o)
+	{
+	};
+	instanceProto.tick = function ()
+	{
+	 this.updatePosition();
+	};
+	var last_canvas_offset = null;
+	var last_checked_tick = -1;
+	instanceProto.updatePosition = function (first)
+	{
+		if (this.runtime.isDomFree)
 			return;
-		if (this.runtime.isAndroid && navigator.platform == 'Win32')//crosswalk emulator
+		var left = this.layer.layerToCanvas(this.x, this.y, true);
+		var top = this.layer.layerToCanvas(this.x, this.y, false);
+		var right = this.layer.layerToCanvas(this.x + this.width, this.y + this.height, true);
+		var bottom = this.layer.layerToCanvas(this.x + this.width, this.y + this.height, false);
+		var widthfactor = this.width > 0 ? 1 : -1;
+		var heightfactor = this.height > 0 ? 1 : -1;
+		var curWinWidth = window.innerWidth;
+		var curWinHeight = window.innerHeight;
+		if (!first && this.lastLeft === left && this.lastTop === top && this.lastRight === right && this.lastBottom === bottom && this.lastWinWidth === curWinWidth && this.lastWinHeight === curWinHeight)
+		{
 			return;
-		fbAppID = this.properties[0];
-		fbRuntime = this.runtime;
-		fbInst = this;
-		document.addEventListener('deviceready',function(){
-			FB['init']({ 'appId': fbAppID, 'nativeInterface': CDV['FB'], 'useCachedDialogs': false });
-			fbReady = true;
-			FB['getLoginStatus'](function(response) {
-				if (response["authResponse"])
-				{
-					fbUserID = response["authResponse"]["userID"];
-;
-					onFBLogin();
-				}
-			});
-			fbRuntime.trigger(cr.plugins_.PhonegapFacebookPB.prototype.cnds.OnReady, fbInst);
-		}, false);
-		FB['Event']['subscribe']('auth.login', function(response) {
-			fbUserID = response["authResponse"]["userID"];
-;
-			onFBLogin();
-		});
-		FB['Event']['subscribe']('auth.logout', function(response) {//cranberrygame: callback event is never risen
-			if (fbLoggedIn)
-			{
-				fbLoggedIn = false;
-				fbFullName = "";
-				fbFirstName = "";
-				fbLastName = "";
-				fbRuntime.trigger(cr.plugins_.PhonegapFacebookPB.prototype.cnds.OnLogOut, fbInst);
-			}
-		});
+		}
+		this.rotation2D = "-webkit-transform:rotate("+ 0
+										+"deg);-webkit-transform-origin:0% 0%;"+
+									"-moz-transform:rotate("+ 0
+										+"deg);-moz-transform-origin:0% 0%;"+
+									"-o-transform:rotate("+ 0
+										+"deg);-o-transform-origin:0% 0%;";
+		this.elem.style.cssText += ";"+/*this.CSSstyle +";"+*/ this.rotation2D/* + this.perspectiveValue + this.rotation3D*/;
+		this.lastLeft = left;
+		this.lastTop = top;
+		this.lastRight = right;
+		this.lastBottom = bottom;
+		this.lastWinWidth = curWinWidth;
+		this.lastWinHeight = curWinHeight;
+		var offx = Math.round(left) + jQuery(this.runtime.canvas).offset().left;
+		var offy = Math.round(top) + jQuery(this.runtime.canvas).offset().top;
+		jQuery(this.elem).css("position", "absolute");
+		jQuery(this.elem).offset({left: offx, top: offy});
+		jQuery(this.elem).width(Math.round(right - left));
+		jQuery(this.elem).height(Math.round(bottom - top));
+		this.rotation2D = "-webkit-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
+										+"deg);-webkit-transform-origin:0% 0%;"+
+									"-moz-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
+										+"deg);-moz-transform-origin:0% 0%;"+
+									"-o-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
+										+"deg);-o-transform-origin:0% 0%;";
+		this.elem.style.cssText += ";"+/*this.CSSstyle +";"+*/ this.rotation2D/* + this.perspectiveValue + this.rotation3D*/;
+		if (this.autoFontSize)
+			jQuery(this.elem).css("font-size", ((this.layer.getScale(true) / this.runtime.devicePixelRatio) - 0.2) + "em");
 	};
 	instanceProto.draw = function(ctx)
 	{
@@ -13940,366 +13269,954 @@ cr.plugins_.PhonegapFacebookPB = function(runtime)
 	instanceProto.drawGL = function (glw)
 	{
 	};
-/*
-	instanceProto.at = function (x)
+	function Cnds() {};
+	Cnds.prototype.CON_API_ON_LOAD = function (){if(FB_API["Instance"].uid != this.uid){return false;}else {return true;}};
+	Cnds.prototype.CON_USER_SUCCESS = function (){if(FB_API["Instance"].uid != this.uid){return false;}else {return true;}};
+	Cnds.prototype.CON_USER_FAIL = function (){if(FB_API["Instance"].uid != this.uid){return false;}else {return true;}};
+	Cnds.prototype.CON_USER_LOGIN = function (){if(FB_API["Instance"].uid != this.uid){return false;}else {return true;}};
+	Cnds.prototype.CON_USER_LOGOUT = function (){if(FB_API["Instance"].uid != this.uid){return false;}else {return true;}};
+	Cnds.prototype.Con_Phonegap_Login = function (){if(FB_API["Instance"].uid != this.uid){return false;}else {return true;}};
+	Cnds.prototype.Con_Phonegap_Login_Fail = function (){if(FB_API["Instance"].uid != this.uid){return false;}else {return true;}};
+	Cnds.prototype.Con_Social_Box_Fail = function (){if(FB_API["Instance"].uid != this.uid){return false;}else {return true;}};
+	Cnds.prototype.Con_Login_Error = function (){if(FB_API["Instance"].uid != this.uid){return false;}else {return true;}};
+	Cnds.prototype.Con_Story_Success = function (){if(FB_API["Instance"].uid != this.uid){return false;}else {return true;}};
+	Cnds.prototype.Con_Story_Error = function (){if(FB_API["Instance"].uid != this.uid){return false;}else {return true;}};
+	Cnds.prototype.Con_Dialog_App_Share = function (){if(FB_API["Instance"].uid != this.uid){return false;}else {return true;}};
+	Cnds.prototype.Con_Dialog_App_Share_Error = function (){if(FB_API["Instance"].uid != this.uid){return false;}else {return true;}};
+	Cnds.prototype.Con_Dialog_Mess_Share = function (){if(FB_API["Instance"].uid != this.uid){return false;}else {return true;}};
+	Cnds.prototype.Con_Dialog_Mess_Share_Error = function (){if(FB_API["Instance"].uid != this.uid){return false;}else {return true;}};
+	Cnds.prototype.Onpurchsuccess = function (){if(FB_API["Instance"].uid != this.uid){return false;}else {return true;}};
+	Cnds.prototype.Onpurchfail = function (){if(FB_API["Instance"].uid != this.uid){return false;}else {return true;}};
+	Cnds.prototype.fail_api_generic = function (){if(FB_API["Instance"].uid != this.uid){return false;}else {return true;}};
+	pluginProto.cnds = new Cnds();
+	function Acts() {};
+	Acts.prototype.Paydialog = function (quan,qmin,qmax,rid,pid,tc,purl)
 	{
-		return this.arr[x];
+	 if (check_app_Type("Paydialog","Web") == false) {return;}
+	 FB.ui(
+         {
+          method: 'pay',
+	  action: 'purchaseitem',
+            product: purl,
+	    quantity: quan,
+	    quantity_min: qmin,
+	    quantity_max: qmax,
+	    request_id: rid,
+	    pricepoint_id: pid,
+	    test_currency: tc
+         },
+         function(response) {
+         if (response && !response.error_code)
+	 {
+	  pay_id = response.payment_id;
+	  pay_amt = response.amount;
+	  pay_curr = response.currency;
+	  pay_quant = response.quantity;
+	  pay_rid = response.request_id;
+	  pay_stat = response.status;
+          FB_API["Runtime"].trigger(cr.plugins_.Facebook2_1.prototype.cnds.Onpurchsuccess, FB_API["Instance"]);
+         } else
+	 {
+          FB_API["API Error Code"] = "Actions";
+          FB_API["API Error Message"] = "Paydialog has failed or been cancelled.";
+          FB_API["API Error Type"] = "Paydialog";
+	  FB_API["Runtime"].trigger(cr.plugins_.Facebook2_1.prototype.cnds.Onpurchfail, FB_API["Instance"]);
+	  console.log("ACTS -- (Paydialog) Error using Pay Dialog");
+         }
+         });
 	};
-	instanceProto.set = function (x, val)
+	Acts.prototype.Sendmessageurl = function (url)
 	{
-		this.arr[x] = val;
+	if (check_app_Type("Sendmessageurl","Web") == false) {return;}
+	FB.ui({method: 'send',
+	         display: 'popup',
+                 link: url,
+              }, function(response)
+	      {
+		if (response && !response.error)
+	          {
+	           FB_API["Runtime"].trigger(cr.plugins_.Facebook2_1.prototype.cnds.Con_Dialog_Mess_Share_Error, FB_API["Instance"]);
+	           console.log("ACTS -- (Sendmessageurl) Link shared successfully");
+	          }
+	       else
+	          {
+	           FB_API["API Error Code"] = "Actions";
+                   FB_API["API Error Message"] = "User cancelled share request or an error occured.";
+                   FB_API["API Error Type"] = "Sendshareurl";
+		   FB_API["Runtime"].trigger(cr.plugins_.Facebook2_1.prototype.cnds.Con_Dialog_Mess_Share_Error, FB_API["Instance"]);
+	           console.log("ACTS -- (Sendmessageurl) Error sharing Link");
+	          }
+	      });
 	};
-*/
-	instanceProto.onLayoutChange = function ()
+	Acts.prototype.Page_Share_App = function ()
 	{
-		if (!(this.runtime.isAndroid || this.runtime.isiOS))
+	if (check_app_Type("Page_Share_App","Web") == false) {return;}
+	FB.ui({method: 'pagetab',
+	         display: 'popup',
+              }, function(response)
+	      {
+		if (response && !response.error)
+	          {
+	           FB_API["Runtime"].trigger(cr.plugins_.Facebook2_1.prototype.cnds.Con_Dialog_App_Share, FB_API["Instance"]);
+	           console.log("ACTS -- (Page_Share_App) App shared successfully");
+	          }
+	       else
+	          {
+	           FB_API["API Error Code"] = "Actions";
+                   FB_API["API Error Message"] = "User cancelled share request or an error occured.";
+                   FB_API["API Error Type"] = "Sendshareurl";
+		   FB_API["Runtime"].trigger(cr.plugins_.Facebook2_1.prototype.cnds.Con_Dialog_App_Share_Error, FB_API["Instance"]);
+	           console.log("ACTS -- (Page_Share_App) Error sharing App");
+	          }
+	      });
+	};
+	Acts.prototype.Sendshareurl = function (ss_url)
+	{
+	if (check_app_Type("Sendshareurl","Web") == false) {return;}
+	FB.ui({method: 'share',
+	         display: 'popup',
+                 href: ss_url,
+              }, function(response)
+	      {
+		if (response && !response.error)
+	          {
+	           FB_API["Runtime"].trigger(cr.plugins_.Facebook2_1.prototype.cnds.Con_Story_Success, FB_API["Instance"]);
+	           console.log("ACTS -- (Sendshareurl) URL shared successfully");
+	          }
+	       else
+	          {
+	           FB_API["API Error Code"] = "Actions";
+                   FB_API["API Error Message"] = "User cancelled share request or an error occured.";
+                   FB_API["API Error Type"] = "Sendshareurl";
+		   FB_API["Runtime"].trigger(cr.plugins_.Facebook2_1.prototype.cnds.Con_Story_Error, FB_API["Instance"]);
+	           console.log("ACTS -- (Sendshareurl) Error sharing URL");
+	          }
+	      });
+	};
+	Acts.prototype.Sendogstory = function (ss_title,ss_url)
+	{
+	 if (check_app_Type("Sendogstory","Web") == false) {return;}
+	FB.ui({
+		   display: 'popup',
+                   method: 'share_open_graph',
+              action_type: ss_title,
+        action_properties: JSON.stringify({
+            object:ss_url,
+              })
+              }, function(response)
+	      {
+		if (response && !response.error)
+	          {
+	           FB_API["Runtime"].trigger(cr.plugins_.Facebook2_1.prototype.cnds.Con_Story_Success, FB_API["Instance"]);
+	           console.log("ACTS -- (Sendogstory) Open Graph shared successfully");
+	          }
+	       else
+	          {
+	           FB_API["API Error Code"] = "Actions";
+                   FB_API["API Error Message"] = "User cancelled share request or an error occured.";
+                   FB_API["API Error Type"] = "Sendogstory";
+		   FB_API["Runtime"].trigger(cr.plugins_.Facebook2_1.prototype.cnds.Con_Story_Error, FB_API["Instance"]);
+	           console.log("ACTS -- (Sendogstory) Error sharing Open Graph Story");
+	          }
+	      });
+	};
+	Acts.prototype.UI_Login = function ()
+	{
+	 if (check_app_Type("UI_Login","Web") == false) {return;}
+	 FB.ui({
+         method: 'oauth',
+         scope: FB_API["scope"],
+        },
+        function(response) {
+         if (response && !response.code) {
+         console.log("ACTS -- (UI_Login) User has logged in");
+        } else {
+         console.log("ACTS -- (UI_Login) User login failed");
+	 FB_API["API Error Code"] = "Actions";
+         FB_API["API Error Message"] = "UI_Login been cancelled or an error occured.";
+         FB_API["API Error Type"] = "UI_Login";
+	 FB_API["Runtime"].trigger(cr.plugins_.Facebook2_1.prototype.cnds.Con_Login_Error, FB_API["Instance"]);
+        }
+        }
+        );
+	};
+	Acts.prototype.Create_Login_Button = function (cr_logout,pic_rows,def_audience,pic_s)
+	{
+	if (check_app_Type("Create_Login_Button","Web") == false) {return;}
+	if(cr_logout == 0){cr_logout = 'true';}else{cr_logout = 'false';}
+	if(def_audience == 0){def_audience = 'everyone';}else if(def_audience == 1){def_audience = 'friends';}else{def_audience = 'only_me';}
+	if(pic_s == 0){pic_s = 'small';}else if(pic_s == 1){pic_s = 'medium';}else if(pic_s == 2){pic_s = 'large';}else{pic_s = 'xlarge';}
+	var faces_yes = false;
+	if (pic_rows >=1) {faces_yes = true;}
+	jQuery(this.elem).remove();
+		this.elem = null;
+	this.elem = document.createElement("div");
+		 this.elem.style.overflowY = "auto";
+		 jQuery(this.elem).css("position", "absolute");
+		 this.elem.innerHTML = '<fb:login-button scope="'+FB_API["scope"]+'" default_audience="'+def_audience+'" max_rows="'+pic_rows+'" size="'+pic_s+'" show_faces="'+faces_yes+'" auto_logout_link="'+cr_logout+'"></fb:login-button>';
+                 this.elem.id = this.uid;
+		 jQuery(this.elem).appendTo("body");
+		 var left = this.layer.layerToCanvas(this.x, this.y, true);
+		var top = this.layer.layerToCanvas(this.x, this.y, false);
+		var right = this.layer.layerToCanvas(this.x + this.width, this.y + this.height, true);
+		var bottom = this.layer.layerToCanvas(this.x + this.width, this.y + this.height, false);
+		var offx = Math.round(left) + jQuery(this.runtime.canvas).offset().left;
+		var offy = Math.round(top) + jQuery(this.runtime.canvas).offset().top;
+		var widthfactor = this.width > 0 ? 1 : -1;
+		var heightfactor = this.height > 0 ? 1 : -1;
+		jQuery(this.elem).css("position", "absolute");
+		jQuery(this.elem).offset({left: offx, top: offy});
+		jQuery(this.elem).width(Math.round(right - left));
+		jQuery(this.elem).height(Math.round(bottom - top));
+		this.rotation2D = "-webkit-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
+										+"deg);-webkit-transform-origin:0% 0%;"+
+									"-moz-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
+										+"deg);-moz-transform-origin:0% 0%;"+
+									"-o-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
+										+"deg);-o-transform-origin:0% 0%;";
+		this.elem.style.cssText += ";"+/*this.CSSstyle +";"+*/ this.rotation2D/* + this.perspectiveValue + this.rotation3D*/;
+		this.lastLeft = 0;
+		 this.lastTop = 0;
+		 this.lastRight = 0;
+		 this.lastBottom = 0;
+		 this.lastWinWidth = 0;
+		 this.lastWinHeight = 0;
+			this.runtime.tickMe(this);
+	};
+	Acts.prototype.Phonegap_Login = function (url_S,state)
+	{if (check_app_Type("Phonegap_Login","PhoneGap") == false) {FB_API["Runtime"].trigger(cr.plugins_.Facebook2_1.prototype.cnds.Con_Phonegap_Login_Fail, FB_API["Instance"]);return;}
+	 	ios_url = window.open("https://www.facebook.com/dialog/oauth?client_id="+FB_Properties["App ID"]+"&auth_type=rerequest&scope="+FB_API["scope"]+"&state="+state+"&response_type=token&redirect_uri="+url_S, '_blank', 'location=no,toolbar=no');
+		ios_url.addEventListener('loadstart', function(e)
+                { var url = e.url;
+		var fburl = url.indexOf("facebook.com/login");
+                var err = url.indexOf("error");
+	        if (err >= 0 && fburl < 0)
+                {console.log(url);ios_url.close();
+                }
+                var n = url.indexOf("#access_token=");
+	        if (n >= 1){
+                var tokensplit = url.split("#");
+                var token_two = tokensplit[1].split("&");
+                var accessToken1 = token_two[0].split("=");
+                User["User AccessToken"] = accessToken1[1];
+                console.log('InAppBrowser: loadstart event has fired with url: ' + User["User AccessToken"]);
+		Fetch_User("me",User["User AccessToken"],function(FU_Status)
+		     {if (FU_Status == "success") {FB_API["Runtime"].trigger(cr.plugins_.Facebook2_1.prototype.cnds.CON_USER_SUCCESS, FB_API["Instance"]);}
+		      else{FB_API["Runtime"].trigger(cr.plugins_.Facebook2_1.prototype.cnds.CON_USER_FAIL, FB_API["Instance"]);}
+		  });ios_url.close();FB_API["Runtime"].trigger(cr.plugins_.Facebook2_1.prototype.cnds.CON_USER_LOGIN, FB_API["Instance"]);
+		}});
+	};
+	Acts.prototype.create_comment = function (color1,url1,num1,sort1)
+	{//if (check_app_Type("create_comment","Web") == false) {return;}
+	 FB_API["Instance Layer"] = this.layer;
+	 FB_API["Instance"] = this;
+	 FB_API["Instance Runtime"] = this.runtime;
+	 boxes_create_comment_box(color1,url1,num1,sort1);
+	};
+	Acts.prototype.Like_Button = function (action1,color1,url1,under1,layout1,tracking1,share1,show1)
+	{//if (check_app_Type("Like Button","Web") == false) {return;}
+	 FB_API["Instance Layer"] = this.layer;
+	 FB_API["Instance"] = this;
+	 FB_API["Instance Runtime"] = this.runtime;
+	 if (action1 == 0) {action1="like";}else{action1="recommend";}
+	 if (color1 == 0) {color1="light";}else{color1="dark";}
+	 if (under1 == 0) {under1=true;}else{under1=false;}
+	 if (layout1 == 0) {layout1="standard";}
+	 else if(layout1 == 1) {layout1="button_count";}
+	 else if(layout1 == 2) {layout1="button";}
+	 else if(layout1 == 3) {layout1="box__count";}
+	 if (share1 == 0) {share1=true;}else{share1=false;}
+	 if (show1 == 0) {show1=true;}else{show1=false;}
+	 if (FB_Properties["API Type"] == "PhoneGap")
+	 {
+	  boxes_create_like_boxPG(action1,color1,url1,under1,layout1,tracking1,share1,show1);
+	 }
+	 else
+	 {
+	  boxes_create_like_box(action1,color1,url1,under1,layout1,tracking1,share1,show1);
+	 }
+	};
+	Acts.prototype.graphapi_call = function (url_get,check_type,apitoken)
+	{web_call_Graphapi(url_get,check_type,apitoken);};
+	pluginProto.acts = new Acts();
+	function Exps() {};
+	Exps.prototype.UserVerified = function (ret){ret.set_string(              User["User Verified"]);};
+	Exps.prototype.UserIDThirdParty = function (ret){ret.set_string(          User["User Third Party ID"]);};
+	Exps.prototype.UserTimezone = function (ret){ret.set_string(              User["User timezone"]);};
+	Exps.prototype.UserSignificantOtherName = function (ret){ret.set_string(  User["User Significant Other Name"]);};
+	Exps.prototype.UserSignificantOtherID = function (ret){ret.set_string(    User["User Significant Other ID"]);};
+	Exps.prototype.UserReligion = function (ret){ret.set_string(              User["User Religion"]);};
+	Exps.prototype.UserRelationshipStatus = function (ret){ret.set_string(    User["User Relationship Status"]);};
+	Exps.prototype.UserQuotes = function (ret){ret.set_string(                User["User Quotes"]);};
+	Exps.prototype.UserAgeMax = function (ret){ret.set_string(                User["User Maximum Age Range"]);};
+	Exps.prototype.UserAgeMin = function (ret){ret.set_string(                User["User Minimum Age Range"]);};
+	Exps.prototype.UserIDUser = function (ret){ret.set_string(                User["User ID"]);};
+	Exps.prototype.UserAccessToken = function (ret){ret.set_string(           User["User AccessToken"]);};
+	Exps.prototype.UserAccessTokenExpires = function (ret){ret.set_string(    User["User AccessToken Expires"]);};
+	Exps.prototype.UserLoginStatus = function (ret){ret.set_string(           User["User Login Status"]);};
+	Exps.prototype.APIErrorCode = function (ret){ret.set_string(FB_API["API Error Code"]);};
+	Exps.prototype.APIErrorMessage = function (ret){ret.set_string(FB_API["API Error Type"]);};
+	Exps.prototype.APIErrorType = function (ret){ret.set_string(FB_API["API Error Message"]);};
+	Exps.prototype.UserLink = function (ret){ret.set_string(                  User["User Link"]);};
+	Exps.prototype.UserNameLast = function (ret){ret.set_string(              User["User Last Name"]);};
+	Exps.prototype.UserLocale = function (ret){ret.set_string(                User["User Locale"]);};
+	Exps.prototype.UserNameFormat = function (ret){ret.set_string(            User["User Name Format"]);};
+	Exps.prototype.UserNameFull = function (ret){ret.set_string(              User["User Full Name"]);};
+	Exps.prototype.UserPoliticsViews = function (ret){ret.set_string(         User["User Political Views"]);};
+	Exps.prototype.UserIsVerified = function (ret){ret.set_string(            User["User Is Verified"]);};
+	Exps.prototype.UserAppInstalled = function (ret){ret.set_string(          User["User App Installed"]);};
+	Exps.prototype.UserBirthday = function (ret){ret.set_string(              User["User Birthday"]);};
+	Exps.prototype.UserBio = function (ret){ret.set_string(                   User["User Bio"]);};
+	Exps.prototype.UserCoverPicYOff = function (ret){ret.set_string(          User["User Cover Photo Y Offset"]);};
+	Exps.prototype.UserCoverPicURL = function (ret){ret.set_string           (User["User Cover Photo URL"]);};
+	Exps.prototype.UserCoverPicID = function (ret){ret.set_string(            User["User Cover Photo ID"]);};
+	Exps.prototype.UserCurrencyOffset = function (ret){ret.set_string(        User["User Currency Offset"]);};
+	Exps.prototype.UserUSDExchangeRateInverse = function (ret){ret.set_string(User["User Currency US Exchange Rate Inverse"]);};
+	Exps.prototype.UserUSDExchangeRate = function (ret){ret.set_string(       User["User Currency US Exchange Rate"]);};
+	Exps.prototype.UserCurrency = function (ret){ret.set_string(              User["User Currency"]);};
+	Exps.prototype.UserGender = function (ret){ret.set_string(                User["User Gender"]);};
+	Exps.prototype.UserNameFirst = function (ret){ret.set_string(             User["User First Name"]);};
+	Exps.prototype.UserEmail = function (ret){ret.set_string(                 User["User Email"]);};
+	Exps.prototype.UserAbout = function (ret){ret.set_string(                 User["User About Me"]);};
+	Exps.prototype.UserNameMiddle = function (ret){ret.set_string(            User["User Middle Name"]);};
+	Exps.prototype.UserPictureProfile = function (ret){ret.set_string(        User["User Profile Picture"]);};
+	Exps.prototype.UserDevicesSize = function (ret){ret.set_int(           User["User Devices Size"]);};
+	Exps.prototype.UserDevicesCurrHardware = function (ret){ret.set_string(   User["User Devices Current Hardware"]);};
+	Exps.prototype.UserDevicesCurrOS = function (ret){ret.set_string(         User["User Devices Current OS"]);};
+	Exps.prototype.UserEducationSize = function (ret){ret.set_int(         User["User Education Size"]);};
+	Exps.prototype.UserEducationCurrentType = function (ret){ret.set_string(  User["User Education Current Type"]);};
+	Exps.prototype.UserEducationCurrentName = function (ret){ret.set_string(  User["User Education Current Name"]);};
+	Exps.prototype.UserEducationCurrentID = function (ret){ret.set_string    (User["User Education Current ID"]);};
+	Exps.prototype.UserAthleteFavSize = function (ret){ret.set_int(        User["User Favorite Athletes Size"]);};
+	Exps.prototype.UserAthleteFavCurrentID = function (ret){ret.set_string(   User["User Favorite Athletes Current ID"]);};
+	Exps.prototype.UserAthleteFavCurrentName = function (ret){ret.set_string( User["User Favorite Athletes Current Name"]);};
+	Exps.prototype.UserWebsite = function (ret){ret.set_string(               User["User Website"]);};
+	Exps.prototype.UserHometownName = function (ret){ret.set_string(          User["User Hometown Name"]);};
+	Exps.prototype.UserHometownID = function (ret){ret.set_string(            User["User Hometown ID"]);};
+	Exps.prototype.UserPermissionsGranted = function (ret){ret.set_string(            User["User Granted Permissions"]);};
+	Exps.prototype.AppAccessToken = function (ret){ret.set_string(            FB_API["APP TOKEN"]);};
+	Exps.prototype.GraphAPICallData = function (ret){ret.set_string(            FB_API["GRAPH API DATA"]);};
+	pluginProto.exps = new Exps();
+}());
+;
+;
+cr.plugins_.Text = function(runtime)
+{
+	this.runtime = runtime;
+};
+(function ()
+{
+	var pluginProto = cr.plugins_.Text.prototype;
+	pluginProto.onCreate = function ()
+	{
+		pluginProto.acts.SetWidth = function (w)
+		{
+			if (this.width !== w)
+			{
+				this.width = w;
+				this.text_changed = true;	// also recalculate text wrapping
+				this.set_bbox_changed();
+			}
+		};
+	};
+	pluginProto.Type = function(plugin)
+	{
+		this.plugin = plugin;
+		this.runtime = plugin.runtime;
+	};
+	var typeProto = pluginProto.Type.prototype;
+	typeProto.onCreate = function()
+	{
+	};
+	typeProto.onLostWebGLContext = function ()
+	{
+		if (this.is_family)
 			return;
-		if (this.runtime.isAndroid && navigator.platform == 'Win32')//crosswalk emulator
+		var i, len, inst;
+		for (i = 0, len = this.instances.length; i < len; i++)
+		{
+			inst = this.instances[i];
+			inst.mycanvas = null;
+			inst.myctx = null;
+			inst.mytex = null;
+		}
+	};
+	pluginProto.Instance = function(type)
+	{
+		this.type = type;
+		this.runtime = type.runtime;
+		if (this.recycled)
+			this.lines.length = 0;
+		else
+			this.lines = [];		// for word wrapping
+		this.text_changed = true;
+	};
+	var instanceProto = pluginProto.Instance.prototype;
+	var requestedWebFonts = {};		// already requested web fonts have an entry here
+	instanceProto.onCreate = function()
+	{
+		this.text = this.properties[0];
+		this.visible = (this.properties[1] === 0);		// 0=visible, 1=invisible
+		this.font = this.properties[2];
+		this.color = this.properties[3];
+		this.halign = this.properties[4];				// 0=left, 1=center, 2=right
+		this.valign = this.properties[5];				// 0=top, 1=center, 2=bottom
+		this.wrapbyword = (this.properties[7] === 0);	// 0=word, 1=character
+		this.lastwidth = this.width;
+		this.lastwrapwidth = this.width;
+		this.lastheight = this.height;
+		this.line_height_offset = this.properties[8];
+		this.facename = "";
+		this.fontstyle = "";
+		this.ptSize = 0;
+		this.textWidth = 0;
+		this.textHeight = 0;
+		this.parseFont();
+		this.mycanvas = null;
+		this.myctx = null;
+		this.mytex = null;
+		this.need_text_redraw = false;
+		this.last_render_tick = this.runtime.tickcount;
+		if (this.recycled)
+			this.rcTex.set(0, 0, 1, 1);
+		else
+			this.rcTex = new cr.rect(0, 0, 1, 1);
+		if (this.runtime.glwrap)
+			this.runtime.tickMe(this);
+;
+	};
+	instanceProto.parseFont = function ()
+	{
+		var arr = this.font.split(" ");
+		var i;
+		for (i = 0; i < arr.length; i++)
+		{
+			if (arr[i].substr(arr[i].length - 2, 2) === "pt")
+			{
+				this.ptSize = parseInt(arr[i].substr(0, arr[i].length - 2));
+				this.pxHeight = Math.ceil((this.ptSize / 72.0) * 96.0) + 4;	// assume 96dpi...
+				if (i > 0)
+					this.fontstyle = arr[i - 1];
+				this.facename = arr[i + 1];
+				for (i = i + 2; i < arr.length; i++)
+					this.facename += " " + arr[i];
+				break;
+			}
+		}
+	};
+	instanceProto.saveToJSON = function ()
+	{
+		return {
+			"t": this.text,
+			"f": this.font,
+			"c": this.color,
+			"ha": this.halign,
+			"va": this.valign,
+			"wr": this.wrapbyword,
+			"lho": this.line_height_offset,
+			"fn": this.facename,
+			"fs": this.fontstyle,
+			"ps": this.ptSize,
+			"pxh": this.pxHeight,
+			"tw": this.textWidth,
+			"th": this.textHeight,
+			"lrt": this.last_render_tick
+		};
+	};
+	instanceProto.loadFromJSON = function (o)
+	{
+		this.text = o["t"];
+		this.font = o["f"];
+		this.color = o["c"];
+		this.halign = o["ha"];
+		this.valign = o["va"];
+		this.wrapbyword = o["wr"];
+		this.line_height_offset = o["lho"];
+		this.facename = o["fn"];
+		this.fontstyle = o["fs"];
+		this.ptSize = o["ps"];
+		this.pxHeight = o["pxh"];
+		this.textWidth = o["tw"];
+		this.textHeight = o["th"];
+		this.last_render_tick = o["lrt"];
+		this.text_changed = true;
+		this.lastwidth = this.width;
+		this.lastwrapwidth = this.width;
+		this.lastheight = this.height;
+	};
+	instanceProto.tick = function ()
+	{
+		if (this.runtime.glwrap && this.mytex && (this.runtime.tickcount - this.last_render_tick >= 300))
+		{
+			var layer = this.layer;
+            this.update_bbox();
+            var bbox = this.bbox;
+            if (bbox.right < layer.viewLeft || bbox.bottom < layer.viewTop || bbox.left > layer.viewRight || bbox.top > layer.viewBottom)
+			{
+				this.runtime.glwrap.deleteTexture(this.mytex);
+				this.mytex = null;
+				this.myctx = null;
+				this.mycanvas = null;
+			}
+		}
+	};
+	instanceProto.onDestroy = function ()
+	{
+		this.myctx = null;
+		this.mycanvas = null;
+		if (this.runtime.glwrap && this.mytex)
+			this.runtime.glwrap.deleteTexture(this.mytex);
+		this.mytex = null;
+	};
+	instanceProto.updateFont = function ()
+	{
+		this.font = this.fontstyle + " " + this.ptSize.toString() + "pt " + this.facename;
+		this.text_changed = true;
+		this.runtime.redraw = true;
+	};
+	instanceProto.draw = function(ctx, glmode)
+	{
+		ctx.font = this.font;
+		ctx.textBaseline = "top";
+		ctx.fillStyle = this.color;
+		ctx.globalAlpha = glmode ? 1 : this.opacity;
+		var myscale = 1;
+		if (glmode)
+		{
+			myscale = this.layer.getScale();
+			ctx.save();
+			ctx.scale(myscale, myscale);
+		}
+		if (this.text_changed || this.width !== this.lastwrapwidth)
+		{
+			this.type.plugin.WordWrap(this.text, this.lines, ctx, this.width, this.wrapbyword);
+			this.text_changed = false;
+			this.lastwrapwidth = this.width;
+		}
+		this.update_bbox();
+		var penX = glmode ? 0 : this.bquad.tlx;
+		var penY = glmode ? 0 : this.bquad.tly;
+		if (this.runtime.pixel_rounding)
+		{
+			penX = (penX + 0.5) | 0;
+			penY = (penY + 0.5) | 0;
+		}
+		if (this.angle !== 0 && !glmode)
+		{
+			ctx.save();
+			ctx.translate(penX, penY);
+			ctx.rotate(this.angle);
+			penX = 0;
+			penY = 0;
+		}
+		var endY = penY + this.height;
+		var line_height = this.pxHeight;
+		line_height += this.line_height_offset;
+		var drawX;
+		var i;
+		if (this.valign === 1)		// center
+			penY += Math.max(this.height / 2 - (this.lines.length * line_height) / 2, 0);
+		else if (this.valign === 2)	// bottom
+			penY += Math.max(this.height - (this.lines.length * line_height) - 2, 0);
+		for (i = 0; i < this.lines.length; i++)
+		{
+			drawX = penX;
+			if (this.halign === 1)		// center
+				drawX = penX + (this.width - this.lines[i].width) / 2;
+			else if (this.halign === 2)	// right
+				drawX = penX + (this.width - this.lines[i].width);
+			ctx.fillText(this.lines[i].text, drawX, penY);
+			penY += line_height;
+			if (penY >= endY - line_height)
+				break;
+		}
+		if (this.angle !== 0 || glmode)
+			ctx.restore();
+		this.last_render_tick = this.runtime.tickcount;
+	};
+	instanceProto.drawGL = function(glw)
+	{
+		if (this.width < 1 || this.height < 1)
 			return;
-		if (fbLoggedIn)
-			fbRuntime.trigger(cr.plugins_.PhonegapFacebookPB.prototype.cnds.OnLogIn, fbInst);
-		if (fbFullName.length)
-			fbRuntime.trigger(cr.plugins_.PhonegapFacebookPB.prototype.cnds.OnNameAvailable, fbInst);
+		var need_redraw = this.text_changed || this.need_text_redraw;
+		this.need_text_redraw = false;
+		var layer_scale = this.layer.getScale();
+		var layer_angle = this.layer.getAngle();
+		var rcTex = this.rcTex;
+		var floatscaledwidth = layer_scale * this.width;
+		var floatscaledheight = layer_scale * this.height;
+		var scaledwidth = Math.ceil(floatscaledwidth);
+		var scaledheight = Math.ceil(floatscaledheight);
+		var halfw = this.runtime.draw_width / 2;
+		var halfh = this.runtime.draw_height / 2;
+		if (!this.myctx)
+		{
+			this.mycanvas = document.createElement("canvas");
+			this.mycanvas.width = scaledwidth;
+			this.mycanvas.height = scaledheight;
+			this.lastwidth = scaledwidth;
+			this.lastheight = scaledheight;
+			need_redraw = true;
+			this.myctx = this.mycanvas.getContext("2d");
+		}
+		if (scaledwidth !== this.lastwidth || scaledheight !== this.lastheight)
+		{
+			this.mycanvas.width = scaledwidth;
+			this.mycanvas.height = scaledheight;
+			if (this.mytex)
+			{
+				glw.deleteTexture(this.mytex);
+				this.mytex = null;
+			}
+			need_redraw = true;
+		}
+		if (need_redraw)
+		{
+			this.myctx.clearRect(0, 0, scaledwidth, scaledheight);
+			this.draw(this.myctx, true);
+			if (!this.mytex)
+				this.mytex = glw.createEmptyTexture(scaledwidth, scaledheight, this.runtime.linearSampling, this.runtime.isMobile);
+			glw.videoToTexture(this.mycanvas, this.mytex, this.runtime.isMobile);
+		}
+		this.lastwidth = scaledwidth;
+		this.lastheight = scaledheight;
+		glw.setTexture(this.mytex);
+		glw.setOpacity(this.opacity);
+		glw.resetModelView();
+		glw.translate(-halfw, -halfh);
+		glw.updateModelView();
+		var q = this.bquad;
+		var tlx = this.layer.layerToCanvas(q.tlx, q.tly, true, true);
+		var tly = this.layer.layerToCanvas(q.tlx, q.tly, false, true);
+		var trx = this.layer.layerToCanvas(q.trx, q.try_, true, true);
+		var try_ = this.layer.layerToCanvas(q.trx, q.try_, false, true);
+		var brx = this.layer.layerToCanvas(q.brx, q.bry, true, true);
+		var bry = this.layer.layerToCanvas(q.brx, q.bry, false, true);
+		var blx = this.layer.layerToCanvas(q.blx, q.bly, true, true);
+		var bly = this.layer.layerToCanvas(q.blx, q.bly, false, true);
+		if (this.runtime.pixel_rounding || (this.angle === 0 && layer_angle === 0))
+		{
+			var ox = ((tlx + 0.5) | 0) - tlx;
+			var oy = ((tly + 0.5) | 0) - tly
+			tlx += ox;
+			tly += oy;
+			trx += ox;
+			try_ += oy;
+			brx += ox;
+			bry += oy;
+			blx += ox;
+			bly += oy;
+		}
+		if (this.angle === 0 && layer_angle === 0)
+		{
+			trx = tlx + scaledwidth;
+			try_ = tly;
+			brx = trx;
+			bry = tly + scaledheight;
+			blx = tlx;
+			bly = bry;
+			rcTex.right = 1;
+			rcTex.bottom = 1;
+		}
+		else
+		{
+			rcTex.right = floatscaledwidth / scaledwidth;
+			rcTex.bottom = floatscaledheight / scaledheight;
+		}
+		glw.quadTex(tlx, tly, trx, try_, brx, bry, blx, bly, rcTex);
+		glw.resetModelView();
+		glw.scale(layer_scale, layer_scale);
+		glw.rotateZ(-this.layer.getAngle());
+		glw.translate((this.layer.viewLeft + this.layer.viewRight) / -2, (this.layer.viewTop + this.layer.viewBottom) / -2);
+		glw.updateModelView();
+		this.last_render_tick = this.runtime.tickcount;
+	};
+	var wordsCache = [];
+	pluginProto.TokeniseWords = function (text)
+	{
+		wordsCache.length = 0;
+		var cur_word = "";
+		var ch;
+		var i = 0;
+		while (i < text.length)
+		{
+			ch = text.charAt(i);
+			if (ch === "\n")
+			{
+				if (cur_word.length)
+				{
+					wordsCache.push(cur_word);
+					cur_word = "";
+				}
+				wordsCache.push("\n");
+				++i;
+			}
+			else if (ch === " " || ch === "\t" || ch === "-")
+			{
+				do {
+					cur_word += text.charAt(i);
+					i++;
+				}
+				while (i < text.length && (text.charAt(i) === " " || text.charAt(i) === "\t"));
+				wordsCache.push(cur_word);
+				cur_word = "";
+			}
+			else if (i < text.length)
+			{
+				cur_word += ch;
+				i++;
+			}
+		}
+		if (cur_word.length)
+			wordsCache.push(cur_word);
+	};
+	var linesCache = [];
+	function allocLine()
+	{
+		if (linesCache.length)
+			return linesCache.pop();
+		else
+			return {};
+	};
+	function freeLine(l)
+	{
+		linesCache.push(l);
+	};
+	function freeAllLines(arr)
+	{
+		var i, len;
+		for (i = 0, len = arr.length; i < len; i++)
+		{
+			freeLine(arr[i]);
+		}
+		arr.length = 0;
+	};
+	pluginProto.WordWrap = function (text, lines, ctx, width, wrapbyword)
+	{
+		if (!text || !text.length)
+		{
+			freeAllLines(lines);
+			return;
+		}
+		if (width <= 2.0)
+		{
+			freeAllLines(lines);
+			return;
+		}
+		if (text.length <= 100 && text.indexOf("\n") === -1)
+		{
+			var all_width = ctx.measureText(text).width;
+			if (all_width <= width)
+			{
+				freeAllLines(lines);
+				lines.push(allocLine());
+				lines[0].text = text;
+				lines[0].width = all_width;
+				return;
+			}
+		}
+		this.WrapText(text, lines, ctx, width, wrapbyword);
+	};
+	pluginProto.WrapText = function (text, lines, ctx, width, wrapbyword)
+	{
+		var wordArray;
+		if (wrapbyword)
+		{
+			this.TokeniseWords(text);	// writes to wordsCache
+			wordArray = wordsCache;
+		}
+		else
+			wordArray = text;
+		var cur_line = "";
+		var prev_line;
+		var line_width;
+		var i;
+		var lineIndex = 0;
+		var line;
+		for (i = 0; i < wordArray.length; i++)
+		{
+			if (wordArray[i] === "\n")
+			{
+				if (lineIndex >= lines.length)
+					lines.push(allocLine());
+				line = lines[lineIndex];
+				line.text = cur_line;
+				line.width = ctx.measureText(cur_line).width;
+				lineIndex++;
+				cur_line = "";
+				continue;
+			}
+			prev_line = cur_line;
+			cur_line += wordArray[i];
+			line_width = ctx.measureText(cur_line).width;
+			if (line_width >= width)
+			{
+				if (lineIndex >= lines.length)
+					lines.push(allocLine());
+				line = lines[lineIndex];
+				line.text = prev_line;
+				line.width = ctx.measureText(prev_line).width;
+				lineIndex++;
+				cur_line = wordArray[i];
+				if (!wrapbyword && cur_line === " ")
+					cur_line = "";
+			}
+		}
+		if (cur_line.length)
+		{
+			if (lineIndex >= lines.length)
+				lines.push(allocLine());
+			line = lines[lineIndex];
+			line.text = cur_line;
+			line.width = ctx.measureText(cur_line).width;
+			lineIndex++;
+		}
+		for (i = lineIndex; i < lines.length; i++)
+			freeLine(lines[i]);
+		lines.length = lineIndex;
 	};
 	function Cnds() {};
-/*
-	Cnds.prototype.MyCondition = function (myparam)
+	Cnds.prototype.CompareText = function(text_to_compare, case_sensitive)
 	{
-		return myparam >= 0;
-	};
-	Cnds.prototype.TriggerCondition = function ()
-	{
-		return true;
-	};
-*/
-	Cnds.prototype.IsReady = function ()
-	{
-		return fbReady;
-	};
-	Cnds.prototype.OnReady = function ()
-	{
-		return true;
-	};
-	Cnds.prototype.IsLoggedIn = function ()
-	{
-		return fbLoggedIn;
-	};
-	Cnds.prototype.OnLogIn = function ()
-	{
-		return true;
-	};
-	Cnds.prototype.OnLogOut = function ()
-	{
-		return true;
-	};
-	Cnds.prototype.OnNameAvailable = function ()
-	{
-		return true;
-	};
-	Cnds.prototype.OnUserTopScoreAvailable = function ()
-	{
-		return true;
-	};
-	Cnds.prototype.OnHiscore = function ()
-	{
-		return true;
-	};
-	Cnds.prototype.OnScoreSubmitted = function ()
-	{
-		return true;
+		if (case_sensitive)
+			return this.text == text_to_compare;
+		else
+			return cr.equals_nocase(this.text, text_to_compare);
 	};
 	pluginProto.cnds = new Cnds();
 	function Acts() {};
-/*
-	Acts.prototype.MyAction = function (myparam)
+	Acts.prototype.SetText = function(param)
 	{
-		alert(myparam);
-	};
-	Acts.prototype.TriggerAction = function ()
-	{
-		var self=this;
-		self.runtime.trigger(cr.plugins_.PhonegapFacebookPB.prototype.cnds.TriggerCondition, self);
-	};
-*/
-	Acts.prototype.LogIn = function (perm_stream, perm_action)
-	{
-		if (!(this.runtime.isAndroid || this.runtime.isiOS))
-			return;
-		if (this.runtime.isAndroid && navigator.platform == 'Win32')//crosswalk emulator
-			return;
-		if (!fbReady)
-			return;
-		fbCanPublishStream = (perm_stream === 1);
-		fbCanPublishAction = (perm_action === 1);
-		var perms = [];
-		if (fbCanPublishStream)
-			perms.push("publish_stream");
-		if (fbCanPublishAction)
-			perms.push("publish_actions");
-		var newperms = perms.join();
-		if (!fbLoggedIn || fbPerms !== newperms)
+		if (cr.is_number(param) && param < 1e9)
+			param = Math.round(param * 1e10) / 1e10;	// round to nearest ten billionth - hides floating point errors
+		var text_to_set = param.toString();
+		if (this.text !== text_to_set)
 		{
-			fbPerms = newperms;
-			FB['login'](function(response) {
-					if (response["authResponse"])
-						onFBLogin();
-				}, {'scope': fbPerms});
+			this.text = text_to_set;
+			this.text_changed = true;
+			this.runtime.redraw = true;
 		}
 	};
-	Acts.prototype.LogOut = function ()
+	Acts.prototype.AppendText = function(param)
 	{
-		if (!(this.runtime.isAndroid || this.runtime.isiOS))
+		if (cr.is_number(param))
+			param = Math.round(param * 1e10) / 1e10;	// round to nearest ten billionth - hides floating point errors
+		var text_to_append = param.toString();
+		if (text_to_append)	// not empty
+		{
+			this.text += text_to_append;
+			this.text_changed = true;
+			this.runtime.redraw = true;
+		}
+	};
+	Acts.prototype.SetFontFace = function (face_, style_)
+	{
+		var newstyle = "";
+		switch (style_) {
+		case 1: newstyle = "bold"; break;
+		case 2: newstyle = "italic"; break;
+		case 3: newstyle = "bold italic"; break;
+		}
+		if (face_ === this.facename && newstyle === this.fontstyle)
+			return;		// no change
+		this.facename = face_;
+		this.fontstyle = newstyle;
+		this.updateFont();
+	};
+	Acts.prototype.SetFontSize = function (size_)
+	{
+		if (this.ptSize === size_)
 			return;
-		if (this.runtime.isAndroid && navigator.platform == 'Win32')//crosswalk emulator
+		this.ptSize = size_;
+		this.pxHeight = Math.ceil((this.ptSize / 72.0) * 96.0) + 4;	// assume 96dpi...
+		this.updateFont();
+	};
+	Acts.prototype.SetFontColor = function (rgb)
+	{
+		var newcolor = "rgb(" + cr.GetRValue(rgb).toString() + "," + cr.GetGValue(rgb).toString() + "," + cr.GetBValue(rgb).toString() + ")";
+		if (newcolor === this.color)
 			return;
-		if (!fbLoggedIn)
-			return;
-		FB['logout'](function(response) {//cranberrygame
-			console.log('logged out');
-			if (fbLoggedIn)
+		this.color = newcolor;
+		this.need_text_redraw = true;
+		this.runtime.redraw = true;
+	};
+	Acts.prototype.SetWebFont = function (familyname_, cssurl_)
+	{
+		if (this.runtime.isDomFree)
+		{
+			cr.logexport("[Construct 2] Text plugin: 'Set web font' not supported on this platform - the action has been ignored");
+			return;		// DC todo
+		}
+		var self = this;
+		var refreshFunc = (function () {
+							self.runtime.redraw = true;
+							self.text_changed = true;
+						});
+		if (requestedWebFonts.hasOwnProperty(cssurl_))
+		{
+			var newfacename = "'" + familyname_ + "'";
+			if (this.facename === newfacename)
+				return;	// no change
+			this.facename = newfacename;
+			this.updateFont();
+			for (var i = 1; i < 10; i++)
 			{
-				fbLoggedIn = false;
-				fbFullName = "";
-				fbFirstName = "";
-				fbLastName = "";
-				fbRuntime.trigger(cr.plugins_.PhonegapFacebookPB.prototype.cnds.OnLogOut, fbInst);
+				setTimeout(refreshFunc, i * 100);
+				setTimeout(refreshFunc, i * 1000);
 			}
-		});
-	};
-	Acts.prototype.PromptWallPost = function ()
-	{
-		if (!(this.runtime.isAndroid || this.runtime.isiOS))
 			return;
-		if (this.runtime.isAndroid && navigator.platform == 'Win32')//crosswalk emulator
-			return;
-		if (!fbLoggedIn)
-			return;
-		var params = { 'method': 'feed' };
-/*
-		var params = {
-			'method': 'feed',
-			'name': 'Facebook Dialogs',
-			'link': 'https://developers.facebook.com/docs/reference/dialogs/',
-			'picture': 'http://fbrell.com/f8.jpg',
-			'caption': 'Reference Documentation',
-			'description': 'Dialogs provide a simple, consistent interface for applications to interface with users.'
-		  };
-*/
-		console.log(params);
-		FB['ui'](params, function(obj) {
-			console.log(obj);
-		});
-	};
-	Acts.prototype.PromptToShareApp = function (name_, caption_, description_, picture_)
-	{
-		if (!(this.runtime.isAndroid || this.runtime.isiOS))
-			return;
-		if (this.runtime.isAndroid && navigator.platform == 'Win32')//crosswalk emulator
-			return;
-		if (!fbLoggedIn)
-			return;
-		FB['ui']({
-				"method": "feed",
-				"link": "http://apps.facebook.com/" + fbAppID + "/",
-				"picture": picture_,
-				"name": name_,
-				"caption": caption_,
-				"description": description_
-			  }, function(response) {
-				  if (!response || response.error)
-						  console.error(response);
-			});
-	};
-	Acts.prototype.PromptToShareLink = function (url_, name_, caption_, description_, picture_)
-	{
-		if (!(this.runtime.isAndroid || this.runtime.isiOS))
-			return;
-		if (this.runtime.isAndroid && navigator.platform == 'Win32')//crosswalk emulator
-			return;
-		if (!fbLoggedIn)
-			return;
-		FB['ui']({
-				"method": "feed",
-				"link": url_,
-				"picture": picture_,
-				"name": name_,
-				"caption": caption_,
-				"description": description_
-			  }, function(response) {
-					if (!response || response.error)
-						console.error(response);
-			});
-	};
-	Acts.prototype.PublishToWall = function (message_)
-	{
-		if (!(this.runtime.isAndroid || this.runtime.isiOS))
-			return;
-		if (this.runtime.isAndroid && navigator.platform == 'Win32')//crosswalk emulator
-			return;
-		if (!fbLoggedIn)
-			return;
-		var publish = {
-			"method": 'stream.publish',
-			"message": message_
-		};
-		FB['api']('/me/feed', 'POST', publish, function(response) {
-				if (!response || response.error)
-					console.error(response);
-			});
-	};
-	Acts.prototype.PublishLink = function (message_, url_, name_, caption_, description_, picture_)
-	{
-		if (!(this.runtime.isAndroid || this.runtime.isiOS))
-			return;
-		if (this.runtime.isAndroid && navigator.platform == 'Win32')//crosswalk emulator
-			return;
-		if (!fbLoggedIn)
-			return;
-		var publish = {
-				"method": 'stream.publish',
-				"message": message_,
-				"link": url_,
-				"name": name_,
-				"caption": caption_,
-				"description": description_
-			};
-		if (picture_.length)
-			publish["picture"] = picture_;
-		FB['api']('/me/feed', 'POST', publish, function(response) {
-				if (!response || response.error)
-					console.error(response);
-			});
-	};
-	Acts.prototype.PublishScore = function (score_)
-	{
-		if (!(this.runtime.isAndroid || this.runtime.isiOS))
-			return;
-		if (this.runtime.isAndroid && navigator.platform == 'Win32')//crosswalk emulator
-			return;
-		if (!fbLoggedIn)
-			return;
-		FB['api'](
-			"/me/scores",
-			"POST",
-			{
-				"score": Math.floor(score_)
-			},
-			function (response) {
-			  if (response && !response.error) {
-				/* handle the result */
-				fbRuntime.trigger(cr.plugins_.PhonegapFacebookPB.prototype.cnds.OnScoreSubmitted, fbInst);
-				console.log(response);
-			  }
-			}
-		);
-	};
-	Acts.prototype.RequestUserHiscore = function ()
-	{
-		if (!(this.runtime.isAndroid || this.runtime.isiOS))
-			return;
-		if (this.runtime.isAndroid && navigator.platform == 'Win32')//crosswalk emulator
-			return;
-		if (!fbLoggedIn)
-			return;
-		FB['api']('/me/scores', 'GET', {}, function(response) {
-			fbScore = 0;
-			var arr = response["data"];
-			if (!arr)
-			{
-				console.error("Request for user hi-score failed: " + response);
-				return;
-			}
-			var i, len;
-			for (i = 0, len = arr.length; i < len; i++)
-			{
-				if (arr[i]["score"] > fbScore)
-					fbScore = arr[i]["score"];
-			}
-			fbRuntime.trigger(cr.plugins_.PhonegapFacebookPB.prototype.cnds.OnUserTopScoreAvailable, fbInst);
-			if (!response || response.error) {
-			  console.error(response);
-		    } else {
+		}
+		var wf = document.createElement("link");
+		wf.href = cssurl_;
+		wf.rel = "stylesheet";
+		wf.type = "text/css";
+		wf.onload = refreshFunc;
+		document.getElementsByTagName('head')[0].appendChild(wf);
+		requestedWebFonts[cssurl_] = true;
+		this.facename = "'" + familyname_ + "'";
+		this.updateFont();
+		for (var i = 1; i < 10; i++)
+		{
+			setTimeout(refreshFunc, i * 100);
+			setTimeout(refreshFunc, i * 1000);
+		}
 ;
-		    }
-		});
 	};
-	Acts.prototype.RequestHiscores = function (n)
+	Acts.prototype.SetEffect = function (effect)
 	{
-		if (!(this.runtime.isAndroid || this.runtime.isiOS))
-			return;
-		if (this.runtime.isAndroid && navigator.platform == 'Win32')//crosswalk emulator
-			return;
-		if (!fbLoggedIn)
-			return;
-		FB['api']('/' + fbAppID + '/scores', 'GET', {}, function(response) {
-			var arr = response["data"];
-			if (!arr)
-			{
-				console.error("Hi-scores request failed: " + response);
-				return;
-			}
-			arr.sort(function(a, b) {
-				return b["score"] - a["score"];
-			});
-			var i = 0, len = Math.min(arr.length, n);
-			for ( ; i < len; i++)
-			{
-				fbScore = arr[i]["score"];
-				fbHiscoreName = arr[i]["user"]["name"];
-				fbHiscoreUserID = arr[i]["user"]["id"];
-				fbRank = i + 1;
-				fbRuntime.trigger(cr.plugins_.PhonegapFacebookPB.prototype.cnds.OnHiscore, fbInst);
-			}
-			if (!response || response.error) {
-			  console.error(response);
-		    } else {
-;
-		    }
-		});
+		this.compositeOp = cr.effectToCompositeOp(effect);
+		cr.setGLBlend(this, effect, this.runtime.gl);
+		this.runtime.redraw = true;
 	};
 	pluginProto.acts = new Acts();
 	function Exps() {};
-/*
-	Exps.prototype.MyExpression = function (ret)	// 'ret' must always be the first parameter - always return the expression's result through it!
+	Exps.prototype.Text = function(ret)
 	{
-		ret.set_int(1337);				// return our value
+		ret.set_string(this.text);
 	};
-	Exps.prototype.Text = function (ret, param) //cranberrygame
+	Exps.prototype.FaceName = function (ret)
 	{
-		ret.set_string("Hello");		// for ef_return_string
+		ret.set_string(this.facename);
 	};
-*/
-	Exps.prototype.FullName = function (ret)
+	Exps.prototype.FaceSize = function (ret)
 	{
-		ret.set_string(fbFullName);
+		ret.set_int(this.ptSize);
 	};
-	Exps.prototype.FirstName = function (ret)
+	Exps.prototype.TextWidth = function (ret)
 	{
-		ret.set_string(fbFirstName);
+		var w = 0;
+		var i, len, x;
+		for (i = 0, len = this.lines.length; i < len; i++)
+		{
+			x = this.lines[i].width;
+			if (w < x)
+				w = x;
+		}
+		ret.set_int(w);
 	};
-	Exps.prototype.LastName = function (ret)
+	Exps.prototype.TextHeight = function (ret)
 	{
-		ret.set_string(fbLastName);
-	};
-	Exps.prototype.Score = function (ret)
-	{
-		ret.set_int(fbScore);
-	};
-	Exps.prototype.HiscoreName = function (ret)
-	{
-		ret.set_string(fbHiscoreName);
-	};
-	Exps.prototype.HiscoreUserID = function (ret)
-	{
-		ret.set_int(fbHiscoreUserID);
-	};
-	Exps.prototype.HiscoreRank = function (ret)
-	{
-		ret.set_int(fbRank);
-	};
-	Exps.prototype.UserID = function (ret)
-	{
-		ret.set_float(parseFloat(fbUserID));
+		ret.set_int(this.lines.length * (this.pxHeight + this.line_height_offset) - this.line_height_offset);
 	};
 	pluginProto.exps = new Exps();
 }());
@@ -14308,18 +14225,6 @@ cr.getProjectModel = function() { return [
 	null,
 	[
 	[
-		cr.plugins_.Browser,
-		true,
-		false,
-		false,
-		false,
-		false,
-		false,
-		false,
-		false,
-		false
-	]
-,	[
 		cr.plugins_.Button,
 		false,
 		true,
@@ -14332,22 +14237,34 @@ cr.getProjectModel = function() { return [
 		false
 	]
 ,	[
-		cr.plugins_.PhonegapFacebookPB,
+		cr.plugins_.Facebook2_1,
+		false,
+		true,
+		true,
+		true,
 		true,
 		false,
 		false,
 		false,
+		false
+	]
+,	[
+		cr.plugins_.Text,
 		false,
-		false,
-		false,
-		false,
+		true,
+		true,
+		true,
+		true,
+		true,
+		true,
+		true,
 		false
 	]
 	],
 	[
 	[
 		"t0",
-		cr.plugins_.Button,
+		cr.plugins_.Facebook2_1,
 		false,
 		[],
 		0,
@@ -14358,13 +14275,13 @@ cr.getProjectModel = function() { return [
 		],
 		false,
 		false,
-		6580855816204202,
+		4946806692606947,
 		[],
 		null
 	]
 ,	[
 		"t1",
-		cr.plugins_.Browser,
+		cr.plugins_.Button,
 		false,
 		[],
 		0,
@@ -14375,14 +14292,13 @@ cr.getProjectModel = function() { return [
 		],
 		false,
 		false,
-		698945595161749,
+		5376203253746089,
 		[],
 		null
-		,[]
 	]
 ,	[
 		"t2",
-		cr.plugins_.Button,
+		cr.plugins_.Text,
 		false,
 		[],
 		0,
@@ -14393,178 +14309,7 @@ cr.getProjectModel = function() { return [
 		],
 		false,
 		false,
-		4809784065472788,
-		[],
-		null
-	]
-,	[
-		"t3",
-		cr.plugins_.Button,
-		false,
-		[],
-		0,
-		0,
-		null,
-		null,
-		[
-		],
-		false,
-		false,
-		9860113190867255,
-		[],
-		null
-	]
-,	[
-		"t4",
-		cr.plugins_.PhonegapFacebookPB,
-		false,
-		[],
-		0,
-		0,
-		null,
-		null,
-		[
-		],
-		false,
-		false,
-		4056793000080691,
-		[],
-		null
-		,["576508812455924","01742008196573526abc4ae1bbeb7104"]
-	]
-,	[
-		"t5",
-		cr.plugins_.Button,
-		false,
-		[],
-		0,
-		0,
-		null,
-		null,
-		[
-		],
-		false,
-		false,
-		243962598852897,
-		[],
-		null
-	]
-,	[
-		"t6",
-		cr.plugins_.Button,
-		false,
-		[],
-		0,
-		0,
-		null,
-		null,
-		[
-		],
-		false,
-		false,
-		6844904750780445,
-		[],
-		null
-	]
-,	[
-		"t7",
-		cr.plugins_.Button,
-		false,
-		[],
-		0,
-		0,
-		null,
-		null,
-		[
-		],
-		false,
-		false,
-		5197163937924309,
-		[],
-		null
-	]
-,	[
-		"t8",
-		cr.plugins_.Button,
-		false,
-		[],
-		0,
-		0,
-		null,
-		null,
-		[
-		],
-		false,
-		false,
-		1122917372870501,
-		[],
-		null
-	]
-,	[
-		"t9",
-		cr.plugins_.Button,
-		false,
-		[],
-		0,
-		0,
-		null,
-		null,
-		[
-		],
-		false,
-		false,
-		4833761361821689,
-		[],
-		null
-	]
-,	[
-		"t10",
-		cr.plugins_.Button,
-		false,
-		[],
-		0,
-		0,
-		null,
-		null,
-		[
-		],
-		false,
-		false,
-		2676463014317356,
-		[],
-		null
-	]
-,	[
-		"t11",
-		cr.plugins_.Button,
-		false,
-		[],
-		0,
-		0,
-		null,
-		null,
-		[
-		],
-		false,
-		false,
-		5729855846113645,
-		[],
-		null
-	]
-,	[
-		"t12",
-		cr.plugins_.Button,
-		false,
-		[],
-		0,
-		0,
-		null,
-		null,
-		[
-		],
-		false,
-		false,
-		176468200164864,
+		3076297536065576,
 		[],
 		null
 	]
@@ -14574,16 +14319,16 @@ cr.getProjectModel = function() { return [
 	[
 	[
 		"Layout 1",
-		320,
-		480,
+		1280,
+		960,
 		false,
 		"Event sheet 1",
-		7134345774193512,
+		8873350371196689,
 		[
 		[
 			"Layer 0",
 			0,
-			3100384179459527,
+			8722530541249526,
 			true,
 			[255, 255, 255],
 			false,
@@ -14596,17 +14341,57 @@ cr.getProjectModel = function() { return [
 			0,
 			[
 			[
-				[99, 26, 0, 106, 24, 0, 0, 1, 0, 0, 0, 0, []],
+				[196, 179, 0, 200, 25, 0, 0, 1, 0, 0, 0, 0, []],
 				0,
-				4,
+				0,
 				[
 				],
 				[
 				],
 				[
+					1,
+					"576508812455924",
+					"01742008196573526abc4ae1bbeb7104",
+					67,
 					0,
-					"Login",
-					"",
+					0,
+					0,
+					"v2.0",
+					"Available",
+					0,
+					0,
+					0,
+					1,
+					1,
+					1,
+					1,
+					1,
+					1,
+					1,
+					1,
+					1,
+					1,
+					1,
+					1,
+					1,
+					1,
+					1,
+					1,
+					1,
+					1,
+					1,
+					1,
+					1,
+					1,
+					1,
+					1,
+					1,
+					1,
+					1,
+					1,
+					1,
+					1,
+					1,
 					1,
 					1,
 					1,
@@ -14615,46 +14400,8 @@ cr.getProjectModel = function() { return [
 				]
 			]
 ,			[
-				[100, 91, 0, 106, 24, 0, 0, 1, 0, 0, 0, 0, []],
-				2,
-				2,
-				[
-				],
-				[
-				],
-				[
-					0,
-					"Logout",
-					"",
-					1,
-					1,
-					1,
-					"",
-					0
-				]
-			]
-,			[
-				[98, 141, 0, 116, 24, 0, 0, 1, 0, 0, 0, 0, []],
-				3,
-				3,
-				[
-				],
-				[
-				],
-				[
-					0,
-					"PromptWallPost",
-					"",
-					1,
-					1,
-					1,
-					"",
-					0
-				]
-			]
-,			[
-				[72, 176, 0, 172, 24, 0, 0, 1, 0, 0, 0, 0, []],
-				5,
+				[193, 98, 0, 230, 41, 0, 0, 1, 0, 0, 0, 0, []],
+				1,
 				1,
 				[
 				],
@@ -14662,7 +14409,7 @@ cr.getProjectModel = function() { return [
 				],
 				[
 					0,
-					"PromptToShareThisApp",
+					"OK",
 					"",
 					1,
 					1,
@@ -14672,135 +14419,22 @@ cr.getProjectModel = function() { return [
 				]
 			]
 ,			[
-				[72, 212, 0, 173, 24, 0, 0, 1, 0, 0, 0, 0, []],
-				6,
-				6,
+				[111, 245, 0, 409, 133, 0, 0, 1, 0, 0, 0, 0, []],
+				2,
+				2,
 				[
 				],
 				[
 				],
 				[
+					"Text",
 					0,
-					"PromptToShareLink",
-					"",
-					1,
-					1,
-					1,
-					"",
-					0
-				]
-			]
-,			[
-				[72, 266, 0, 173, 24, 0, 0, 1, 0, 0, 0, 0, []],
-				7,
-				7,
-				[
-				],
-				[
-				],
-				[
+					"12pt Arial",
+					"rgb(0,0,0)",
 					0,
-					"PublishWallPost",
-					"",
-					1,
-					1,
-					1,
-					"",
-					0
-				]
-			]
-,			[
-				[72, 302, 0, 173, 24, 0, 0, 1, 0, 0, 0, 0, []],
-				8,
-				8,
-				[
-				],
-				[
-				],
-				[
 					0,
-					"PublishLink",
-					"",
-					1,
-					1,
-					1,
-					"",
-					0
-				]
-			]
-,			[
-				[72, 356, 0, 173, 24, 0, 0, 1, 0, 0, 0, 0, []],
-				9,
-				9,
-				[
-				],
-				[
-				],
-				[
 					0,
-					"PublishScore",
-					"",
-					1,
-					1,
-					1,
-					"",
-					0
-				]
-			]
-,			[
-				[73, 392, 0, 173, 24, 0, 0, 1, 0, 0, 0, 0, []],
-				10,
-				10,
-				[
-				],
-				[
-				],
-				[
 					0,
-					"ResuestUserTopScore",
-					"",
-					1,
-					1,
-					1,
-					"",
-					0
-				]
-			]
-,			[
-				[73, 430, 0, 173, 24, 0, 0, 1, 0, 0, 0, 0, []],
-				11,
-				11,
-				[
-				],
-				[
-				],
-				[
-					0,
-					"RequestHighScoreBoard",
-					"",
-					1,
-					1,
-					1,
-					"",
-					0
-				]
-			]
-,			[
-				[94, 59, 0, 115, 24, 0, 0, 1, 0, 0, 0, 0, []],
-				12,
-				12,
-				[
-				],
-				[
-				],
-				[
-					0,
-					"IsUserLoggedIn",
-					"",
-					1,
-					1,
-					1,
-					"",
 					0
 				]
 			]
@@ -14822,72 +14456,40 @@ cr.getProjectModel = function() { return [
 			null,
 			false,
 			null,
-			7514434044590611,
+			8828983831541413,
 			[
 			[
-				0,
+				1,
 				cr.plugins_.Button.prototype.cnds.OnClicked,
 				null,
 				1,
 				false,
 				false,
 				false,
-				5478709859110157,
+				1701496307431198,
 				false
 			]
 			],
 			[
 			[
-				4,
-				cr.plugins_.PhonegapFacebookPB.prototype.acts.LogIn,
+				0,
+				cr.plugins_.Facebook2_1.prototype.acts.Phonegap_Login,
 				null,
-				1190575418193277,
+				4981845424785562,
 				false
 				,[
 				[
-					3,
-					0
-				]
-,				[
-					3,
-					0
-				]
-				]
-			]
-			]
-		]
-,		[
-			0,
-			null,
-			false,
-			null,
-			2544723591879496,
-			[
-			[
-				4,
-				cr.plugins_.PhonegapFacebookPB.prototype.cnds.OnLogIn,
-				null,
-				1,
-				false,
-				false,
-				false,
-				4467784730607167,
-				false
-			]
-			],
-			[
-			[
-				1,
-				cr.plugins_.Browser.prototype.acts.Alert,
-				null,
-				9203518373106445,
-				false
-				,[
-				[
-					7,
+					1,
 					[
 						2,
-						"user logged in"
+						"http://localhost/"
+					]
+				]
+,				[
+					1,
+					[
+						2,
+						""
 					]
 				]
 				]
@@ -14899,778 +14501,36 @@ cr.getProjectModel = function() { return [
 			null,
 			false,
 			null,
-			8168342087935659,
+			3245142425280703,
 			[
 			[
-				4,
-				cr.plugins_.PhonegapFacebookPB.prototype.cnds.OnNameAvailable,
+				0,
+				cr.plugins_.Facebook2_1.prototype.cnds.CON_USER_LOGIN,
 				null,
 				1,
 				false,
 				false,
 				false,
-				7621804262650474,
+				7889614065302993,
 				false
 			]
 			],
-			[
-			[
-				1,
-				cr.plugins_.Browser.prototype.acts.Alert,
-				null,
-				5421181127784202,
-				false
-				,[
-				[
-					7,
-					[
-						10,
-						[
-							10,
-							[
-								10,
-								[
-									10,
-									[
-										20,
-										4,
-										cr.plugins_.PhonegapFacebookPB.prototype.exps.FullName,
-										true,
-										null
-									]
-									,[
-										2,
-										" : "
-									]
-								]
-								,[
-									20,
-									4,
-									cr.plugins_.PhonegapFacebookPB.prototype.exps.FirstName,
-									true,
-									null
-								]
-							]
-							,[
-								2,
-								" : "
-							]
-						]
-						,[
-							20,
-							4,
-							cr.plugins_.PhonegapFacebookPB.prototype.exps.LastName,
-							true,
-							null
-						]
-					]
-				]
-				]
-			]
-			]
-		]
-,		[
-			0,
-			null,
-			false,
-			null,
-			3155957695885309,
-			[
-			[
-				12,
-				cr.plugins_.Button.prototype.cnds.OnClicked,
-				null,
-				1,
-				false,
-				false,
-				false,
-				3757393176130674,
-				false
-			]
-			],
-			[
-			]
-			,[
-			[
-				0,
-				null,
-				false,
-				null,
-				5256880519292109,
-				[
-				[
-					4,
-					cr.plugins_.PhonegapFacebookPB.prototype.cnds.IsLoggedIn,
-					null,
-					0,
-					false,
-					false,
-					false,
-					4659042714049528,
-					false
-				]
-				],
-				[
-				[
-					1,
-					cr.plugins_.Browser.prototype.acts.Alert,
-					null,
-					3469794196868611,
-					false
-					,[
-					[
-						7,
-						[
-							2,
-							"user is logged in"
-						]
-					]
-					]
-				]
-				]
-			]
-,			[
-				0,
-				null,
-				false,
-				null,
-				6929392899591512,
-				[
-				[
-					-1,
-					cr.system_object.prototype.cnds.Else,
-					null,
-					0,
-					false,
-					false,
-					false,
-					7660870706243549,
-					false
-				]
-				],
-				[
-				[
-					1,
-					cr.plugins_.Browser.prototype.acts.Alert,
-					null,
-					7016225367610273,
-					false
-					,[
-					[
-						7,
-						[
-							2,
-							"user is not logged in"
-						]
-					]
-					]
-				]
-				]
-			]
-			]
-		]
-,		[
-			0,
-			null,
-			false,
-			null,
-			9220492766613913,
 			[
 			[
 				2,
-				cr.plugins_.Button.prototype.cnds.OnClicked,
+				cr.plugins_.Text.prototype.acts.SetText,
 				null,
-				1,
-				false,
-				false,
-				false,
-				6332451611656272,
-				false
-			]
-			],
-			[
-			[
-				4,
-				cr.plugins_.PhonegapFacebookPB.prototype.acts.LogOut,
-				null,
-				5110429715610709,
-				false
-			]
-			]
-		]
-,		[
-			0,
-			null,
-			false,
-			null,
-			9094129335068474,
-			[
-			[
-				4,
-				cr.plugins_.PhonegapFacebookPB.prototype.cnds.OnLogOut,
-				null,
-				1,
-				false,
-				false,
-				false,
-				2503766233398507,
-				false
-			]
-			],
-			[
-			[
-				1,
-				cr.plugins_.Browser.prototype.acts.Alert,
-				null,
-				9673601879583868,
-				false
-				,[
-				[
-					7,
-					[
-						2,
-						"user logged out"
-					]
-				]
-				]
-			]
-			]
-		]
-,		[
-			0,
-			null,
-			false,
-			null,
-			8059925469308005,
-			[
-			[
-				3,
-				cr.plugins_.Button.prototype.cnds.OnClicked,
-				null,
-				1,
-				false,
-				false,
-				false,
-				7333645725812578,
-				false
-			]
-			],
-			[
-			[
-				4,
-				cr.plugins_.PhonegapFacebookPB.prototype.acts.PromptWallPost,
-				null,
-				8664762371632461,
-				false
-			]
-			]
-		]
-,		[
-			0,
-			null,
-			false,
-			null,
-			6627291001360924,
-			[
-			[
-				5,
-				cr.plugins_.Button.prototype.cnds.OnClicked,
-				null,
-				1,
-				false,
-				false,
-				false,
-				801718943930972,
-				false
-			]
-			],
-			[
-			[
-				4,
-				cr.plugins_.PhonegapFacebookPB.prototype.acts.PromptToShareApp,
-				null,
-				24850610364953,
-				false
-				,[
-				[
-					1,
-					[
-						2,
-						"my name"
-					]
-				]
-,				[
-					1,
-					[
-						2,
-						"my caption"
-					]
-				]
-,				[
-					1,
-					[
-						2,
-						"my description"
-					]
-				]
-,				[
-					1,
-					[
-						2,
-						"https://static4.scirra.net/images/fresh/scirra-logo-01.png"
-					]
-				]
-				]
-			]
-			]
-		]
-,		[
-			0,
-			null,
-			false,
-			null,
-			167152659000886,
-			[
-			[
-				6,
-				cr.plugins_.Button.prototype.cnds.OnClicked,
-				null,
-				1,
-				false,
-				false,
-				false,
-				8661603133924039,
-				false
-			]
-			],
-			[
-			[
-				4,
-				cr.plugins_.PhonegapFacebookPB.prototype.acts.PromptToShareLink,
-				null,
-				6044854851522754,
-				false
-				,[
-				[
-					1,
-					[
-						2,
-						"https://www.scirra.com/"
-					]
-				]
-,				[
-					1,
-					[
-						2,
-						"my name"
-					]
-				]
-,				[
-					1,
-					[
-						2,
-						"my caption"
-					]
-				]
-,				[
-					1,
-					[
-						2,
-						"my description"
-					]
-				]
-,				[
-					1,
-					[
-						2,
-						"https://static4.scirra.net/images/fresh/scirra-logo-01.png"
-					]
-				]
-				]
-			]
-			]
-		]
-,		[
-			0,
-			null,
-			false,
-			null,
-			4742078550530219,
-			[
-			[
-				7,
-				cr.plugins_.Button.prototype.cnds.OnClicked,
-				null,
-				1,
-				false,
-				false,
-				false,
-				649209126983029,
-				false
-			]
-			],
-			[
-			[
-				4,
-				cr.plugins_.PhonegapFacebookPB.prototype.acts.PublishToWall,
-				null,
-				5358828604597593,
-				false
-				,[
-				[
-					1,
-					[
-						2,
-						"my message"
-					]
-				]
-				]
-			]
-			]
-		]
-,		[
-			0,
-			null,
-			false,
-			null,
-			4771066186741093,
-			[
-			[
-				8,
-				cr.plugins_.Button.prototype.cnds.OnClicked,
-				null,
-				1,
-				false,
-				false,
-				false,
-				1004736416261669,
-				false
-			]
-			],
-			[
-			[
-				4,
-				cr.plugins_.PhonegapFacebookPB.prototype.acts.PublishLink,
-				null,
-				7664460394057581,
-				false
-				,[
-				[
-					1,
-					[
-						2,
-						"my message"
-					]
-				]
-,				[
-					1,
-					[
-						2,
-						"https://www.scirra.com/"
-					]
-				]
-,				[
-					1,
-					[
-						2,
-						"my name"
-					]
-				]
-,				[
-					1,
-					[
-						2,
-						"my caption"
-					]
-				]
-,				[
-					1,
-					[
-						2,
-						"my description"
-					]
-				]
-,				[
-					1,
-					[
-						2,
-						"https://static4.scirra.net/images/fresh/scirra-logo-01.png"
-					]
-				]
-				]
-			]
-			]
-		]
-,		[
-			0,
-			null,
-			false,
-			null,
-			7214336391343296,
-			[
-			[
-				9,
-				cr.plugins_.Button.prototype.cnds.OnClicked,
-				null,
-				1,
-				false,
-				false,
-				false,
-				7982924055369472,
-				false
-			]
-			],
-			[
-			[
-				4,
-				cr.plugins_.PhonegapFacebookPB.prototype.acts.PublishScore,
-				null,
-				8108121146452115,
-				false
-				,[
-				[
-					0,
-					[
-						0,
-						5
-					]
-				]
-				]
-			]
-			]
-		]
-,		[
-			0,
-			null,
-			false,
-			null,
-			5310605126664218,
-			[
-			[
-				4,
-				cr.plugins_.PhonegapFacebookPB.prototype.cnds.OnScoreSubmitted,
-				null,
-				1,
-				false,
-				false,
-				false,
-				5435984614898685,
-				false
-			]
-			],
-			[
-			[
-				1,
-				cr.plugins_.Browser.prototype.acts.Alert,
-				null,
-				8961340022646982,
-				false
-				,[
-				[
-					7,
-					[
-						2,
-						"score submitted"
-					]
-				]
-				]
-			]
-			]
-		]
-,		[
-			0,
-			null,
-			false,
-			null,
-			2907206848630945,
-			[
-			[
-				10,
-				cr.plugins_.Button.prototype.cnds.OnClicked,
-				null,
-				1,
-				false,
-				false,
-				false,
-				3277112797299514,
-				false
-			]
-			],
-			[
-			[
-				4,
-				cr.plugins_.PhonegapFacebookPB.prototype.acts.RequestUserHiscore,
-				null,
-				6777605219408571,
-				false
-			]
-			]
-		]
-,		[
-			0,
-			null,
-			false,
-			null,
-			2031269882139691,
-			[
-			[
-				4,
-				cr.plugins_.PhonegapFacebookPB.prototype.cnds.OnUserTopScoreAvailable,
-				null,
-				1,
-				false,
-				false,
-				false,
-				8726912247076725,
-				false
-			]
-			],
-			[
-			[
-				1,
-				cr.plugins_.Browser.prototype.acts.Alert,
-				null,
-				4743239811966426,
+				3012058199294977,
 				false
 				,[
 				[
 					7,
 					[
 						20,
-						4,
-						cr.plugins_.PhonegapFacebookPB.prototype.exps.Score,
-						false,
-						null
-					]
-				]
-				]
-			]
-			]
-		]
-,		[
-			0,
-			null,
-			false,
-			null,
-			3728101550528236,
-			[
-			[
-				11,
-				cr.plugins_.Button.prototype.cnds.OnClicked,
-				null,
-				1,
-				false,
-				false,
-				false,
-				7904519662389267,
-				false
-			]
-			],
-			[
-			[
-				4,
-				cr.plugins_.PhonegapFacebookPB.prototype.acts.RequestHiscores,
-				null,
-				417784315690419,
-				false
-				,[
-				[
-					0,
-					[
 						0,
-						10
-					]
-				]
-				]
-			]
-			]
-		]
-,		[
-			0,
-			null,
-			false,
-			null,
-			196822697185466,
-			[
-			[
-				4,
-				cr.plugins_.PhonegapFacebookPB.prototype.cnds.OnHiscore,
-				null,
-				1,
-				false,
-				false,
-				false,
-				1354479972824284,
-				false
-			]
-			],
-			[
-			[
-				1,
-				cr.plugins_.Browser.prototype.acts.Alert,
-				null,
-				3723695182385678,
-				false
-				,[
-				[
-					7,
-					[
-						10,
-						[
-							10,
-							[
-								10,
-								[
-									10,
-									[
-										10,
-										[
-											10,
-											[
-												20,
-												4,
-												cr.plugins_.PhonegapFacebookPB.prototype.exps.HiscoreRank,
-												false,
-												null
-											]
-											,[
-												2,
-												" : "
-											]
-										]
-										,[
-											20,
-											4,
-											cr.plugins_.PhonegapFacebookPB.prototype.exps.Score,
-											false,
-											null
-										]
-									]
-									,[
-										2,
-										" : "
-									]
-								]
-								,[
-									20,
-									4,
-									cr.plugins_.PhonegapFacebookPB.prototype.exps.HiscoreName,
-									true,
-									null
-								]
-							]
-							,[
-								2,
-								" : "
-							]
-						]
-						,[
-							20,
-							4,
-							cr.plugins_.PhonegapFacebookPB.prototype.exps.HiscoreUserID,
-							false,
-							null
-						]
+						cr.plugins_.Facebook2_1.prototype.exps.UserLoginStatus,
+						true,
+						null
 					]
 				]
 				]
@@ -15684,9 +14544,9 @@ cr.getProjectModel = function() { return [
 	],
 	"media/",
 	false,
-	320,
+	640,
 	480,
-	3,
+	4,
 	true,
 	true,
 	true,
@@ -15694,8 +14554,8 @@ cr.getProjectModel = function() { return [
 	true,
 	false,
 	0,
-	0,
-	13,
+	2,
+	3,
 	false,
 	true,
 	1,

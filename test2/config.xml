@@ -16,8 +16,19 @@
 	<preference name="fullscreen" value="false" />
 	<preference name="target-device" value="universal" />
 
-<gap:plugin name="com.phonegap.plugins.facebookconnect" version="0.4.0">
-    <param name="APP_ID" value="576508812455924" />
-    <param name="APP_NAME" value="01742008196573526abc4ae1bbeb7104" />
-</gap:plugin>
+	<!-- Optional splash screen image, e.g.: -->
+	<!-- <gap:splash src="splash.png" width="1024" height="768" /> -->
+	<access origin="*" />
+	<feature name="NetworkStatus">
+    		<param name="android-package" value="org.apache.cordova.NetworkManager" />
+	</feature>
+	<gap:plugin name="org.apache.cordova.inappbrowser" />
+
+	<plugins>
+		<plugin name="InAppBrowser" value="CDVInAppBrowser" />
+	</plugins>
+
+	<feature name="InAppBrowser">
+		<param name="ios-package" value="CDVInAppBrowser" />
+	</feature>
 </widget>
